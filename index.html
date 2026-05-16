@@ -1,0 +1,2885 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dossiê Estatístico v2 — Regressão & Análise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Karla:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4.4.3/build/index.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root {
+  --bg: #f8f7f4;
+  --surface: #f0ede8;
+  --surface2: #e8e4dd;
+  --card: #ffffff;
+  --text: #1a1814;
+  --text2: #5a554e;
+  --muted: #9e9890;
+  --line: #e2ddd7;
+
+  --ink: #1a1814;
+  --rust: #c0392b;
+  --rust-light: rgba(192,57,43,0.1);
+  --teal: #0a7c6e;
+  --teal-light: rgba(10,124,110,0.1);
+  --navy: #1a3a5c;
+  --navy-light: rgba(26,58,92,0.1);
+  --gold: #c47a00;
+  --gold-light: rgba(196,122,0,0.1);
+  --plum: #6b2e7e;
+  --plum-light: rgba(107,46,126,0.1);
+  --slate: #374151;
+
+  --grad-hero: linear-gradient(135deg, #1a3a5c 0%, #0a7c6e 60%, #c0392b 100%);
+  --grad-teal: linear-gradient(135deg, #0a7c6e, #1a5c4a);
+  --grad-rust: linear-gradient(135deg, #c0392b, #a93226);
+  --grad-navy: linear-gradient(135deg, #1a3a5c, #0f2240);
+
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.07);
+  --shadow-md: 0 6px 20px rgba(0,0,0,0.09);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.12);
+
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Karla', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+
+  --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
+
+/* ============ SHELL ============ */
+.shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: 56px 1fr;
+  grid-template-areas: "topbar topbar" "sidebar main";
+  min-height: 100vh;
+}
+
+/* ============ TOPBAR ============ */
+.topbar {
+  grid-area: topbar;
+  background: var(--ink);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+.topbar-logo {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+}
+.topbar-logo-badge {
+  background: var(--rust);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.06em;
+}
+.topbar-sep { width: 1px; height: 24px; background: rgba(255,255,255,0.15); }
+.topbar-subtitle {
+  color: rgba(255,255,255,0.55);
+  font-size: 13px;
+  font-weight: 400;
+}
+.topbar-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.topbar-btn {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.85);
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.topbar-btn:hover { background: rgba(255,255,255,0.18); color: #fff; }
+.topbar-btn.active { background: var(--rust); border-color: var(--rust); color: #fff; }
+
+/* ============ SIDEBAR ============ */
+.sidebar {
+  grid-area: sidebar;
+  background: var(--ink);
+  border-right: none;
+  padding: 20px 0;
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-section-label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  padding: 0 20px 8px;
+  margin-top: 16px;
+}
+.sidebar-section-label:first-child { margin-top: 0; }
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 20px;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.5);
+  border-left: 3px solid transparent;
+  position: relative;
+}
+.sidebar-nav-item:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.05); }
+.sidebar-nav-item.active { color: #fff; background: rgba(255,255,255,0.08); border-left-color: var(--rust); }
+.sidebar-nav-item .nav-icon { font-size: 15px; width: 22px; text-align: center; }
+.sidebar-step-dot {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.sidebar-nav-item.done .sidebar-step-dot { background: var(--teal); color: #fff; }
+.sidebar-nav-item.active .sidebar-step-dot { background: var(--rust); color: #fff; }
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+.sidebar-version {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgba(255,255,255,0.25);
+}
+
+/* ============ MAIN ============ */
+.main-content {
+  grid-area: main;
+  padding: 32px 36px;
+  max-width: 960px;
+  overflow-y: auto;
+}
+.view { display: none; }
+.view.active { display: block; }
+.view-enter { animation: fadeUp 0.3s ease; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ============ PAGE HEADER ============ */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 28px;
+  padding-bottom: 22px;
+  border-bottom: 2px solid var(--ink);
+}
+.page-title-group {}
+.page-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--rust);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.page-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  line-height: 1.1;
+}
+.page-sub {
+  color: var(--text2);
+  font-size: 14px;
+  margin-top: 5px;
+}
+.page-action {}
+
+/* ============ CARDS ============ */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+  transition: var(--transition);
+}
+.card:hover { box-shadow: var(--shadow-sm); }
+.card-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card-title-icon {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+}
+.c-teal { background: var(--teal-light); }
+.c-rust { background: var(--rust-light); }
+.c-navy { background: var(--navy-light); }
+.c-gold { background: var(--gold-light); }
+.c-plum { background: var(--plum-light); }
+
+/* ============ FORMS ============ */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+label {
+  font-family: var(--font-display);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+input[type="text"], input[type="number"], select, textarea {
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text);
+  transition: var(--transition);
+  outline: none;
+  width: 100%;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--teal);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(10,124,110,0.1);
+}
+textarea { resize: vertical; font-family: var(--font-mono); font-size: 13px; line-height: 1.55; }
+.field-hint {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* ============ BUTTONS ============ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--teal); color: #fff; }
+.btn-primary:hover { background: #086b5e; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-danger { background: var(--rust); color: #fff; }
+.btn-danger:hover { background: #a93226; }
+.btn-ghost {
+  background: transparent;
+  border: 1.5px solid var(--line);
+  color: var(--text2);
+}
+.btn-ghost:hover { border-color: var(--text2); color: var(--text); background: var(--surface); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ============ RESULT BOX ============ */
+.result-box {
+  background: var(--ink);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: rgba(255,255,255,0.9);
+  white-space: pre-wrap;
+  overflow-x: auto;
+  min-height: 80px;
+  margin-bottom: 16px;
+}
+
+/* ============ KPI STRIP ============ */
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  text-align: center;
+  transition: var(--transition);
+}
+.kpi-card:hover { box-shadow: var(--shadow-sm); }
+.kpi-label {
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.kpi-value {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1;
+}
+.kpi-note { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.kpi-card.highlight-teal { border-color: var(--teal); }
+.kpi-card.highlight-teal .kpi-value { color: var(--teal); }
+.kpi-card.highlight-rust { border-color: var(--rust); }
+.kpi-card.highlight-rust .kpi-value { color: var(--rust); }
+
+/* ============ CHART WRAP ============ */
+.chart-wrap {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.chart-wrap.hidden { display: none; }
+.chart-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-bottom: 14px;
+  color: var(--text2);
+  text-transform: uppercase;
+}
+.chart-explain {
+  font-size: 13px;
+  color: var(--text2);
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--teal);
+}
+
+/* ============ BADGE ============ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.badge-teal { background: var(--teal-light); color: var(--teal); }
+.badge-rust { background: var(--rust-light); color: var(--rust); }
+.badge-gold { background: var(--gold-light); color: var(--gold); }
+.badge-muted { background: var(--surface2); color: var(--muted); }
+
+/* ============ PREMISE GRID ============ */
+.premise-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.premise-card {
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: var(--transition);
+}
+.premise-card.ok { border-color: var(--teal); background: rgba(10,124,110,0.03); }
+.premise-card.fail { border-color: var(--rust); background: rgba(192,57,43,0.03); }
+.premise-card.warn { border-color: var(--gold); background: rgba(196,122,0,0.03); }
+.premise-name { font-family: var(--font-display); font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.premise-detail { font-size: 12px; color: var(--text2); line-height: 1.45; }
+
+/* ============ RECO BOX ============ */
+.reco-box {
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  border-left: 4px solid var(--teal);
+  background: var(--teal-light);
+}
+.reco-box.warn { border-left-color: var(--gold); background: var(--gold-light); }
+.reco-title { font-family: var(--font-display); font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.reco-text { font-size: 13.5px; line-height: 1.6; }
+
+/* ============ NAV BTNS ============ */
+.nav-btns {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+/* ============ TOGGLE ============ */
+.toggle-group { display: flex; gap: 6px; flex-wrap: wrap; }
+.toggle-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  color: var(--text2);
+  transition: var(--transition);
+  letter-spacing: 0.02em;
+}
+.toggle-btn.active { background: var(--teal); border-color: var(--teal); color: #fff; }
+.toggle-btn:hover:not(.active) { border-color: var(--teal); color: var(--teal); }
+
+/* ============ MULTI-X MANAGER ============ */
+.multi-x-wrap {
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.multi-x-header {
+  font-family: var(--font-display);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text2);
+  margin-bottom: 10px;
+}
+.x-tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; min-height: 32px; align-items: center; }
+.x-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--navy);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.x-tag:hover { background: var(--rust); }
+.x-tag-empty {
+  font-size: 12px;
+  color: var(--muted);
+  font-style: italic;
+}
+.x-add-row { display: flex; gap: 8px; align-items: center; }
+.x-add-row input { flex: 1; }
+
+/* ============ REGRESSION TABLE ============ */
+.reg-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-family: var(--font-mono);
+  margin-top: 8px;
+}
+.reg-table th {
+  background: var(--ink);
+  color: rgba(255,255,255,0.85);
+  font-family: var(--font-display);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  text-align: right;
+}
+.reg-table th:first-child { text-align: left; }
+.reg-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+  color: var(--text);
+}
+.reg-table td:first-child {
+  text-align: left;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12px;
+}
+.reg-table tr:last-child td { border-bottom: none; }
+.reg-table tr:hover td { background: var(--surface); }
+.sig-star { color: var(--rust); font-weight: 700; }
+
+/* ============ DEMO DATA AREA ============ */
+.demo-format-box {
+  background: var(--ink);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+.demo-format-box .comment { color: rgba(255,255,255,0.35); }
+
+/* ============ HERO DASH ============ */
+.hero-dash {
+  background: var(--grad-hero);
+  border-radius: var(--radius-xl);
+  padding: 32px 36px;
+  color: #fff;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-dash::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+}
+.hero-dash::after {
+  content: '';
+  position: absolute;
+  bottom: -40px; left: 40px;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+}
+.hero-title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin-bottom: 8px;
+  position: relative;
+}
+.hero-sub {
+  font-size: 14px;
+  opacity: 0.75;
+  margin-bottom: 24px;
+  position: relative;
+}
+.hero-stats {
+  display: flex;
+  gap: 28px;
+  position: relative;
+}
+.hero-stat-val {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+}
+.hero-stat-label {
+  font-size: 11px;
+  opacity: 0.6;
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ============ STEP FLOW ============ */
+.step-flow {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.step-item {
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.step-item:hover { border-color: var(--teal); box-shadow: var(--shadow-sm); }
+.step-item.active { border-color: var(--teal); background: var(--teal-light); }
+.step-item.done { border-color: var(--teal); background: var(--teal-light); opacity: 0.7; }
+.step-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.step-item.active .step-num, .step-item.done .step-num { color: var(--teal); }
+.step-name {
+  font-family: var(--font-display);
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text2);
+  line-height: 1.3;
+}
+.step-item.active .step-name { color: var(--teal); }
+
+/* ============ UPLOAD ZONE ============ */
+.upload-zone {
+  border: 2px dashed var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
+  background: var(--surface);
+  margin-bottom: 14px;
+}
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--teal);
+  background: var(--teal-light);
+}
+.upload-zone-icon { font-size: 24px; margin-bottom: 6px; }
+.upload-zone-text { font-size: 13px; color: var(--text2); }
+.upload-zone-hint { font-size: 11.5px; color: var(--muted); margin-top: 4px; }
+input[type="file"] { display: none; }
+
+/* ============ TOAST ============ */
+#toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--ink);
+  color: #fff;
+  padding: 11px 22px;
+  border-radius: 99px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 9999;
+  transition: 0.35s cubic-bezier(0.22,1,0.36,1);
+  pointer-events: none;
+  box-shadow: var(--shadow-lg);
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+#toast.t-success { background: var(--teal); }
+#toast.t-error { background: var(--rust); }
+#toast.t-info { background: var(--navy); }
+
+/* ============ SPINNER ============ */
+.spinner {
+  display: inline-block;
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============ RESIDUALS STRIP ============ */
+.residuals-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+/* ============ INTERPRETATION BOX ============ */
+.interp-box {
+  background: #f9f7f4;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--navy);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+  margin-top: 14px;
+  display: none;
+}
+.interp-box.show { display: block; }
+
+/* ============ CHECKLIST ============ */
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.checklist-item:hover { border-color: var(--teal); }
+.checklist-item.checked { border-color: var(--teal); background: var(--teal-light); }
+.checklist-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--teal); margin-top: 2px; cursor: pointer; }
+.checklist-text strong { font-family: var(--font-display); font-size: 13px; display: block; margin-bottom: 2px; }
+.checklist-text span { font-size: 12px; color: var(--text2); }
+
+/* ============ MOBILE NAV ============ */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--ink);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  z-index: 300;
+  padding: 6px 0 env(safe-area-inset-bottom, 6px);
+}
+.mobile-nav-items {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.mobile-nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgba(255,255,255,0.45);
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: var(--transition);
+  min-width: 52px;
+}
+.mobile-nav-btn .mnav-icon { font-size: 18px; line-height: 1; }
+.mobile-nav-btn.active { color: var(--rust); }
+.mobile-nav-btn:hover { color: rgba(255,255,255,0.8); }
+
+/* Overlay do menu lateral mobile */
+.mobile-menu-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 400;
+}
+.mobile-menu-overlay.open { display: block; }
+.mobile-menu-drawer {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 78vw; max-width: 280px;
+  background: var(--ink);
+  z-index: 500;
+  overflow-y: auto;
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(0.22,1,0.36,1);
+  padding: 20px 0 40px;
+}
+.mobile-menu-drawer.open { transform: translateX(0); }
+.mobile-drawer-close {
+  position: absolute;
+  top: 14px; right: 14px;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: #fff;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 820px) {
+  .shell {
+    grid-template-columns: 1fr;
+    grid-template-areas: "topbar" "main";
+  }
+  .sidebar { display: none; }
+  .mobile-nav { display: block; }
+  .main-content {
+    padding: 18px 14px 90px; /* espaço para nav bar fixa */
+    max-width: 100%;
+  }
+  .kpi-strip { grid-template-columns: 1fr 1fr; }
+  .step-flow { grid-template-columns: repeat(3,1fr); }
+  .form-grid, .form-grid-3, .premise-grid { grid-template-columns: 1fr; }
+  .hero-dash { padding: 20px 18px; border-radius: var(--radius-lg); }
+  .hero-title { font-size: 22px; }
+  .hero-stats { gap: 18px; }
+  .hero-stat-val { font-size: 20px; }
+  .topbar-subtitle { display: none; }
+  .topbar-sep { display: none; }
+  .topbar-actions { gap: 6px; }
+  .topbar-btn { padding: 5px 10px; font-size: 11.5px; }
+  .page-title { font-size: 22px; }
+  .residuals-strip { grid-template-columns: 1fr; }
+  .reg-table { font-size: 11.5px; }
+  .reg-table th, .reg-table td { padding: 6px 8px; }
+  .card { padding: 16px; }
+  .multi-x-wrap { padding: 12px; }
+  .x-add-row { flex-wrap: wrap; }
+  .btn-row { flex-wrap: wrap; }
+  .nav-btns { flex-direction: column; gap: 8px; }
+  .nav-btns .btn { width: 100%; justify-content: center; }
+  .demo-format-box { font-size: 11px; }
+}
+@media (max-width: 480px) {
+  .kpi-strip { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .step-flow { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .kpi-value { font-size: 18px; }
+  .hero-title { font-size: 20px; }
+  .page-title { font-size: 19px; }
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- ========== TOPBAR ========== -->
+<header class="topbar">
+  <div class="topbar-logo">
+    <span>Dossiê Estatístico</span>
+    <span class="topbar-logo-badge">v2</span>
+  </div>
+  <div class="topbar-sep"></div>
+  <span class="topbar-subtitle">Plataforma Educacional Científica</span>
+  <div class="topbar-actions">
+    <button class="topbar-btn" onclick="navTo('planilhas')">📥 Modelos</button>
+    <button class="topbar-btn" onclick="navTo('ajuda')">📖 Ajuda</button>
+  </div>
+</header>
+
+<!-- ========== MOBILE NAV ========== -->
+<div class="mobile-nav">
+  <div class="mobile-nav-items">
+    <button class="mobile-nav-btn active" id="mnav-inicio" onclick="mnavTo('inicio')">
+      <span class="mnav-icon">⌂</span>Início
+    </button>
+    <button class="mobile-nav-btn" id="mnav-dados" onclick="mnavTo('dados')">
+      <span class="mnav-icon">📂</span>Dados
+    </button>
+    <button class="mobile-nav-btn" id="mnav-analise" onclick="mnavTo('analise')">
+      <span class="mnav-icon">📊</span>Análise
+    </button>
+    <button class="mobile-nav-btn" id="mnav-regressao" onclick="mnavTo('regressao')">
+      <span class="mnav-icon">📈</span>Regressão
+    </button>
+    <button class="mobile-nav-btn" id="mnav-menu" onclick="openMobileMenu()">
+      <span class="mnav-icon">☰</span>Menu
+    </button>
+  </div>
+</div>
+
+<!-- ========== MOBILE DRAWER ========== -->
+<div class="mobile-menu-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
+<div class="mobile-menu-drawer" id="mobileDrawer">
+  <button class="mobile-drawer-close" onclick="closeMobileMenu()">✕</button>
+  <div style="padding: 16px 0 8px 20px">
+    <div style="font-family:var(--font-display);font-size:16px;font-weight:800;color:#fff">Dossiê v2</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px">Menu completo</div>
+  </div>
+  <div style="height:1px;background:rgba(255,255,255,0.08);margin:8px 0 12px"></div>
+  <div class="sidebar-nav-item" onclick="mnavTo('inicio');closeMobileMenu()"><span class="nav-icon">⌂</span> Painel</div>
+  <div style="padding:6px 20px;font-size:10px;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.3);text-transform:uppercase">Fluxo</div>
+  <div class="sidebar-nav-item" onclick="mnavTo('planejamento');closeMobileMenu()"><span class="nav-icon">📋</span> Planejamento</div>
+  <div class="sidebar-nav-item" onclick="mnavTo('dados');closeMobileMenu()"><span class="nav-icon">📂</span> Dados</div>
+  <div class="sidebar-nav-item" onclick="mnavTo('premissas');closeMobileMenu()"><span class="nav-icon">🔬</span> Premissas</div>
+  <div class="sidebar-nav-item" onclick="mnavTo('analise');closeMobileMenu()"><span class="nav-icon">📊</span> Análise</div>
+  <div class="sidebar-nav-item" onclick="mnavTo('resultados');closeMobileMenu()"><span class="nav-icon">✅</span> Resultados</div>
+  <div style="padding:6px 20px;font-size:10px;font-weight:700;letter-spacing:0.1em;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-top:8px">Módulos</div>
+  <div class="sidebar-nav-item" onclick="mnavTo('regressao');closeMobileMenu()"><span class="nav-icon">📈</span> Regressão Múltipla</div>
+  <div class="sidebar-nav-item" onclick="mnavTo('planilhas');closeMobileMenu()"><span class="nav-icon">📥</span> Baixar Modelos</div>
+  <div class="sidebar-nav-item" onclick="mnavTo('decisao');closeMobileMenu()"><span class="nav-icon">🧭</span> Árvore de Decisão</div>
+  <div class="sidebar-nav-item" onclick="mnavTo('ajuda');closeMobileMenu()"><span class="nav-icon">📖</span> Guia Rápido</div>
+</div>
+
+<!-- ========== SIDEBAR ========== -->
+<nav class="sidebar">
+  <div class="sidebar-section-label">Início</div>
+  <div class="sidebar-nav-item active" id="snav-inicio" onclick="navTo('inicio')">
+    <span class="nav-icon">⌂</span> Painel
+  </div>
+
+  <div class="sidebar-section-label">Fluxo de análise</div>
+  <div class="sidebar-nav-item" id="snav-planejamento" onclick="navTo('planejamento')">
+    <span class="nav-icon">📋</span> Planejamento
+    <span class="sidebar-step-dot" id="sp0">1</span>
+  </div>
+  <div class="sidebar-nav-item" id="snav-dados" onclick="navTo('dados')">
+    <span class="nav-icon">📂</span> Dados
+    <span class="sidebar-step-dot" id="sp1">2</span>
+  </div>
+  <div class="sidebar-nav-item" id="snav-premissas" onclick="navTo('premissas')">
+    <span class="nav-icon">🔬</span> Premissas
+    <span class="sidebar-step-dot" id="sp2">3</span>
+  </div>
+  <div class="sidebar-nav-item" id="snav-analise" onclick="navTo('analise')">
+    <span class="nav-icon">📊</span> Análise
+    <span class="sidebar-step-dot" id="sp3">4</span>
+  </div>
+  <div class="sidebar-nav-item" id="snav-resultados" onclick="navTo('resultados')">
+    <span class="nav-icon">✅</span> Resultados
+    <span class="sidebar-step-dot" id="sp4">5</span>
+  </div>
+
+  <div class="sidebar-section-label" style="margin-top:12px">Regressão</div>
+  <div class="sidebar-nav-item" id="snav-regressao" onclick="navTo('regressao')">
+    <span class="nav-icon">📈</span> Módulo Regressão
+  </div>
+
+  
+  <div class="sidebar-section-label" style="margin-top:12px">Planilhas-modelo</div>
+  <div class="sidebar-nav-item" id="snav-planilhas" onclick="navTo('planilhas')">
+    <span class="nav-icon">📥</span> Baixar Modelos
+  </div>
+  <div class="sidebar-section-label" style="margin-top:12px">Referência</div>
+  <div class="sidebar-nav-item" id="snav-decisao" onclick="navTo('decisao')">
+    <span class="nav-icon">🧭</span> Árvore de Decisão
+  </div>
+  <div class="sidebar-nav-item" id="snav-ajuda" onclick="navTo('ajuda')">
+    <span class="nav-icon">📖</span> Guia Rápido
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-version">Dossiê Estatístico v2.0 · 2025<br>UNEMAT — Campus Cáceres</div>
+  </div>
+</nav>
+
+<!-- ========== MAIN ========== -->
+<main class="main-content">
+
+<!-- ========== INÍCIO ========== -->
+<div class="view active" id="view-inicio">
+  <div class="hero-dash">
+    <div class="hero-title">Dossiê<br>Estatístico <span style="opacity:0.5">v2</span></div>
+    <div class="hero-sub">Análise estatística educacional e científica — agora com regressão múltipla</div>
+    <div class="hero-stats">
+      <div>
+        <div class="hero-stat-val" id="hs-n">0</div>
+        <div class="hero-stat-label">Observações</div>
+      </div>
+      <div>
+        <div class="hero-stat-val" id="hs-g">0</div>
+        <div class="hero-stat-label">Grupos</div>
+      </div>
+      <div>
+        <div class="hero-stat-val" id="hs-pct">0%</div>
+        <div class="hero-stat-label">Concluído</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-flow">
+    <div class="step-item" onclick="navTo('planejamento')">
+      <div class="step-num">01</div>
+      <div class="step-name">Plane-jamento</div>
+    </div>
+    <div class="step-item" onclick="navTo('dados')">
+      <div class="step-num">02</div>
+      <div class="step-name">Inserir Dados</div>
+    </div>
+    <div class="step-item" onclick="navTo('premissas')">
+      <div class="step-num">03</div>
+      <div class="step-name">Verificar Premissas</div>
+    </div>
+    <div class="step-item" onclick="navTo('analise')">
+      <div class="step-num">04</div>
+      <div class="step-name">Executar Análise</div>
+    </div>
+    <div class="step-item" onclick="navTo('resultados')">
+      <div class="step-num">05</div>
+      <div class="step-name">Ver Resultados</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">
+      <span class="card-title-icon c-rust">📈</span>
+      Novo em v2 — Regressão Múltipla
+    </div>
+    <p style="font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:14px">
+      O módulo de regressão foi completamente reescrito. Agora é possível adicionar múltiplas variáveis preditoras (X1, X2, X3...), obter o R² e R² ajustado, ver a tabela de coeficientes com valores-p individuais, e comparar visualmente os ajustes por grupo/tratamento.
+    </p>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="navTo('regressao')">📈 Ir para Regressão Múltipla</button>
+      <button class="btn btn-ghost" onclick="navTo('dados')">📂 Inserir dados primeiro</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PLANEJAMENTO ========== -->
+<div class="view" id="view-planejamento">
+  <div class="page-header">
+    <div class="page-title-group">
+      <div class="page-tag">Etapa 01</div>
+      <div class="page-title">Planejamento</div>
+      <div class="page-sub">Registre as informações do estudo antes de inserir os dados</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="card-title-icon c-navy">📋</span> Identificação do Estudo</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Nome do pesquisador</label>
+        <input type="text" id="studentName" placeholder="Ex.: Maria Souza">
+      </div>
+      <div class="field">
+        <label>Instituição</label>
+        <input type="text" id="institutionName" placeholder="Ex.: UNEMAT">
+      </div>
+    </div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Disciplina / Projeto</label>
+        <input type="text" id="disciplineName" placeholder="Ex.: Bioestatística, TCC, Artigo">
+      </div>
+      <div class="field">
+        <label>Variável resposta (Y)</label>
+        <input type="text" id="varYName" placeholder="Ex.: Biomassa (g/m²)">
+      </div>
+    </div>
+    <div class="field">
+      <label>Hipótese / Objetivo</label>
+      <textarea id="hypothesisText" rows="3" placeholder="Descreva a hipótese ou o objetivo da análise..."></textarea>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="card-title-icon c-teal">✅</span> Critérios de Qualidade</div>
+    <div class="checklist-item" id="ck-wrap-rep" onclick="toggleCk('ckRep','ck-wrap-rep')">
+      <input type="checkbox" id="ckRep">
+      <div class="checklist-text">
+        <strong>Réplicas verdadeiras</strong>
+        <span>Cada tratamento tem ao menos 3 repetições independentes</span>
+      </div>
+    </div>
+    <div class="checklist-item" id="ck-wrap-pad" onclick="toggleCk('ckPad','ck-wrap-pad')">
+      <input type="checkbox" id="ckPad">
+      <div class="checklist-text">
+        <strong>Padronização</strong>
+        <span>Protocolo de coleta e mensuração foi o mesmo para todas as amostras</span>
+      </div>
+    </div>
+    <div class="checklist-item" id="ck-wrap-ind" onclick="toggleCk('ckInd','ck-wrap-ind')">
+      <input type="checkbox" id="ckInd">
+      <div class="checklist-text">
+        <strong>Independência</strong>
+        <span>Amostras são independentes entre si (sem pseudo-replicação)</span>
+      </div>
+    </div>
+    <div class="checklist-item" id="ck-wrap-time" onclick="toggleCk('ckTime','ck-wrap-time')">
+      <input type="checkbox" id="ckTime">
+      <div class="checklist-text">
+        <strong>Registro temporal</strong>
+        <span>Data e condições de coleta foram documentadas</span>
+      </div>
+    </div>
+    <div id="checklistInsight" style="font-size:13px;margin-top:12px;padding:10px 14px;border-radius:var(--radius-sm);border-left:3px solid var(--muted);background:var(--surface);color:var(--text2)">
+      Marque os critérios para avaliar a qualidade dos dados.
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <span></span>
+    <button class="btn btn-primary" onclick="validateStep0()">Próximo: Dados →</button>
+  </div>
+</div>
+
+<!-- ========== DADOS ========== -->
+<div class="view" id="view-dados">
+  <div class="page-header">
+    <div class="page-title-group">
+      <div class="page-tag">Etapa 02</div>
+      <div class="page-title">Dados</div>
+      <div class="page-sub">Cole, importe ou use um exemplo para começar</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="card-title-icon c-teal">📂</span> Importar Arquivo</div>
+    <label class="upload-zone" id="uploadZone" for="csvFile">
+      <div class="upload-zone-icon">⬆️</div>
+      <div class="upload-zone-text">Arraste CSV, TXT ou XLSX aqui</div>
+      <div class="upload-zone-hint">ou clique para selecionar</div>
+    </label>
+    <input type="file" id="csvFile" accept=".csv,.txt,.xlsx,.xls">
+    <div id="fileNameDisplay" style="font-size:12px;color:var(--muted);margin-top:6px"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="card-title-icon c-navy">✏️</span> Entrada Manual</div>
+
+    <div class="demo-format-box">
+      <span class="comment"># Formatos aceitos (separador: vírgula, ponto-e-vírgula ou tab)</span><br>
+      <span class="comment"># 1 coluna: apenas Y</span><br>
+      23.1<br>24.5<br>
+      <span class="comment"># 2 colunas: Grupo, Y</span><br>
+      GrupoA, 23.1<br>GrupoB, 28.3<br>
+      <span class="comment"># 3 colunas: Grupo, X, Y</span><br>
+      Site1, 12.3, 45.6<br>
+      <span class="comment"># 4+ colunas: para regressão múltipla, use o Módulo Regressão ↓</span>
+    </div>
+
+    <div class="field">
+      <label>Cabeçalho na primeira linha?</label>
+      <div class="toggle-group">
+        <button class="toggle-btn" id="hdrYes" onclick="setHeaderMode(true)">Sim</button>
+        <button class="toggle-btn active" id="hdrNo" onclick="setHeaderMode(false)">Não</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Dados</label>
+      <textarea id="dataInput" rows="10" placeholder="Cole seus dados aqui..."></textarea>
+    </div>
+
+    <div id="varTypeRow" class="hidden" style="margin-bottom:10px">
+      <span style="font-size:12px;color:var(--text2);font-family:var(--font-display);font-weight:700;letter-spacing:0.05em;text-transform:uppercase;margin-right:6px">Colunas detectadas:</span>
+      <span id="varTypeChips"></span>
+    </div>
+
+    <div class="field">
+      <label>Exemplos rápidos</label>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="setDemo(1)">2 grupos</button>
+        <button class="btn btn-ghost btn-sm" onclick="setDemo(2)">4 grupos</button>
+        <button class="btn btn-ghost btn-sm" onclick="setDemo(3)">Bivariado X,Y</button>
+        <button class="btn btn-ghost btn-sm" onclick="setDemo(4)">Série temporal</button>
+        <button class="btn btn-ghost btn-sm" onclick="clearData()">🗑 Limpar</button>
+      </div>
+    </div>
+
+    <div id="dataPreviewWrap" class="hidden">
+      <div class="chart-title">Pré-visualização</div>
+      <div style="overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius-sm)">
+        <table id="dataPreviewTable" style="width:100%;border-collapse:collapse;font-size:13px;font-family:var(--font-mono)"></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-ghost" onclick="navTo('planejamento')">← Planejamento</button>
+    <button class="btn btn-primary" onclick="validateStep1()">Próximo: Premissas →</button>
+  </div>
+</div>
+
+<!-- ========== PREMISSAS ========== -->
+<div class="view" id="view-premissas">
+  <div class="page-header">
+    <div class="page-title-group">
+      <div class="page-tag">Etapa 03</div>
+      <div class="page-title">Premissas</div>
+      <div class="page-sub">Diagnóstico automático dos dados</div>
+    </div>
+    <button class="btn btn-primary" onclick="runPremises()">🔬 Verificar</button>
+  </div>
+
+  <div class="premise-grid">
+    <div class="premise-card na" id="pcNorm">
+      <div>
+        <div class="premise-name">📐 Normalidade</div>
+        <div class="premise-detail" id="pdNorm">Clique em "Verificar" para testar normalidade (Jarque-Bera + Shapiro-Wilk approx).</div>
+      </div>
+      <span class="badge badge-muted" id="psBadgeNorm">Aguardando</span>
+    </div>
+    <div class="premise-card na" id="pcLevene">
+      <div>
+        <div class="premise-name">⚖️ Homocedasticidade</div>
+        <div class="premise-detail" id="pdLevene">Verifica igualdade de variâncias entre grupos (Levene).</div>
+      </div>
+      <span class="badge badge-muted" id="psBadgeLevene">Aguardando</span>
+    </div>
+    <div class="premise-card na" id="pcN">
+      <div>
+        <div class="premise-name">📏 Tamanho amostral</div>
+        <div class="premise-detail" id="pdN">Avalia se N é suficiente para inferência confiável.</div>
+      </div>
+      <span class="badge badge-muted" id="psBadgeN">Aguardando</span>
+    </div>
+    <div class="premise-card na" id="pcIndep">
+      <div>
+        <div class="premise-name">🔗 Independência</div>
+        <div class="premise-detail" id="pdIndep">Baseada no checklist de planejamento.</div>
+      </div>
+      <span class="badge badge-muted" id="psBadgeIndep">Aguardando</span>
+    </div>
+  </div>
+
+  <div id="normChartWrap" class="chart-wrap hidden">
+    <div class="chart-title">Distribuição dos dados</div>
+    <canvas id="normChart" height="180"></canvas>
+    <div class="chart-explain" id="normChartExplain"></div>
+  </div>
+
+  <div id="qqChartWrap" class="chart-wrap hidden">
+    <div class="chart-title">Q-Q Plot</div>
+    <canvas id="qqChart" height="180"></canvas>
+    <div class="chart-explain" id="qqChartExplain"></div>
+  </div>
+
+  <div class="reco-box" id="recoBox" style="display:none">
+    <div class="reco-title" id="recoTitle">Recomendação</div>
+    <div class="reco-text" id="recoText"></div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-ghost" onclick="navTo('dados')">← Dados</button>
+    <button class="btn btn-primary" onclick="validateStep2()">Próximo: Análise →</button>
+  </div>
+</div>
+
+<!-- ========== ANALISE ========== -->
+<div class="view" id="view-analise">
+  <div class="page-header">
+    <div class="page-title-group">
+      <div class="page-tag">Etapa 04</div>
+      <div class="page-title">Análise</div>
+      <div class="page-sub">Configure e execute o teste estatístico</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="card-title-icon c-plum">🧪</span> Configuração</div>
+    <div class="form-grid">
+      <div class="field">
+        <label>Tipo de gráfico</label>
+        <select id="chartType">
+          <option value="boxplot">Boxplot</option>
+          <option value="bar">Colunas (média)</option>
+          <option value="scatter">Dispersão (X vs Y)</option>
+          <option value="line">Linha</option>
+          <option value="hist">Histograma</option>
+          <option value="pie">Pizza</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tipo de análise</label>
+        <select id="analysisType" onchange="updateDashboardStats()">
+          <option value="desc">Descritiva</option>
+          <option value="t">Teste t (2 grupos)</option>
+          <option value="anova">ANOVA (k grupos)</option>
+          <option value="mw">Mann-Whitney</option>
+          <option value="kw">Kruskal-Wallis</option>
+          <option value="corr">Correlação</option>
+          <option value="reg">Regressão linear simples</option>
+          <option value="polyreg">Regressão polinomial</option>
+          <option value="chi2">Qui-quadrado</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Método de correlação (quando aplicável)</label>
+      <select id="corrMethod">
+        <option value="pearson">Pearson (dados normais)</option>
+        <option value="spearman">Spearman (não paramétrico)</option>
+      </select>
+    </div>
+    <div style="margin-top:10px">
+      <button class="btn btn-danger" onclick="runAnalysis()">▶ Executar Análise</button>
+    </div>
+  </div>
+
+  <div class="card" id="testExplainerCard" style="display:none">
+    <div class="card-title"><span class="card-title-icon c-gold">📖</span> <span id="testExplainerTitle">Sobre o teste</span></div>
+    <div id="testExplainerBody" style="font-size:13.5px;color:var(--text2);line-height:1.7"></div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-ghost" onclick="navTo('premissas')">← Premissas</button>
+    <button class="btn btn-primary" onclick="navTo('resultados')">Ver Resultados →</button>
+  </div>
+</div>
+
+<!-- ========== RESULTADOS ========== -->
+<div class="view" id="view-resultados">
+  <div class="page-header">
+    <div class="page-title-group">
+      <div class="page-tag">Etapa 05</div>
+      <div class="page-title">Resultados</div>
+    </div>
+    <button class="btn btn-ghost" onclick="exportMD()">📋 Exportar</button>
+  </div>
+
+  <div class="kpi-strip">
+    <div class="kpi-card" id="kpN">
+      <div class="kpi-label">N</div>
+      <div class="kpi-value" id="kN">—</div>
+      <div class="kpi-note" id="kNNote"></div>
+    </div>
+    <div class="kpi-card" id="kpG">
+      <div class="kpi-label">Grupos</div>
+      <div class="kpi-value" id="kG">—</div>
+      <div class="kpi-note"></div>
+    </div>
+    <div class="kpi-card" id="kpP">
+      <div class="kpi-label">p-valor</div>
+      <div class="kpi-value" id="kP">—</div>
+      <div class="kpi-note" id="kPNote"></div>
+    </div>
+    <div class="kpi-card" id="kpNorm">
+      <div class="kpi-label">Normalidade</div>
+      <div class="kpi-value" id="kNorm" style="font-size:14px">—</div>
+      <div class="kpi-note" id="kNormNote"></div>
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <div class="chart-title" id="mainChartTitle">Gráfico</div>
+    <canvas id="chart" height="220"></canvas>
+    <div class="chart-explain" id="chartExplain"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="card-title-icon c-navy">📄</span> Saída numérica</div>
+    <div id="resultBox" class="result-box">Execute uma análise para ver os resultados.</div>
+    <button class="btn btn-ghost btn-sm" onclick="copyResult()">📋 Copiar resultado</button>
+  </div>
+
+  <div id="interpBox" class="interp-box">
+    <strong style="font-family:var(--font-display)">Interpretação:</strong>
+    <span id="interpText"></span>
+  </div>
+
+  <div class="nav-btns">
+    <button class="btn btn-ghost" onclick="navTo('analise')">← Análise</button>
+    <button class="btn btn-primary" onclick="generateInterpretation()">💬 Gerar interpretação</button>
+  </div>
+</div>
+
+<!-- ========== MÓDULO REGRESSÃO ========== -->
+<div class="view" id="view-regressao">
+  <div class="page-header">
+    <div class="page-title-group">
+      <div class="page-tag">Módulo Especial</div>
+      <div class="page-title">Regressão Múltipla</div>
+      <div class="page-sub">OLS com múltiplos preditores — R², R² ajustado, tabela de coeficientes</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="card-title-icon c-rust">📥</span> Dados para regressão</div>
+    <p style="font-size:13.5px;color:var(--text2);margin-bottom:14px;line-height:1.6">
+      Cole seus dados abaixo. Formato: <strong>Y, X1, X2, X3...</strong> (primeira coluna = variável resposta, demais = preditores). Pode incluir cabeçalho.
+    </p>
+    <div class="demo-format-box">
+      <span class="comment"># Com cabeçalho (recomendado)</span><br>
+      Biomassa, Temperatura, Precipitacao, pH<br>
+      45.2, 28.3, 145, 6.8<br>
+      38.1, 25.1, 120, 7.1<br>
+      <span class="comment"># Sem cabeçalho também funciona</span>
+    </div>
+
+    <div class="field">
+      <label>Cabeçalho na 1ª linha?</label>
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="regHdrYes" onclick="setRegHeader(true)">Sim</button>
+        <button class="toggle-btn" id="regHdrNo" onclick="setRegHeader(false)">Não</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Dados (Y, X1, X2...)</label>
+      <textarea id="regDataInput" rows="10" placeholder="Cole aqui os dados de regressão..."></textarea>
+    </div>
+
+    <div class="btn-row" style="margin-bottom:12px">
+      <button class="btn btn-ghost btn-sm" onclick="setRegDemo(1)">Exemplo simples (Y~X)</button>
+      <button class="btn btn-ghost btn-sm" onclick="setRegDemo(2)">Exemplo múltipla (Y~X1+X2+X3)</button>
+      <button class="btn btn-ghost btn-sm" onclick="setRegDemo(3)">Múltiplos grupos</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('regDataInput').value=''">🗑 Limpar</button>
+    </div>
+
+    <div id="regPreviewWrap" class="hidden">
+      <div class="chart-title">Pré-visualização — variáveis detectadas</div>
+      <div id="regVarChips" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
+      <div style="overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius-sm)">
+        <table id="regPreviewTable" style="width:100%;border-collapse:collapse;font-size:12.5px;font-family:var(--font-mono)"></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="card-title-icon c-teal">⚙️</span> Configuração do Modelo</div>
+
+    <div class="form-grid">
+      <div class="field">
+        <label>Variável resposta (Y)</label>
+        <select id="regSelY"></select>
+      </div>
+      <div class="field">
+        <label>Tipo de modelo</label>
+        <select id="regModelType" onchange="updateRegModelUI()">
+          <option value="ols">OLS — Mínimos Quadrados</option>
+          <option value="poly">Polinomial (grau 2)</option>
+          <option value="poly3">Polinomial (grau 3)</option>
+          <option value="log">Log-linear (ln X)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Variáveis preditoras (X)</label>
+      <div class="multi-x-wrap">
+        <div class="multi-x-header">Preditores selecionados — clique para remover</div>
+        <div class="x-tag-row" id="xTagRow">
+          <span class="x-tag-empty">Nenhum preditor adicionado</span>
+        </div>
+        <div class="x-add-row">
+          <select id="regSelX" style="flex:1"></select>
+          <button class="btn btn-ghost btn-sm" onclick="addPredictor()">+ Adicionar</button>
+          <button class="btn btn-ghost btn-sm" onclick="addAllPredictors()">+ Todos</button>
+        </div>
+      </div>
+      <div class="field-hint">Regressão múltipla: adicione 2 ou mais preditores. O modelo Y ~ X1 + X2 + ... será ajustado por OLS.</div>
+    </div>
+
+    <div class="field">
+      <label>Agrupar por tratamento? (opcional)</label>
+      <div class="toggle-group" id="regGroupToggle">
+        <button class="toggle-btn active" id="regGroupNo" onclick="setRegGroup(false)">Sem agrupamento</button>
+        <button class="toggle-btn" id="regGroupYes" onclick="setRegGroup(true)">Por grupo</button>
+      </div>
+    </div>
+    <div id="regGroupSelWrap" class="hidden">
+      <div class="field">
+        <label>Coluna de grupo / tratamento</label>
+        <select id="regSelGroup"></select>
+        <div class="field-hint">Cada grupo terá sua própria linha de regressão no gráfico e R² separado.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px">
+      <button class="btn btn-danger" onclick="runRegression()">▶ Executar Regressão</button>
+    </div>
+  </div>
+
+  <!-- RESULTADOS DA REGRESSÃO -->
+  <div id="regResultsWrap" style="display:none">
+    <div class="kpi-strip" id="regKpiStrip" style="grid-template-columns:repeat(5,1fr)">
+      <div class="kpi-card highlight-teal">
+        <div class="kpi-label">R²</div>
+        <div class="kpi-value" id="regKpiR2">—</div>
+        <div class="kpi-note">Coef. determinação</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">R² ajustado</div>
+        <div class="kpi-value" id="regKpiR2adj">—</div>
+        <div class="kpi-note">Penaliza por preditores</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">F-stat</div>
+        <div class="kpi-value" id="regKpiF">—</div>
+        <div class="kpi-note" id="regKpiFnote"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">p (modelo)</div>
+        <div class="kpi-value" id="regKpiP">—</div>
+        <div class="kpi-note" id="regKpiPnote"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">N obs.</div>
+        <div class="kpi-value" id="regKpiN">—</div>
+        <div class="kpi-note" id="regKpiNnote"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="card-title-icon c-navy">📊</span> Tabela de Coeficientes</div>
+      <div style="overflow-x:auto">
+        <table class="reg-table" id="regCoefTable">
+          <thead><tr>
+            <th style="text-align:left">Preditor</th>
+            <th>Estimativa (β)</th>
+            <th>Erro Padrão</th>
+            <th>t</th>
+            <th>p-valor</th>
+            <th>Sig.</th>
+          </tr></thead>
+          <tbody id="regCoefBody"></tbody>
+        </table>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;font-family:var(--font-mono)">
+        *** p &lt; 0,001 &nbsp; ** p &lt; 0,01 &nbsp; * p &lt; 0,05 &nbsp; ns p ≥ 0,05
+      </div>
+    </div>
+
+    <div class="chart-wrap" id="regScatterWrap">
+      <div class="chart-title" id="regChartTitle">Gráfico de Regressão</div>
+      <canvas id="regChart" height="280"></canvas>
+      <div class="chart-explain" id="regChartExplain"></div>
+    </div>
+
+    <div class="residuals-strip">
+      <div class="chart-wrap" id="regResidWrap">
+        <div class="chart-title">Resíduos vs. Valores Ajustados</div>
+        <canvas id="regResidChart" height="180"></canvas>
+      </div>
+      <div class="chart-wrap" id="regQQWrap">
+        <div class="chart-title">Q-Q dos Resíduos</div>
+        <canvas id="regQQChart" height="180"></canvas>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="card-title-icon c-teal">📄</span> Saída Completa (para artigo)</div>
+      <div id="regResultBox" class="result-box"></div>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn btn-ghost btn-sm" onclick="copyReg()">📋 Copiar</button>
+        <button class="btn btn-ghost btn-sm" onclick="generateRegInterpretation()">💬 Interpretação</button>
+      </div>
+    </div>
+
+    <div id="regInterpBox" class="interp-box">
+      <strong style="font-family:var(--font-display)">Interpretação:</strong>
+      <span id="regInterpText"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ========== ÁRVORE DE DECISÃO ========== -->
+<div class="view" id="view-decisao">
+  <div class="page-header">
+    <div class="page-title-group">
+      <div class="page-tag">Referência</div>
+      <div class="page-title">Árvore de Decisão</div>
+      <div class="page-sub">Qual teste usar? Responda as perguntas</div>
+    </div>
+    <button class="btn btn-ghost" onclick="resetTree()">↺ Reiniciar</button>
+  </div>
+
+  <div class="card">
+    <div id="treeQuestion" style="font-family:var(--font-display);font-size:18px;font-weight:700;margin-bottom:18px;line-height:1.3"></div>
+    <div id="treeOptions" class="btn-row"></div>
+    <div id="treeResult" class="hidden" style="margin-top:16px;padding:16px;border-radius:var(--radius);background:var(--teal-light);border:1.5px solid var(--teal)">
+      <div style="font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--teal);margin-bottom:6px">Teste recomendado</div>
+      <div id="treeTestName" style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--ink);margin-bottom:8px"></div>
+      <div id="treeWhy" style="font-size:13.5px;color:var(--text2);line-height:1.6"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== AJUDA ========== -->
+<div class="view" id="view-ajuda">
+  <div class="page-header">
+    <div class="page-title-group">
+      <div class="page-tag">Referência</div>
+      <div class="page-title">Guia Rápido</div>
+    </div>
+    <button class="btn btn-ghost" onclick="history.go(-1)||navTo('inicio')">← Voltar</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="card-title-icon c-teal">📈</span> Regressão — Conceitos</div>
+    <div style="font-size:14px;color:var(--text2);line-height:1.8">
+      <strong>R²</strong> — coeficiente de determinação. Varia de 0 a 1. Indica a proporção da variância de Y explicada pelo modelo. R² = 0,75 significa que os preditores explicam 75% da variação em Y.<br><br>
+      <strong>R² ajustado</strong> — penaliza modelos com muitos preditores pouco informativos. Use para comparar modelos com número diferente de variáveis.<br><br>
+      <strong>β (coeficiente)</strong> — quanto Y muda para cada unidade de aumento em X, mantendo os demais preditores constantes.<br><br>
+      <strong>p-valor do coeficiente</strong> — testa se β é significativamente diferente de zero. p &lt; 0,05 indica preditor significativo.<br><br>
+      <strong>F-estatístico</strong> — testa o modelo como um todo. Se F for significativo, ao menos um preditor explica Y.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="card-title-icon c-navy">📋</span> Formato dos dados</div>
+    <div style="font-size:14px;color:var(--text2);line-height:1.8">
+      Para regressão múltipla, use:<br>
+      <code style="background:var(--surface);padding:2px 6px;border-radius:4px;font-family:var(--font-mono);font-size:12px">Y, X1, X2, X3</code>
+      (com ou sem cabeçalho)<br><br>
+      Para comparação de grupos:<br>
+      <code style="background:var(--surface);padding:2px 6px;border-radius:4px;font-family:var(--font-mono);font-size:12px">Grupo, Y</code> ou
+      <code style="background:var(--surface);padding:2px 6px;border-radius:4px;font-family:var(--font-mono);font-size:12px">Grupo, X, Y</code>
+    </div>
+  </div>
+</div>
+
+<!-- ========== PLANILHAS-MODELO ========== -->
+<div class="view" id="view-planilhas">
+  <div class="page-header">
+    <div class="page-title-group">
+      <div class="page-tag">Guia de Dados</div>
+      <div class="page-title">Planilhas-Modelo</div>
+      <div class="page-sub">Baixe, preencha com seus dados e faça upload na plataforma</div>
+    </div>
+  </div>
+
+  <div class="card" style="border-left:4px solid var(--rust);background:var(--rust-light)">
+    <div style="font-size:13.5px;line-height:1.7;color:var(--text)">
+      <strong style="font-family:var(--font-display)">Como usar:</strong>
+      Baixe a planilha do tipo de análise que você quer fazer. Abra no Excel ou Google Planilhas.
+      Substitua os dados de exemplo pelos seus. Salve e faça upload na plataforma.
+      O formato já está correto — não mude os cabeçalhos, apenas os valores.
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+
+    <div class="card" style="border-top:3px solid var(--navy)">
+      <div class="card-title"><span class="card-title-icon c-navy">👥</span> 2 Grupos</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px">
+        Para comparar <strong>dois grupos independentes</strong>.<br>
+        Use com: <em>Teste t</em> ou <em>Mann-Whitney</em>.<br>
+        Colunas: <code style="background:var(--surface);padding:1px 6px;border-radius:4px;font-family:var(--font-mono);font-size:11px">Grupo | Valor</code>
+      </div>
+      <div class="demo-format-box" style="margin-bottom:12px">
+        Controle, 23.1<br>
+        Controle, 24.5<br>
+        Tratamento, 28.3<br>
+        Tratamento, 27.9
+      </div>
+      <button class="btn btn-primary btn-sm" style="width:100%" onclick="downloadPlanilha('modelo_dois_grupos', 'modelo_dois_grupos.xlsx')">⬇ Baixar planilha</button>
+    </div>
+
+    <div class="card" style="border-top:3px solid var(--teal)">
+      <div class="card-title"><span class="card-title-icon c-teal">📊</span> 3+ Grupos</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px">
+        Para comparar <strong>três ou mais grupos</strong>.<br>
+        Use com: <em>ANOVA</em> ou <em>Kruskal-Wallis</em>.<br>
+        Colunas: <code style="background:var(--surface);padding:1px 6px;border-radius:4px;font-family:var(--font-mono);font-size:11px">Grupo | Valor</code>
+      </div>
+      <div class="demo-format-box" style="margin-bottom:12px">
+        Controle, 15.2<br>
+        Dose_Baixa, 18.3<br>
+        Dose_Media, 22.1<br>
+        Dose_Alta, 25.8
+      </div>
+      <button class="btn btn-primary btn-sm" style="width:100%" onclick="downloadPlanilha('modelo_multiplos_grupos', 'modelo_multiplos_grupos.xlsx')">⬇ Baixar planilha</button>
+    </div>
+
+    <div class="card" style="border-top:3px solid var(--gold)">
+      <div class="card-title"><span class="card-title-icon c-gold">📈</span> Regressão Simples (Y ~ X)</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px">
+        Para <strong>correlação</strong> e regressão com <strong>1 preditor</strong>.<br>
+        Grupo é opcional — pode ter vários sites/tratamentos.<br>
+        Colunas: <code style="background:var(--surface);padding:1px 6px;border-radius:4px;font-family:var(--font-mono);font-size:11px">Grupo | X | Y</code>
+      </div>
+      <div class="demo-format-box" style="margin-bottom:12px">
+        Site_A, 12.3, 45.6<br>
+        Site_A, 13.1, 47.2<br>
+        Site_B, 18.5, 63.2<br>
+        Site_B, 19.3, 67.4
+      </div>
+      <button class="btn btn-primary btn-sm" style="width:100%" onclick="downloadPlanilha('modelo_regressao_simples', 'modelo_regressao_simples.xlsx')">⬇ Baixar planilha</button>
+    </div>
+
+    <div class="card" style="border-top:3px solid var(--rust)">
+      <div class="card-title"><span class="card-title-icon c-rust">📉</span> Regressão Múltipla (Y ~ X1+X2...)</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px">
+        Para o <strong>Módulo Regressão</strong> com vários preditores.<br>
+        <strong>Primeira coluna sempre é Y.</strong> As demais são os X.<br>
+        Colunas: <code style="background:var(--surface);padding:1px 6px;border-radius:4px;font-family:var(--font-mono);font-size:11px">Y | X1 | X2 | X3...</code>
+      </div>
+      <div class="demo-format-box" style="margin-bottom:12px">
+        Biomassa_g, Temperatura_C, Precipitacao_mm, pH<br>
+        45.2, 28.3, 145, 6.8<br>
+        38.1, 25.1, 120, 7.1
+      </div>
+      <button class="btn btn-primary btn-sm" style="width:100%" onclick="downloadPlanilha('modelo_regressao_multipla', 'modelo_regressao_multipla.xlsx')">⬇ Baixar planilha</button>
+    </div>
+
+  </div>
+
+  <div class="card" style="border-top:3px solid var(--plum)">
+    <div class="card-title"><span class="card-title-icon c-plum">🔬</span> Regressão por Grupo/Tratamento</div>
+    <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px">
+      Para comparar o ajuste de regressão <strong>entre diferentes tratamentos ou locais</strong>.
+      Cada grupo recebe seu próprio R² e linha de regressão no gráfico.<br>
+      Colunas: <code style="background:var(--surface);padding:1px 6px;border-radius:4px;font-family:var(--font-mono);font-size:11px">Y | Grupo | X1 | X2...</code> — Y primeiro, Grupo segundo, preditores depois.
+    </div>
+    <div class="demo-format-box" style="margin-bottom:14px">
+      Biomassa_g, Tratamento, Temperatura_C, Precipitacao_mm<br>
+      45.2, Alto_impacto, 28.3, 145<br>
+      72.1, Baixo_impacto, 28.3, 145<br>
+      28.9, Degradado, 28.3, 145
+    </div>
+    <button class="btn btn-primary" onclick="downloadPlanilha('modelo_regressao_por_grupo', 'modelo_regressao_por_grupo.xlsx')">⬇ Baixar planilha — Regressão por grupo</button>
+  </div>
+
+  <div class="card" style="background:var(--surface)">
+    <div class="card-title"><span class="card-title-icon c-teal">💡</span> Dicas importantes</div>
+    <div style="font-size:13.5px;color:var(--text);line-height:1.9">
+      <strong>Separadores aceitos:</strong> vírgula, ponto-e-vírgula ou tabulação (Tab).<br>
+      <strong>Decimal:</strong> use ponto (3.14) — não vírgula — para os números.<br>
+      <strong>Células vazias:</strong> deixe em branco, não escreva "NA" ou "-".<br>
+      <strong>Nomes de grupo:</strong> use o mesmo texto exato em todas as linhas do mesmo grupo.<br>
+      <strong>Google Planilhas:</strong> Arquivo → Fazer download → CSV (.csv) antes de subir.<br>
+      <strong>Excel:</strong> salve como .xlsx ou .csv — ambos funcionam.
+    </div>
+  </div>
+
+  <div class="nav-btns" style="border-top:none;padding-top:0">
+    <button class="btn btn-ghost" onclick="navTo('inicio')">← Início</button>
+    <button class="btn btn-primary" onclick="navTo('dados')">Ir para Dados →</button>
+  </div>
+</div>
+</main>
+</div><!-- /shell -->
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+//  ESTATÍSTICAS BÁSICAS
+// ============================================================
+function mean(a){if(!a||!a.length)return NaN;return a.reduce((s,v)=>s+v,0)/a.length}
+function sd(a,sample=true){if(!a||a.length<2)return NaN;const m=mean(a),n=a.length;return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/(sample?n-1:n))}
+function median(a){const s=[...a].sort((x,y)=>x-y),n=s.length;return n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2}
+function quantile(a,q){const s=[...a].sort((x,y)=>x-y),n=s.length,pos=(n-1)*q,lo=Math.floor(pos),hi=Math.ceil(pos);return s[lo]+(s[hi]-s[lo])*(pos-lo)}
+function sum(a){return a.reduce((s,v)=>s+v,0)}
+
+// t-CDF approx (Abramowitz & Stegun)
+function tCDF(t,df){
+  const x=df/(df+t*t);
+  let betaInc=0;
+  // Continued fraction / series approx
+  const a=df/2, b=0.5;
+  function lnGamma(z){return (z-.5)*Math.log(z+4.5)-(z+4.5)+.5*Math.log(2*Math.PI)+1/(12*(z+4.5))}
+  function betaFunc(a,b){return Math.exp(lnGamma(a)+lnGamma(b)-lnGamma(a+b))}
+  // Regularized incomplete beta via series
+  function ibeta(x,a,b,maxIter=200){
+    if(x<0||x>1)return NaN;
+    if(x===0)return 0;if(x===1)return 1;
+    const lbeta=lnGamma(a)+lnGamma(b)-lnGamma(a+b);
+    const front=Math.exp(Math.log(x)*a+Math.log(1-x)*b-lbeta)/a;
+    let d=1,sum2=1,c=1;
+    for(let m=1;m<=maxIter;m++){
+      const m2=2*m;
+      // even step
+      let aa=m*(b-m)*x/((a+m2-1)*(a+m2));
+      d=1+aa*d; if(Math.abs(d)<1e-30)d=1e-30; d=1/d;
+      c=1+aa/c; if(Math.abs(c)<1e-30)c=1e-30;
+      sum2*=d*c;
+      // odd step
+      aa=-(a+m)*(a+b+m)*x/((a+m2)*(a+m2+1));
+      d=1+aa*d; if(Math.abs(d)<1e-30)d=1e-30; d=1/d;
+      c=1+aa/c; if(Math.abs(c)<1e-30)c=1e-30;
+      sum2*=d*c;
+      if(Math.abs(d*c-1)<1e-8)break;
+    }
+    return front*sum2;
+  }
+  betaInc=ibeta(x,a,b);
+  return 1-betaInc/2;
+}
+
+function fCDF(F,df1,df2){
+  // P(F_dist <= F) via regularized incomplete beta
+  const x=df2/(df2+df1*F);
+  function lnGamma(z){return(z-.5)*Math.log(z+4.5)-(z+4.5)+.5*Math.log(2*Math.PI)+1/(12*(z+4.5))}
+  function ibeta(x,a,b){
+    if(x<=0)return 0;if(x>=1)return 1;
+    const lbeta=lnGamma(a)+lnGamma(b)-lnGamma(a+b);
+    const front=Math.exp(Math.log(x)*a+Math.log(1-x)*b-lbeta)/a;
+    let d=1,sum2=1,c=1;
+    for(let m=1;m<=200;m++){
+      const m2=2*m;
+      let aa=m*(b-m)*x/((a+m2-1)*(a+m2));
+      d=1+aa*d;if(Math.abs(d)<1e-30)d=1e-30;d=1/d;
+      c=1+aa/c;if(Math.abs(c)<1e-30)c=1e-30;sum2*=d*c;
+      aa=-(a+m)*(a+b+m)*x/((a+m2)*(a+m2+1));
+      d=1+aa*d;if(Math.abs(d)<1e-30)d=1e-30;d=1/d;
+      c=1+aa/c;if(Math.abs(c)<1e-30)c=1e-30;sum2*=d*c;
+      if(Math.abs(d*c-1)<1e-8)break;
+    }
+    return front*sum2;
+  }
+  return 1-ibeta(x,df2/2,df1/2);
+}
+
+function jarqueBera(a){
+  if(!a||a.length<4)return{jb:0,p:1};
+  const n=a.length,m=mean(a),s=sd(a,true);
+  const skew=a.reduce((acc,v)=>acc+((v-m)/s)**3,0)/n;
+  const kurt=a.reduce((acc,v)=>acc+((v-m)/s)**4,0)/n-3;
+  const jb=(n/6)*(skew**2+(kurt**2)/4);
+  const p=Math.exp(-jb/2); // chi2(2) approx
+  return{jb,skew,kurt,p};
+}
+
+function pearsonCorr(x,y){
+  const n=x.length;if(n<2)return null;
+  const mx=mean(x),my=mean(y);
+  let num=0,dx2=0,dy2=0;
+  for(let i=0;i<n;i++){num+=(x[i]-mx)*(y[i]-my);dx2+=(x[i]-mx)**2;dy2+=(y[i]-my)**2;}
+  if(dx2===0||dy2===0)return null;
+  const r=num/Math.sqrt(dx2*dy2);
+  const t=r*Math.sqrt(n-2)/Math.sqrt(1-r*r);
+  const p=2*(1-tCDF(Math.abs(t),n-2));
+  return{r,t,df:n-2,p,n};
+}
+
+function spearmanCorr(x,y){
+  const rank=arr=>{const s=[...arr].sort((a,b)=>a-b);return arr.map(v=>{const idxs=s.reduce((a,c,i)=>c===v?[...a,i]:a,[]);return(idxs[0]+idxs[idxs.length-1])/2+1})};
+  return pearsonCorr(rank(x),rank(y));
+}
+
+function linReg(x,y){
+  if(!x||x.length<2)return null;
+  const n=x.length,mx=mean(x),my=mean(y);
+  let sxy=0,sxx=0;
+  for(let i=0;i<n;i++){sxy+=(x[i]-mx)*(y[i]-my);sxx+=(x[i]-mx)**2;}
+  if(sxx===0)return null;
+  const b1=sxy/sxx,b0=my-b1*mx;
+  const yhat=x.map(xi=>b0+b1*xi);
+  let sse=0,sst=0;
+  yhat.forEach((yh,i)=>{sse+=(y[i]-yh)**2;sst+=(y[i]-my)**2;});
+  const r2=sst===0?0:1-sse/sst;
+  const se=Math.sqrt(sse/(n-2));
+  const sb=se/Math.sqrt(sxx);
+  const t=b1/sb,p=2*(1-tCDF(Math.abs(t),n-2));
+  const residuals=y.map((yi,i)=>yi-yhat[i]);
+  return{b0,b1,r2,se,t,p,n,yhat,residuals,sse,sst,df:n-2};
+}
+
+// ============================================================
+//  REGRESSÃO MÚLTIPLA (OLS matricial — JavaScript puro)
+// ============================================================
+function matMul(A,B){
+  const rA=A.length,cA=A[0].length,cB=B[0].length;
+  const C=Array.from({length:rA},()=>new Array(cB).fill(0));
+  for(let i=0;i<rA;i++)for(let k=0;k<cA;k++)for(let j=0;j<cB;j++)C[i][j]+=A[i][k]*B[k][j];
+  return C;
+}
+function matTranspose(A){return A[0].map((_,j)=>A.map(r=>r[j]))}
+function matInv(A){
+  // Gauss-Jordan para matriz quadrada
+  const n=A.length;
+  const M=A.map((r,i)=>[...r,...Array.from({length:n},(_,j)=>i===j?1:0)]);
+  for(let col=0;col<n;col++){
+    let maxRow=col;
+    for(let row=col+1;row<n;row++)if(Math.abs(M[row][col])>Math.abs(M[maxRow][col]))maxRow=row;
+    [M[col],M[maxRow]]=[M[maxRow],M[col]];
+    const piv=M[col][col];
+    if(Math.abs(piv)<1e-12)return null; // singular
+    for(let j=0;j<2*n;j++)M[col][j]/=piv;
+    for(let row=0;row<n;row++){
+      if(row===col)continue;
+      const f=M[row][col];
+      for(let j=0;j<2*n;j++)M[row][j]-=f*M[col][j];
+    }
+  }
+  return M.map(r=>r.slice(n));
+}
+
+function multipleLinReg(Y, Xmat, varNames){
+  // Xmat: array of rows, each row = [x1, x2, ...]
+  // Adds intercept automatically
+  const n=Y.length, k=Xmat[0].length;
+  // Build design matrix with intercept
+  const X=Xmat.map(row=>[1,...row]);
+  const Xt=matTranspose(X);
+  const XtX=matMul(Xt,X);
+  const XtXinv=matInv(XtX);
+  if(!XtXinv)return null;
+  const XtY=matMul(Xt,Y.map(y=>[y]));
+  const beta=matMul(XtXinv,XtY).map(r=>r[0]);
+
+  // Fitted values & residuals
+  const yhat=X.map(row=>row.reduce((s,v,i)=>s+v*beta[i],0));
+  const resid=Y.map((y,i)=>y-yhat[i]);
+  const my=mean(Y);
+  const sse=sum(resid.map(r=>r**2));
+  const sst=sum(Y.map(y=>(y-my)**2));
+  const r2=sst===0?0:1-sse/sst;
+  const r2adj=1-(1-r2)*(n-1)/(n-k-1);
+  const mse=sse/(n-k-1);
+  const msr=(sst-sse)/k;
+  const Fstat=msr/mse;
+  const pF=1-fCDF(Fstat,k,n-k-1);
+
+  // Standard errors of coefficients
+  const se=XtXinv.map((_,i)=>Math.sqrt(XtXinv[i][i]*mse));
+  const tStats=beta.map((b,i)=>b/se[i]);
+  const pVals=tStats.map((t,i)=>i===0&&se[i]<1e-10?1:2*(1-tCDF(Math.abs(t),n-k-1)));
+
+  const coefNames=['(Intercept)',...(varNames||Xmat[0].map((_,i)=>`X${i+1}`))];
+  return{beta,se,tStats,pVals,coefNames,r2,r2adj,Fstat,pF,n,k,sse,sst,mse,yhat,resid,df:n-k-1};
+}
+
+// ============================================================
+//  TESTES CLÁSSICOS
+// ============================================================
+function leveneTest(groups){
+  const allKeys=Object.keys(groups).filter(k=>groups[k].length>1);
+  if(allKeys.length<2)return{F:NaN,p:1};
+  const medians={};allKeys.forEach(k=>medians[k]=median(groups[k]));
+  const zGroups={};allKeys.forEach(k=>zGroups[k]=groups[k].map(v=>Math.abs(v-medians[k])));
+  const allZ=allKeys.flatMap(k=>zGroups[k]);
+  const grandM=mean(allZ);
+  const k=allKeys.length,N=allZ.length;
+  let ssBetween=0;
+  allKeys.forEach(k2=>{const zm=mean(zGroups[k2]);ssBetween+=zGroups[k2].length*(zm-grandM)**2;});
+  let ssWithin=0;allKeys.forEach(k2=>zGroups[k2].forEach(z=>ssWithin+=(z-mean(zGroups[k2]))**2));
+  const F=(ssBetween/(k-1))/(ssWithin/(N-k));
+  return{F,p:1-fCDF(F,k-1,N-k)};
+}
+
+function tTest(a,b){
+  const n1=a.length,n2=b.length,m1=mean(a),m2=mean(b),s1=sd(a,true),s2=sd(b,true);
+  const se=Math.sqrt(s1**2/n1+s2**2/n2);
+  if(se===0)return{t:0,df:n1+n2-2,p:1};
+  const t=(m1-m2)/se;
+  const df=(s1**2/n1+s2**2/n2)**2/((s1**2/n1)**2/(n1-1)+(s2**2/n2)**2/(n2-1));
+  const p=2*(1-tCDF(Math.abs(t),df));
+  return{t,df,p};
+}
+
+function anova(groups){
+  const keys=Object.keys(groups);
+  const all=keys.flatMap(k=>groups[k]);
+  const gm=mean(all);
+  const N=all.length,k=keys.length;
+  let ssb=0,ssw=0;
+  keys.forEach(k2=>{const gd=groups[k2];const gm2=mean(gd);ssb+=gd.length*(gm2-gm)**2;gd.forEach(v=>ssw+=(v-gm2)**2);});
+  const dfb=k-1,dfw=N-k;
+  const F=(ssb/dfb)/(ssw/dfw);
+  return{F,dfb,dfw,p:1-fCDF(F,dfb,dfw),ssb,ssw};
+}
+
+function mannWhitney(a,b){
+  const combined=[...a.map(v=>({v,g:0})),...b.map(v=>({v,g:1}))].sort((x,y)=>x.v-y.v);
+  let rank=1;
+  combined.forEach((item,i)=>{const same=combined.filter(o=>o.v===item.v);item.rank=(same.reduce((s,o,j)=>{const idx=combined.indexOf(o);return s+idx+1},0))/same.length;});
+  const R1=a.map(v=>{const idx=combined.findIndex(o=>o.v===v&&o.g===0);return combined[idx].rank});
+  const U1=sum(R1)-a.length*(a.length+1)/2;
+  const U2=a.length*b.length-U1;
+  const U=Math.min(U1,U2);
+  const mU=a.length*b.length/2;
+  const sU=Math.sqrt(a.length*b.length*(a.length+b.length+1)/12);
+  const z=(U-mU)/sU;
+  const p=2*(1-tCDF(Math.abs(z),1000));
+  return{U,z,p};
+}
+
+function kruskalWallis(groups){
+  const keys=Object.keys(groups);
+  const all=keys.flatMap(k=>groups[k].map(v=>({v,k})));
+  all.sort((a,b)=>a.v-b.v);
+  // assign ranks with ties
+  all.forEach((item,i)=>{const tied=all.filter(o=>o.v===item.v);const avgRank=tied.reduce((s,_,j)=>{const idx=all.indexOf(tied[j]);return s+idx+1},0)/tied.length;item.rank=avgRank;});
+  const N=all.length;
+  let H=12/(N*(N+1));
+  keys.forEach(k=>{const ranks=all.filter(o=>o.k===k).map(o=>o.rank);H+=ranks.length*(mean(ranks)-(N+1)/2)**2;});
+  const df=keys.length-1;
+  return{H,df,p:1-fCDF(H/1*1,df,1000)}; // chi2 approx via large-df F
+}
+
+// ============================================================
+//  PARSE DATA
+// ============================================================
+let hasHeader=false;
+let lastRows=[];
+let lastResult=null;
+
+function parseText(raw){
+  if(!raw.trim())return[];
+  let lines=raw.trim().split(/\n/);
+  if(hasHeader&&lines.length>1)lines=lines.slice(1);
+  const rows=[];
+  for(const line of lines){
+    if(!line.trim()||line.startsWith('#'))continue;
+    const parts=line.split(/[,;\t]+/).map(s=>s.trim()).filter(Boolean);
+    if(!parts.length)continue;
+    const obj={group:'',y:NaN,x:NaN};
+    if(parts.length===1){if(isFinite(+parts[0])){obj.group='Grupo';obj.y=+parts[0];}else continue;}
+    else if(parts.length===2){obj.group=isFinite(+parts[0])?'Grupo':parts[0];obj.y=+(isFinite(+parts[0])?parts[0]:parts[1]);}
+    else{obj.group=isFinite(+parts[0])?'Obs':parts[0];obj.x=+parts[1];obj.y=+parts[2];}
+    if(isFinite(obj.y)||isFinite(obj.x))rows.push(obj);
+  }
+  return rows;
+}
+
+function groupBy(rows){const g={};for(const r of rows){if(!g[r.group])g[r.group]=[];g[r.group].push(r)}return g}
+
+// ============================================================
+//  PARSE REGRESSION DATA (multi-column)
+// ============================================================
+let regHasHeader=true;
+let regData=null; // {headers:[], rows:[[...]]}
+let selectedPredictors=[];
+let regGroupMode=false;
+let regChartInst=null, regResidInst=null, regQQInst=null;
+
+function parseRegData(raw){
+  if(!raw.trim())return null;
+  let lines=raw.trim().split(/\n/).filter(l=>l.trim()&&!l.startsWith('#'));
+  if(!lines.length)return null;
+  let headers=null;
+  if(regHasHeader){
+    headers=lines[0].split(/[,;\t]+/).map(s=>s.trim());
+    lines=lines.slice(1);
+  }
+  const rows=[];
+  for(const line of lines){
+    const parts=line.split(/[,;\t]+/).map(s=>s.trim());
+    const nums=parts.map(p=>+p);
+    if(nums.some(isNaN))continue; // skip non-numeric rows (could be extra header)
+    rows.push(nums);
+  }
+  if(!rows.length)return null;
+  const ncols=rows[0].length;
+  if(!headers)headers=Array.from({length:ncols},(_,i)=>i===0?'Y':`X${i}`);
+  // Normalize to same length
+  const normRows=rows.filter(r=>r.length===ncols);
+  return{headers,rows:normRows};
+}
+
+function updateRegUI(){
+  const raw=document.getElementById('regDataInput').value;
+  regData=parseRegData(raw);
+  if(!regData||!regData.rows.length){
+    document.getElementById('regPreviewWrap').classList.add('hidden');
+    document.getElementById('regSelY').innerHTML='<option>Nenhum dado</option>';
+    document.getElementById('regSelX').innerHTML='<option>Nenhum dado</option>';
+    return;
+  }
+  const{headers,rows}=regData;
+  // chips
+  const chipsEl=document.getElementById('regVarChips');
+  chipsEl.innerHTML=headers.map((h,i)=>`<span style="display:inline-flex;align-items:center;gap:4px;background:${i===0?'var(--rust)':'var(--navy)'};color:#fff;font-family:var(--font-mono);font-size:11px;padding:3px 9px;border-radius:5px">${i===0?'Y':'X'}: ${h}</span>`).join('');
+  // selects
+  const yOpts=headers.map((h,i)=>`<option value="${i}">${h}</option>`).join('');
+  document.getElementById('regSelY').innerHTML=yOpts;
+  document.getElementById('regSelX').innerHTML=headers.map((h,i)=>`<option value="${i}">${h}</option>`).join('');
+  document.getElementById('regSelGroup').innerHTML=headers.map((h,i)=>`<option value="${i}">${h}</option>`).join('');
+  // preview table
+  const maxRows=8;
+  let html=`<thead><tr style="background:var(--ink)">${headers.map(h=>`<th style="padding:7px 12px;text-align:right;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);letter-spacing:0.06em;text-transform:uppercase">${h}</th>`).join('')}</tr></thead><tbody>`;
+  rows.slice(0,maxRows).forEach((r,i)=>{
+    html+=`<tr style="border-bottom:1px solid var(--line);${i%2?'background:var(--surface)':''}">${r.map(v=>`<td style="padding:6px 12px;text-align:right;font-size:12px">${fmt(v,3)}</td>`).join('')}</tr>`;
+  });
+  if(rows.length>maxRows)html+=`<tr><td colspan="${headers.length}" style="padding:8px 12px;font-size:12px;color:var(--muted);text-align:center">... e mais ${rows.length-maxRows} linhas</td></tr>`;
+  html+='</tbody>';
+  document.getElementById('regPreviewTable').innerHTML=html;
+  document.getElementById('regPreviewWrap').classList.remove('hidden');
+}
+
+function setRegHeader(val){
+  regHasHeader=val;
+  document.getElementById('regHdrYes').classList.toggle('active',val);
+  document.getElementById('regHdrNo').classList.toggle('active',!val);
+  updateRegUI();
+}
+
+function addPredictor(){
+  if(!regData)return;
+  const sel=document.getElementById('regSelX');
+  const idx=+sel.value;
+  const yIdx=+document.getElementById('regSelY').value;
+  if(idx===yIdx){showToast('Não pode adicionar Y como preditor','error');return;}
+  if(selectedPredictors.includes(idx)){showToast('Preditor já adicionado','info');return;}
+  selectedPredictors.push(idx);
+  renderXTags();
+}
+
+function addAllPredictors(){
+  if(!regData)return;
+  const yIdx=+document.getElementById('regSelY').value;
+  selectedPredictors=regData.headers.map((_,i)=>i).filter(i=>i!==yIdx);
+  renderXTags();
+}
+
+function removePredictor(idx){
+  selectedPredictors=selectedPredictors.filter(i=>i!==idx);
+  renderXTags();
+}
+
+function renderXTags(){
+  const row=document.getElementById('xTagRow');
+  if(!selectedPredictors.length){
+    row.innerHTML='<span class="x-tag-empty">Nenhum preditor adicionado</span>';
+    return;
+  }
+  row.innerHTML=selectedPredictors.map(i=>`<span class="x-tag" onclick="removePredictor(${i})">${regData.headers[i]} ×</span>`).join('');
+}
+
+function setRegGroup(val){
+  regGroupMode=val;
+  document.getElementById('regGroupYes').classList.toggle('active',val);
+  document.getElementById('regGroupNo').classList.toggle('active',!val);
+  document.getElementById('regGroupSelWrap').classList.toggle('hidden',!val);
+}
+
+// ============================================================
+//  DEMO DATA FOR REGRESSION
+// ============================================================
+function setRegDemo(n){
+  const demos={
+    1:`Y, X1\n45.2, 12.3\n38.1, 10.1\n52.4, 14.7\n41.3, 11.2\n48.9, 13.5\n35.7, 9.4\n55.2, 15.8\n43.1, 11.9\n50.6, 14.2\n37.4, 9.8\n62.1, 17.2\n29.3, 7.9`,
+    2:`Biomassa, Temperatura, Precipitacao, pH\n45.2, 28.3, 145, 6.8\n38.1, 25.1, 120, 7.1\n52.4, 30.2, 160, 6.5\n41.3, 26.5, 130, 7.3\n48.9, 29.1, 152, 6.7\n35.7, 23.8, 108, 7.5\n55.2, 31.4, 168, 6.4\n43.1, 27.2, 138, 7.0\n50.6, 29.8, 155, 6.6\n37.4, 24.5, 115, 7.4\n62.1, 33.1, 180, 6.2\n29.3, 22.1, 95, 7.8\n58.7, 32.0, 172, 6.3\n44.6, 27.8, 142, 6.9\n33.2, 23.2, 102, 7.6`,
+    3:`Biomassa, Tratamento, Temperatura\n45.2, 1, 28.3\n38.1, 1, 25.1\n52.4, 1, 30.2\n41.3, 1, 26.5\n62.1, 2, 28.3\n55.7, 2, 25.1\n71.4, 2, 30.2\n58.3, 2, 26.5\n28.9, 3, 28.3\n24.1, 3, 25.1\n33.8, 3, 30.2\n30.5, 3, 26.5`
+  };
+  document.getElementById('regDataInput').value=demos[n]||demos[1];
+  selectedPredictors=[];
+  updateRegUI();
+  showToast('Exemplo carregado','success');
+}
+
+// ============================================================
+//  EXECUTAR REGRESSÃO MÚLTIPLA
+// ============================================================
+function runRegression(){
+  updateRegUI();
+  if(!regData||!regData.rows.length){showToast('Insira dados primeiro','error');return;}
+  if(!selectedPredictors.length){showToast('Adicione ao menos um preditor X','error');return;}
+
+  const yIdx=+document.getElementById('regSelY').value;
+  const modelType=document.getElementById('regModelType').value;
+  const{headers,rows}=regData;
+
+  // Filter complete cases
+  const validRows=rows.filter(r=>selectedPredictors.every(i=>isFinite(r[i]))&&isFinite(r[yIdx]));
+  if(validRows.length<selectedPredictors.length+3){showToast('Poucos dados para o modelo','error');return;}
+
+  const Y=validRows.map(r=>r[yIdx]);
+  let Xmat=validRows.map(r=>selectedPredictors.map(i=>r[i]));
+  let xNames=selectedPredictors.map(i=>headers[i]);
+
+  // Transform for model type
+  if(modelType==='poly'||modelType==='poly3'){
+    if(selectedPredictors.length===1){
+      const degree=modelType==='poly'?2:3;
+      Xmat=validRows.map(r=>{const x=r[selectedPredictors[0]];return degree===2?[x,x**2]:[x,x**2,x**3]});
+      xNames=degree===2?[headers[selectedPredictors[0]],headers[selectedPredictors[0]]+'²']:[headers[selectedPredictors[0]],headers[selectedPredictors[0]]+'²',headers[selectedPredictors[0]]+'³'];
+    }
+  } else if(modelType==='log'){
+    Xmat=Xmat.map(row=>row.map(v=>v>0?Math.log(v):NaN));
+    if(Xmat.some(row=>row.some(v=>isNaN(v)))){showToast('Log-linear requer X > 0','error');return;}
+    xNames=xNames.map(n=>`ln(${n})`);
+  }
+
+  // Check for groups
+  if(regGroupMode){
+    const gIdx=+document.getElementById('regSelGroup').value;
+    // Run regression per unique group value
+    const groupVals=[...new Set(validRows.map(r=>r[gIdx]))];
+    let outputTxt=`${'─'.repeat(52)}\nREGRESSÃO MÚLTIPLA POR GRUPO\nVariável resposta: ${headers[yIdx]}\nModelo: ${headers[yIdx]} ~ ${xNames.join(' + ')}\n${'─'.repeat(52)}\n`;
+    const groupResults=[];
+    for(const gv of groupVals){
+      const idxs=validRows.map((r,i)=>r[gIdx]===gv?i:-1).filter(i=>i>=0);
+      if(idxs.length<xNames.length+2)continue;
+      const gY=idxs.map(i=>Y[i]);
+      const gX=idxs.map(i=>Xmat[i]);
+      const res=multipleLinReg(gY,gX,xNames);
+      if(!res)continue;
+      groupResults.push({gv,res});
+      outputTxt+=`\nGRUPO: ${gv}  (n = ${res.n})\n`;
+      outputTxt+=`  R² = ${fmt(res.r2,4)}   R² ajustado = ${fmt(res.r2adj,4)}\n`;
+      outputTxt+=`  F(${res.k}, ${res.df}) = ${fmt(res.Fstat,3)}   p = ${pLabel(res.pF)}\n`;
+      outputTxt+=`  Coeficientes:\n`;
+      res.coefNames.forEach((n,i)=>outputTxt+=`    ${n.padEnd(20)} β = ${fmt(res.beta[i],4)}   SE = ${fmt(res.se[i],4)}   t = ${fmt(res.tStats[i],3)}   p = ${pLabel(res.pVals[i])}\n`);
+    }
+    document.getElementById('regResultBox').textContent=outputTxt;
+    document.getElementById('regResultsWrap').style.display='block';
+    renderGroupRegChart(validRows,groupResults,yIdx,xNames,headers,gIdx,Y);
+    showToast('Regressão por grupos concluída','success');
+    return;
+  }
+
+  const res=multipleLinReg(Y,Xmat,xNames);
+  if(!res){showToast('Erro no ajuste do modelo — verifique os dados','error');return;}
+
+  // Update KPIs
+  document.getElementById('regKpiR2').textContent=fmt(res.r2,4);
+  document.getElementById('regKpiR2adj').textContent=fmt(res.r2adj,4);
+  document.getElementById('regKpiF').textContent=fmt(res.Fstat,2);
+  document.getElementById('regKpiFnote').textContent=`df=${res.k},${res.df}`;
+  document.getElementById('regKpiP').textContent=res.pF<0.001?'< 0,001':fmt(res.pF,4);
+  document.getElementById('regKpiPnote').textContent=res.pF<0.05?'Modelo sig.':'Não sig.';
+  document.getElementById('regKpiN').textContent=res.n;
+  document.getElementById('regKpiNnote').textContent=`k=${res.k} preditores`;
+
+  // Coefficient table
+  const tbody=document.getElementById('regCoefBody');
+  tbody.innerHTML=res.coefNames.map((name,i)=>`
+    <tr>
+      <td>${name}</td>
+      <td>${fmt(res.beta[i],4)}</td>
+      <td>${fmt(res.se[i],4)}</td>
+      <td>${fmt(res.tStats[i],3)}</td>
+      <td>${fmt(res.pVals[i],4)}</td>
+      <td class="sig-star">${sigStar(res.pVals[i])}</td>
+    </tr>`).join('');
+
+  // Output text
+  let outputTxt=`${'─'.repeat(52)}\nREGRESSÃO MÚLTIPLA — OLS\nVariável resposta: ${headers[yIdx]}\nModelo: ${headers[yIdx]} ~ ${xNames.join(' + ')}\nN = ${res.n}   k = ${res.k} preditores\n${'─'.repeat(52)}\n\nAJUSTE DO MODELO\n  R²          = ${fmt(res.r2,4)}\n  R² ajustado = ${fmt(res.r2adj,4)}\n  F(${res.k}, ${res.df})     = ${fmt(res.Fstat,4)}\n  p (modelo)  = ${pLabel(res.pF)}\n  MSE         = ${fmt(res.mse,4)}\n  Resíduos SE = ${fmt(Math.sqrt(res.mse),4)}\n\nCOEFICIENTES\n${'─'.repeat(52)}\n`;
+  res.coefNames.forEach((n,i)=>{
+    outputTxt+=`  ${n.padEnd(22)} β = ${fmt(res.beta[i],6).padStart(10)}   SE = ${fmt(res.se[i],4).padStart(8)}   t = ${fmt(res.tStats[i],3).padStart(7)}   p = ${pLabel(res.pVals[i])}\n`;
+  });
+  outputTxt+=`${'─'.repeat(52)}\n`;
+  document.getElementById('regResultBox').textContent=outputTxt;
+
+  // Charts
+  renderRegScatter(validRows,res,yIdx,xNames,headers,Y);
+  renderResidCharts(res);
+
+  document.getElementById('regResultsWrap').style.display='block';
+  document.getElementById('regKpiR2').closest('.kpi-card').classList.add('highlight-teal');
+  if(res.pF<0.05) document.getElementById('regKpiP').closest('.kpi-card').classList.add('highlight-teal');
+  else document.getElementById('regKpiP').closest('.kpi-card').classList.add('highlight-rust');
+
+  showToast('Regressão concluída','success');
+}
+
+function renderRegScatter(validRows,res,yIdx,xNames,headers,Y){
+  if(regChartInst){regChartInst.destroy();regChartInst=null;}
+  const ctx=document.getElementById('regChart');
+  // If single predictor: scatter + line
+  if(selectedPredictors.length===1){
+    const xi=selectedPredictors[0];
+    const xs=validRows.map(r=>r[xi]);
+    const xMin=Math.min(...xs),xMax=Math.max(...xs);
+    const pts=100;
+    const lineXs=Array.from({length:pts},(_,i)=>xMin+(xMax-xMin)*i/(pts-1));
+    const lineYs=lineXs.map(x=>res.beta[0]+res.beta[1]*x);
+    document.getElementById('regChartTitle').textContent=`${headers[yIdx]} ~ ${xNames[0]}`;
+    regChartInst=new Chart(ctx,{type:'scatter',data:{datasets:[
+      {label:'Dados',data:xs.map((x,i)=>({x,y:Y[i]})),backgroundColor:'rgba(26,58,92,0.3)',borderColor:'var(--navy)',pointRadius:5,pointHoverRadius:7},
+      {label:`Y = ${fmt(res.beta[0],2)} + ${fmt(res.beta[1],3)}·X  (R²=${fmt(res.r2,3)})`,data:lineXs.map((x,i)=>({x,y:lineYs[i]})),borderColor:'var(--rust)',borderWidth:2.5,pointRadius:0,showLine:true,type:'line'}
+    ]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:12},usePointStyle:true}}},scales:{x:{title:{display:true,text:xNames[0],font:{size:13,weight:'700'}},grid:{color:'rgba(0,0,0,0.05)'}},y:{title:{display:true,text:headers[yIdx],font:{size:13,weight:'700'}},grid:{color:'rgba(0,0,0,0.05)'}}}}});
+    document.getElementById('regChartExplain').innerHTML=`<strong>Equação:</strong> ${headers[yIdx]} = ${fmt(res.beta[0],3)} + ${fmt(res.beta[1],3)}·${xNames[0]} &nbsp;|&nbsp; <strong>R² = ${fmt(res.r2,4)}</strong> &nbsp;|&nbsp; <strong>R² ajustado = ${fmt(res.r2adj,4)}</strong> &nbsp;|&nbsp; p = ${pLabel(res.pF)}`;
+  } else {
+    // Multiple: Y observado vs. Y ajustado
+    document.getElementById('regChartTitle').textContent=`Y observado vs. Y ajustado`;
+    const yhat=res.yhat;
+    const mn=Math.min(...Y,...yhat),mx=Math.max(...Y,...yhat);
+    regChartInst=new Chart(ctx,{type:'scatter',data:{datasets:[
+      {label:'Observado vs. Ajustado',data:Y.map((y,i)=>({x:yhat[i],y})),backgroundColor:'rgba(10,124,110,0.3)',borderColor:'var(--teal)',pointRadius:5},
+      {label:'Linha 1:1',data:[{x:mn,y:mn},{x:mx,y:mx}],borderColor:'var(--rust)',borderWidth:1.5,borderDash:[5,5],pointRadius:0,showLine:true,type:'line'}
+    ]},options:{responsive:true,plugins:{legend:{position:'bottom'}},scales:{x:{title:{display:true,text:'Valores ajustados'},grid:{color:'rgba(0,0,0,0.05)'}},y:{title:{display:true,text:'Valores observados'},grid:{color:'rgba(0,0,0,0.05)'}}}}});
+    document.getElementById('regChartExplain').innerHTML=`<strong>R² = ${fmt(res.r2,4)}</strong> &nbsp;|&nbsp; <strong>R² ajustado = ${fmt(res.r2adj,4)}</strong> &nbsp;|&nbsp; F(${res.k},${res.df}) = ${fmt(res.Fstat,3)} &nbsp;|&nbsp; p = ${pLabel(res.pF)}`;
+  }
+}
+
+function renderGroupRegChart(validRows,groupResults,yIdx,xNames,headers,gIdx,Y){
+  if(regChartInst){regChartInst.destroy();regChartInst=null;}
+  const ctx=document.getElementById('regChart');
+  const colors=['#1a3a5c','#c0392b','#0a7c6e','#c47a00','#6b2e7e'];
+  const datasets=[];
+  groupResults.forEach(({gv,res},gi)=>{
+    if(selectedPredictors.length===1){
+      const xi=selectedPredictors[0];
+      const idxs=validRows.map((r,i)=>r[gIdx]===gv?i:-1).filter(i=>i>=0);
+      const xs=idxs.map(i=>validRows[i][xi]);
+      const ys=idxs.map(i=>Y[i]);
+      const xMin=Math.min(...xs),xMax=Math.max(...xs);
+      const lineXs=Array.from({length:60},(_,i)=>xMin+(xMax-xMin)*i/59);
+      const lineYs=lineXs.map(x=>res.beta[0]+res.beta[1]*x);
+      datasets.push({label:`${gv} dados`,data:xs.map((x,i)=>({x,y:ys[i]})),backgroundColor:colors[gi%colors.length]+'55',borderColor:colors[gi%colors.length],pointRadius:4,type:'scatter'});
+      datasets.push({label:`${gv} R²=${fmt(res.r2,3)}`,data:lineXs.map((x,i)=>({x,y:lineYs[i]})),borderColor:colors[gi%colors.length],borderWidth:2,pointRadius:0,showLine:true,type:'line',borderDash:gi>0?[4,4]:[]});
+    }
+  });
+  document.getElementById('regChartTitle').textContent=`Regressão por grupo — ${headers[yIdx]} ~ ${xNames.join('+')}`;
+  regChartInst=new Chart(ctx,{type:'scatter',data:{datasets},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:11},usePointStyle:true}}},scales:{x:{title:{display:true,text:xNames[0]},grid:{color:'rgba(0,0,0,0.05)'}},y:{title:{display:true,text:headers[yIdx]},grid:{color:'rgba(0,0,0,0.05)'}}}}});
+  document.getElementById('regChartExplain').innerHTML=groupResults.map(({gv,res})=>`<strong>${gv}:</strong> R²=${fmt(res.r2,3)}, p=${pLabel(res.pF)}`).join(' &nbsp;|&nbsp; ');
+  document.getElementById('regResultsWrap').style.display='block';
+}
+
+function renderResidCharts(res){
+  if(regResidInst){regResidInst.destroy();regResidInst=null;}
+  if(regQQInst){regQQInst.destroy();regQQInst=null;}
+  const resid=res.resid, yhat=res.yhat;
+  // Residuals vs. fitted
+  const ctxR=document.getElementById('regResidChart');
+  regResidInst=new Chart(ctxR,{type:'scatter',data:{datasets:[
+    {label:'Resíduos',data:yhat.map((y,i)=>({x:y,y:resid[i]})),backgroundColor:'rgba(10,124,110,0.35)',borderColor:'var(--teal)',pointRadius:4},
+    {label:'y=0',data:[{x:Math.min(...yhat),y:0},{x:Math.max(...yhat),y:0}],borderColor:'var(--rust)',borderWidth:1.5,borderDash:[4,4],pointRadius:0,showLine:true,type:'line'}
+  ]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'Valores ajustados'},grid:{color:'rgba(0,0,0,0.04)'}},y:{title:{display:true,text:'Resíduos'},grid:{color:'rgba(0,0,0,0.04)'}}}}});
+  // Q-Q dos resíduos
+  const sorted=[...resid].sort((a,b)=>a-b);
+  const n=sorted.length;
+  const theoretical=sorted.map((_,i)=>{const p=(i+0.5)/n;return Math.sqrt(2)*erfInv(2*p-1);});
+  const ctxQ=document.getElementById('regQQChart');
+  regQQInst=new Chart(ctxQ,{type:'scatter',data:{datasets:[
+    {label:'Q-Q',data:theoretical.map((t,i)=>({x:t,y:sorted[i]})),backgroundColor:'rgba(26,58,92,0.35)',borderColor:'var(--navy)',pointRadius:3.5},
+    {label:'Normal',data:[{x:Math.min(...theoretical),y:Math.min(...sorted)},{x:Math.max(...theoretical),y:Math.max(...sorted)}],borderColor:'var(--rust)',borderWidth:1.5,borderDash:[4,4],pointRadius:0,showLine:true,type:'line'}
+  ]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'Quantis teóricos'},grid:{color:'rgba(0,0,0,0.04)'}},y:{title:{display:true,text:'Quantis amostrais'},grid:{color:'rgba(0,0,0,0.04)'}}}}});
+}
+
+// erfinv approx
+function erfInv(x){
+  const a=0.147;const lnterm=Math.log(1-x*x);const b=2/(Math.PI*a)+lnterm/2;return Math.sign(x)*Math.sqrt(Math.sqrt(b*b-lnterm/a)-b);}
+
+// ============================================================
+//  ANÁLISE CLÁSSICA (fluxo principal)
+// ============================================================
+let normChartInst=null, qqChartInst=null, mainChartInst=null;
+
+function runAnalysis(){
+  const raw=document.getElementById('dataInput').value;
+  lastRows=parseText(raw);
+  if(lastRows.length<2){showToast('Insira dados primeiro','error');return;}
+  const byG=groupBy(lastRows);
+  const keys=Object.keys(byG);
+  const analType=document.getElementById('analysisType').value;
+  const chartType=document.getElementById('chartType').value;
+  const hasX=lastRows.some(r=>isFinite(r.x));
+  const yAll=lastRows.map(r=>r.y).filter(isFinite);
+
+  let result=null;
+  const sep='─'.repeat(48);
+  let output=`DOSSIÊ ESTATÍSTICO v2\n${sep}\nN = ${lastRows.length}   Grupos: ${keys.length}\n${sep}\n`;
+
+  // Descritiva
+  keys.forEach(k=>{
+    const ys=byG[k].map(r=>r.y).filter(isFinite);
+    if(!ys.length)return;
+    output+=`\n${k}  (n=${ys.length})\n  Média   = ${fmt(mean(ys),4)}\n  Mediana = ${fmt(median(ys),4)}\n  DP      = ${fmt(sd(ys,true),4)}\n  Min–Max = [${fmt(Math.min(...ys),3)}, ${fmt(Math.max(...ys),3)}]\n`;
+  });
+  output+=`\n${sep}\n`;
+
+  if(analType==='t'&&keys.length>=2){
+    const g1=byG[keys[0]].map(r=>r.y).filter(isFinite),g2=byG[keys[1]].map(r=>r.y).filter(isFinite);
+    const r=tTest(g1,g2);result={type:'t',...r};
+    output+=`\nTESTE t DE WELCH\n  t(${fmt(r.df,1)}) = ${fmt(r.t,4)}\n  p = ${pLabel(r.p)}\n`;
+  }else if(analType==='anova'&&keys.length>=2){
+    const g={};keys.forEach(k=>{g[k]=byG[k].map(r=>r.y).filter(isFinite)});
+    const r=anova(g);result={type:'anova',...r};
+    output+=`\nANOVA\n  F(${r.dfb},${r.dfw}) = ${fmt(r.F,4)}\n  p = ${pLabel(r.p)}\n`;
+  }else if(analType==='mw'&&keys.length>=2){
+    const g1=byG[keys[0]].map(r=>r.y).filter(isFinite),g2=byG[keys[1]].map(r=>r.y).filter(isFinite);
+    const r=mannWhitney(g1,g2);result={type:'mw',...r};
+    output+=`\nMANN-WHITNEY\n  U = ${fmt(r.U,2)}\n  z = ${fmt(r.z,4)}\n  p = ${pLabel(r.p)}\n`;
+  }else if(analType==='kw'){
+    const g={};keys.forEach(k=>{g[k]=byG[k].map(r=>r.y).filter(isFinite)});
+    const r=kruskalWallis(g);result={type:'kw',...r};
+    output+=`\nKRUSKAL-WALLIS\n  H(${r.df}) = ${fmt(r.H,4)}\n  p = ${pLabel(r.p)}\n`;
+  }else if(analType==='corr'&&hasX){
+    const xs=lastRows.filter(r=>isFinite(r.x)&&isFinite(r.y)).map(r=>r.x);
+    const ys=lastRows.filter(r=>isFinite(r.x)&&isFinite(r.y)).map(r=>r.y);
+    const method=document.getElementById('corrMethod').value;
+    const r=method==='pearson'?pearsonCorr(xs,ys):spearmanCorr(xs,ys);
+    if(r){result={type:'corr',method,...r};
+      output+=`\nCORRELAÇÃO DE ${method.toUpperCase()}\n  r = ${fmt(r.r,4)}\n  t(${r.df}) = ${fmt(r.t,4)}\n  p = ${pLabel(r.p)}\n  R² = ${fmt(r.r*r.r,4)}\n`;}
+  }else if(analType==='reg'&&hasX){
+    const xs=lastRows.filter(r=>isFinite(r.x)&&isFinite(r.y)).map(r=>r.x);
+    const ys=lastRows.filter(r=>isFinite(r.x)&&isFinite(r.y)).map(r=>r.y);
+    const r=linReg(xs,ys);
+    if(r){result={type:'reg',xs,ys,...r};
+      output+=`\nREGRESSÃO LINEAR SIMPLES\n  Y = ${fmt(r.b0,4)} + ${fmt(r.b1,4)}·X\n  R² = ${fmt(r.r2,4)}\n  t(${r.df}) = ${fmt(r.t,4)}\n  p = ${pLabel(r.p)}\n  SE resíduos = ${fmt(r.se,4)}\n`;}
+  }else if(analType==='polyreg'&&hasX){
+    const xs=lastRows.filter(r=>isFinite(r.x)&&isFinite(r.y)).map(r=>r.x);
+    const ys=lastRows.filter(r=>isFinite(r.x)&&isFinite(r.y)).map(r=>r.y);
+    const Xmat=xs.map(x=>[x,x**2]);
+    const r=multipleLinReg(ys,Xmat,['X','X²']);
+    if(r){result={type:'polyreg',xs,ys,...r};
+      output+=`\nREGRESSÃO POLINOMIAL (grau 2)\n  Y = ${fmt(r.beta[0],4)} + ${fmt(r.beta[1],4)}·X + ${fmt(r.beta[2],4)}·X²\n  R² = ${fmt(r.r2,4)}\n  R² ajustado = ${fmt(r.r2adj,4)}\n  F(${r.k},${r.df}) = ${fmt(r.Fstat,4)}\n  p = ${pLabel(r.pF)}\n`;}
+  }else{result={type:'desc'};}
+
+  output+=`\n${sep}\n`;
+  lastResult=result;
+  document.getElementById('resultBox').textContent=output;
+
+  // KPIs
+  const p=result&&result.p!==undefined?result.p:result&&result.pF!==undefined?result.pF:undefined;
+  if(p!==undefined){
+    document.getElementById('kP').textContent=p<0.001?'< 0,001':fmt(p,3);
+    document.getElementById('kPNote').textContent=p<0.05?'Significativo':'Não sig.';
+    const kpCard=document.getElementById('kpP');
+    kpCard.className='kpi-card '+(p<0.05?'highlight-teal':'highlight-rust');
+  }
+  const jb=jarqueBera(yAll);
+  document.getElementById('kNorm').textContent=jb.p<0.05?'Não normal':'Normal';
+  document.getElementById('kNormNote').textContent=`JB p = ${fmt(jb.p,3)}`;
+  const byGc=groupBy(lastRows);const keysc=Object.keys(byGc);
+  document.getElementById('kN').textContent=lastRows.length;
+  document.getElementById('kG').textContent=keysc.length;
+
+  renderMainChart(lastRows,byG,keys,chartType,result);
+  navTo('resultados');
+  showToast('Análise concluída!','success');
+}
+
+function renderMainChart(rows,byG,keys,chartType,result){
+  if(mainChartInst){mainChartInst.destroy();mainChartInst=null;}
+  const ctx=document.getElementById('chart');
+  const yAll=rows.map(r=>r.y).filter(isFinite);
+  const colors=['#1a3a5c','#c0392b','#0a7c6e','#c47a00','#6b2e7e','#374151'];
+  const commonOpts={responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:12},usePointStyle:true,boxWidth:10,padding:14}}},scales:{x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'Karla',size:12}}},y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'Space Mono',size:11}}}}};
+
+  if(chartType==='boxplot'){
+    mainChartInst=new Chart(ctx,{type:'boxplot',data:{labels:keys,datasets:[{label:'Distribuição',data:keys.map(k=>byG[k].map(r=>r.y).filter(isFinite)),backgroundColor:keys.map((_,i)=>colors[i%colors.length]+'33'),borderColor:keys.map((_,i)=>colors[i%colors.length]),borderWidth:2}]},options:commonOpts});
+  }else if(chartType==='bar'){
+    const gm=keys.map(k=>mean(byG[k].map(r=>r.y).filter(isFinite)));
+    mainChartInst=new Chart(ctx,{type:'bar',data:{labels:keys,datasets:[{label:'Média',data:gm,backgroundColor:keys.map((_,i)=>colors[i%colors.length]+'aa'),borderColor:keys.map((_,i)=>colors[i%colors.length]),borderWidth:2,borderRadius:6}]},options:{...commonOpts,scales:{...commonOpts.scales,y:{...commonOpts.scales.y,beginAtZero:false}}}});
+  }else if(chartType==='scatter'){
+    const pts=rows.filter(r=>isFinite(r.x)&&isFinite(r.y));
+    const datasets=keys.map((k,i)=>({label:k,data:pts.filter(r=>r.group===k).map(r=>({x:r.x,y:r.y})),backgroundColor:colors[i%colors.length]+'cc',borderColor:colors[i%colors.length],pointRadius:5}));
+    if(result&&result.type==='reg'&&result.b0!==undefined){
+      const xsReg=pts.map(r=>r.x);const xMin=Math.min(...xsReg),xMax=Math.max(...xsReg);
+      datasets.push({label:`Regressão R²=${fmt(result.r2,3)}`,data:[{x:xMin,y:result.b0+result.b1*xMin},{x:xMax,y:result.b0+result.b1*xMax}],borderColor:'var(--rust)',borderWidth:2.5,pointRadius:0,showLine:true,type:'line'});
+    }
+    mainChartInst=new Chart(ctx,{type:'scatter',data:{datasets},options:commonOpts});
+  }else if(chartType==='line'){
+    const datasets=keys.map((k,i)=>({label:k,data:byG[k].map(r=>r.y).filter(isFinite),borderColor:colors[i%colors.length],backgroundColor:colors[i%colors.length]+'22',borderWidth:2,tension:0.35,fill:false,pointRadius:4}));
+    mainChartInst=new Chart(ctx,{type:'line',data:{labels:Array.from({length:Math.max(...keys.map(k=>byG[k].length))},(_,i)=>i+1),datasets},options:commonOpts});
+  }else if(chartType==='hist'){
+    const bins=10,minV=Math.min(...yAll),maxV=Math.max(...yAll),w=(maxV-minV)/bins;
+    const counts=new Array(bins).fill(0);yAll.forEach(v=>{let idx=Math.floor((v-minV)/w);if(idx===bins)idx=bins-1;counts[idx]++;});
+    mainChartInst=new Chart(ctx,{type:'bar',data:{labels:counts.map((_,i)=>(minV+i*w).toFixed(1)),datasets:[{label:'Frequência',data:counts,backgroundColor:'#1a3a5caa',borderColor:'#1a3a5c',borderWidth:1.5,borderRadius:4}]},options:commonOpts});
+  }else if(chartType==='pie'){
+    mainChartInst=new Chart(ctx,{type:'pie',data:{labels:keys,datasets:[{data:keys.map(k=>byG[k].length),backgroundColor:keys.map((_,i)=>colors[i%colors.length]+'cc'),borderColor:keys.map((_,i)=>colors[i%colors.length]),borderWidth:2}]},options:{responsive:true,plugins:{legend:{position:'bottom'}}}});
+  }else{
+    const gm=keys.map(k=>mean(byG[k].map(r=>r.y).filter(isFinite)));
+    mainChartInst=new Chart(ctx,{type:'bar',data:{labels:keys,datasets:[{label:'Média',data:gm,backgroundColor:keys.map((_,i)=>colors[i%colors.length]+'aa'),borderColor:keys.map((_,i)=>colors[i%colors.length]),borderWidth:2,borderRadius:6}]},options:commonOpts});
+  }
+  const names={boxplot:'Boxplot',bar:'Médias',scatter:'Dispersão',line:'Série temporal',hist:'Histograma',pie:'Pizza'};
+  document.getElementById('mainChartTitle').textContent=names[chartType]||'Gráfico';
+  const p=result&&result.p!==undefined?result.p:undefined;
+  document.getElementById('chartExplain').innerHTML=p!==undefined?`<strong>Resultado:</strong> p = ${pLabel(p)} — ${p<0.05?'<strong>diferença significativa</strong> (p < 0,05)':'<strong>sem diferença significativa</strong> (p ≥ 0,05)'}`:result&&result.type==='reg'?`<strong>Regressão:</strong> Y = ${fmt(result.b0,3)} + ${fmt(result.b1,3)}X &nbsp;|&nbsp; <strong>R² = ${fmt(result.r2,4)}</strong> &nbsp;|&nbsp; p = ${pLabel(result.p)}`:'Análise descritiva.';
+}
+
+// ============================================================
+//  PREMISSAS
+// ============================================================
+function runPremises(){
+  const raw=document.getElementById('dataInput').value;
+  lastRows=parseText(raw);
+  if(lastRows.length<2){showToast('Insira dados primeiro','error');return;}
+  const byG=groupBy(lastRows);const keys=Object.keys(byG);
+  const yAll=lastRows.map(r=>r.y).filter(isFinite);
+  const n=yAll.length;
+
+  // Normalidade (Jarque-Bera)
+  const jb=jarqueBera(yAll);
+  const normOk=jb.p>0.05;
+  document.getElementById('pdNorm').textContent=`Jarque-Bera: JB = ${fmt(jb.jb,3)}, p = ${fmt(jb.p,4)} — Assimetria = ${fmt(jb.skew,3)}, Curtose = ${fmt(jb.kurt,3)}`;
+  document.getElementById('psBadgeNorm').textContent=normOk?'Normal':'Não normal';
+  document.getElementById('psBadgeNorm').className='badge '+(normOk?'badge-teal':'badge-rust');
+  document.getElementById('pcNorm').className='premise-card '+(normOk?'ok':'fail');
+
+  // Homocedasticidade
+  const g={};keys.forEach(k=>{g[k]=byG[k].map(r=>r.y).filter(isFinite)});
+  let leveneOk=true;
+  if(keys.length>=2){
+    const lev=leveneTest(g);
+    leveneOk=lev.p>0.05;
+    document.getElementById('pdLevene').textContent=`Levene: F = ${fmt(lev.F,3)}, p = ${fmt(lev.p,4)} — ${leveneOk?'variâncias homogêneas':'variâncias heterogêneas'}`;
+    document.getElementById('psBadgeLevene').textContent=leveneOk?'Homogêneas':'Hetero.';
+    document.getElementById('psBadgeLevene').className='badge '+(leveneOk?'badge-teal':'badge-rust');
+    document.getElementById('pcLevene').className='premise-card '+(leveneOk?'ok':'fail');
+  }
+
+  // Tamanho amostral
+  const nOk=n>=10;
+  document.getElementById('pdN').textContent=`N = ${n} observações, ${keys.length} grupos — ${nOk?'tamanho adequado':'N pequeno, cuidado com inferência'}`;
+  document.getElementById('psBadgeN').textContent=nOk?'Adequado':'Pequeno';
+  document.getElementById('psBadgeN').className='badge '+(nOk?'badge-teal':'badge-gold');
+  document.getElementById('pcN').className='premise-card '+(nOk?'ok':'warn');
+
+  // Independência
+  const indep=document.getElementById('ckInd')&&document.getElementById('ckInd').checked;
+  document.getElementById('pdIndep').textContent=indep?'Confirmada pelo checklist de planejamento.':'Não confirmada — verifique o protocolo de coleta.';
+  document.getElementById('psBadgeIndep').textContent=indep?'Confirmada':'Não confirmada';
+  document.getElementById('psBadgeIndep').className='badge '+(indep?'badge-teal':'badge-gold');
+  document.getElementById('pcIndep').className='premise-card '+(indep?'ok':'warn');
+
+  // Charts
+  const normWrap=document.getElementById('normChartWrap');
+  normWrap.classList.remove('hidden');
+  if(normChartInst){normChartInst.destroy();normChartInst=null;}
+  const bins=Math.ceil(Math.sqrt(n));
+  const minV=Math.min(...yAll),maxV=Math.max(...yAll),w=(maxV-minV)/bins;
+  const counts=new Array(bins).fill(0);yAll.forEach(v=>{let i=Math.floor((v-minV)/w);if(i===bins)i=bins-1;counts[i]++;});
+  normChartInst=new Chart(document.getElementById('normChart'),{type:'bar',data:{labels:counts.map((_,i)=>(minV+i*w).toFixed(2)),datasets:[{label:'Frequência',data:counts,backgroundColor:'rgba(10,124,110,0.4)',borderColor:'var(--teal)',borderWidth:1.5,borderRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{family:'Space Mono',size:10}}},y:{ticks:{font:{family:'Space Mono',size:10}}}}}});
+  document.getElementById('normChartExplain').textContent=normOk?`Distribuição parece normal (JB p = ${fmt(jb.p,4)}).`:`Indícios de não normalidade (JB p = ${fmt(jb.p,4)}). Considere testes não paramétricos.`;
+
+  // Q-Q
+  const qqWrap=document.getElementById('qqChartWrap');
+  qqWrap.classList.remove('hidden');
+  if(qqChartInst){qqChartInst.destroy();qqChartInst=null;}
+  const sorted=[...yAll].sort((a,b)=>a-b);
+  const theoretical=sorted.map((_,i)=>{const p=(i+0.5)/n;return Math.sqrt(2)*erfInv(2*p-1);});
+  qqChartInst=new Chart(document.getElementById('qqChart'),{type:'scatter',data:{datasets:[{label:'Q-Q',data:theoretical.map((t,i)=>({x:t,y:sorted[i]})),backgroundColor:'rgba(26,58,92,0.4)',borderColor:'var(--navy)',pointRadius:4},{label:'Normal',data:[{x:Math.min(...theoretical),y:Math.min(...sorted)},{x:Math.max(...theoretical),y:Math.max(...sorted)}],borderColor:'var(--rust)',borderWidth:1.5,borderDash:[4,4],pointRadius:0,showLine:true,type:'line'}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{title:{display:true,text:'Quantis teóricos'}},y:{title:{display:true,text:'Quantis amostrais'}}}}});
+  document.getElementById('qqChartExplain').textContent='Pontos próximos à linha vermelha = distribuição aproximadamente normal.';
+
+  // Recomendação
+  const recoBox=document.getElementById('recoBox');
+  recoBox.style.display='block';
+  const nGrp=keys.length;
+  let reco='';
+  if(nGrp>=2&&normOk&&leveneOk)reco='Dados normais e variâncias homogêneas: <strong>Teste t</strong> (2 grupos) ou <strong>ANOVA</strong> (3+ grupos).';
+  else if(nGrp>=2&&!normOk)reco='Dados não normais: prefira <strong>Mann-Whitney</strong> (2 grupos) ou <strong>Kruskal-Wallis</strong> (3+ grupos).';
+  else if(nGrp>=2&&!leveneOk)reco='Variâncias heterogêneas: use <strong>Teste t de Welch</strong> (2 grupos) ou <strong>ANOVA de Welch</strong>.';
+  else reco='1 grupo detectado. Considere análise descritiva, correlação ou regressão se houver variável X.';
+  document.getElementById('recoTitle').innerHTML='💡 Recomendação';
+  document.getElementById('recoText').innerHTML=reco;
+  recoBox.className='reco-box';
+
+  showToast('Premissas verificadas','success');
+}
+
+// ============================================================
+//  INTERPRETAÇÃO
+// ============================================================
+function generateInterpretation(){
+  if(!lastResult){showToast('Execute uma análise primeiro','error');return;}
+  const r=lastResult;
+  const byG=groupBy(lastRows);const keys=Object.keys(byG);
+  let txt='';
+  if(r.type==='t'){
+    const g1=byG[keys[0]]?.map(x=>x.y).filter(isFinite)||[];
+    const g2=byG[keys[1]]?.map(x=>x.y).filter(isFinite)||[];
+    txt=`Os grupos ${keys[0]} (M = ${fmt(mean(g1),2)} ± ${fmt(sd(g1,true),2)}) e ${keys[1]} (M = ${fmt(mean(g2),2)} ± ${fmt(sd(g2,true),2)}) foram comparados pelo teste t de Welch para amostras independentes. ${r.p<0.05?`Observou-se diferença estatisticamente significativa [t(${fmt(r.df,1)}) = ${fmt(r.t,3)}, p ${pLabel(r.p)}].`:`Não foi observada diferença significativa [t(${fmt(r.df,1)}) = ${fmt(r.t,3)}, p ${pLabel(r.p)}].`}`;
+  }else if(r.type==='anova'){
+    txt=`A ANOVA detectou ${r.p<0.05?'diferença significativa':'sem diferença significativa'} entre os ${keys.length} grupos [F(${r.dfb},${r.dfw}) = ${fmt(r.F,3)}, p ${pLabel(r.p)}].${r.p<0.05?' Análise post-hoc é recomendada.':''}`;
+  }else if(r.type==='corr'){
+    txt=`Correlação de ${r.method}: r = ${fmt(r.r,3)}, p ${pLabel(r.p)}. R² = ${fmt(r.r*r.r,4)} — ${fmt(r.r*r.r*100,1)}% da variação em Y é explicada por X.`;
+  }else if(r.type==='reg'){
+    txt=`Regressão linear: Y = ${fmt(r.b0,3)} + ${fmt(r.b1,3)}·X. R² = ${fmt(r.r2,4)} (${fmt(r.r2*100,1)}% da variância explicada). Preditor ${r.p<0.05?'significativo':'não significativo'} [t(${r.df}) = ${fmt(r.t,3)}, p ${pLabel(r.p)}].`;
+  }else{
+    txt='Análise descritiva concluída. Selecione um teste específico para inferência.';
+  }
+  document.getElementById('interpText').textContent=txt;
+  document.getElementById('interpBox').classList.add('show');
+}
+
+function generateRegInterpretation(){
+  const r2=document.getElementById('regKpiR2').textContent;
+  const r2adj=document.getElementById('regKpiR2adj').textContent;
+  const p=document.getElementById('regKpiP').textContent;
+  const n=document.getElementById('regKpiN').textContent;
+  const txt=`O modelo de regressão múltipla ajustado por OLS explicou ${(+r2*100).toFixed(1)}% da variância da variável resposta (R² = ${r2}, R² ajustado = ${r2adj}). O modelo foi ${p.includes('0,0')||+p<0.05?'estatisticamente significativo':'não significativo'} (p = ${p}, N = ${n}). Consulte a tabela de coeficientes para verificar quais preditores contribuíram individualmente.`;
+  document.getElementById('regInterpText').textContent=txt;
+  document.getElementById('regInterpBox').classList.add('show');
+}
+
+// ============================================================
+//  ÁRVORE DE DECISÃO
+// ============================================================
+const treeNodes={
+  0:{q:'Qual é o objetivo da análise?',opts:{'Comparar grupos':1,'Relação entre variáveis':4,'Descrever os dados':{test:'Estatística descritiva',why:'Use médias, medianas, desvios-padrão, boxplots e histogramas. Não requer teste de hipótese.'}}},
+  1:{q:'Quantos grupos você tem?',opts:{'2 grupos':2,'3 ou mais':3}},
+  2:{q:'Os dados seguem distribuição normal?',opts:{Sim:{test:'Teste t de Student/Welch',why:'Comparação de médias entre 2 grupos independentes com dados normais. Use Welch se variâncias heterogêneas.'},Não:{test:'Mann-Whitney',why:'Teste não paramétrico para 2 grupos independentes quando normalidade não é satisfeita.'}}},
+  3:{q:'Os dados seguem distribuição normal?',opts:{Sim:{test:'ANOVA de um fator',why:'Compara médias entre 3+ grupos com dados normais. Faça post-hoc (Tukey, Bonferroni) se significativo.'},Não:{test:'Kruskal-Wallis',why:'Alternativa não paramétrica à ANOVA para 3+ grupos. Seguida por Dunn com correção.'}}},
+  4:{q:'Você quer predizer Y a partir de X?',opts:{Sim:5,Não:{test:'Correlação (Pearson ou Spearman)',why:'Mede força e direção da associação. Pearson: dados normais. Spearman: dados não normais/ordinais.'}}},
+  5:{q:'Quantas variáveis preditoras (X)?',opts:{'1 variável (X simples)':{test:'Regressão linear simples',why:'Y ~ X. Veja R² e o coeficiente β. Use o módulo Regressão Múltipla para análise completa.'},'2 ou mais variáveis':{test:'Regressão múltipla (OLS)',why:'Y ~ X1 + X2 + ... Avalie R² ajustado e os p-valores dos coeficientes. Use o módulo Regressão Múltipla!'}}}
+};
+let treeState=0;
+function renderTree(){
+  const node=treeNodes[treeState];
+  document.getElementById('treeQuestion').textContent=node.q;
+  document.getElementById('treeResult').classList.add('hidden');
+  const opts=document.getElementById('treeOptions');
+  opts.innerHTML='';
+  Object.entries(node.opts).forEach(([label,val])=>{
+    const btn=document.createElement('button');
+    btn.className='btn btn-ghost';
+    btn.textContent=label;
+    btn.onclick=()=>{
+      if(typeof val==='number'){treeState=val;renderTree();}
+      else{document.getElementById('treeTestName').textContent=val.test;document.getElementById('treeWhy').textContent=val.why;document.getElementById('treeResult').classList.remove('hidden');opts.innerHTML='';}
+    };
+    opts.appendChild(btn);
+  });
+}
+function resetTree(){treeState=0;renderTree();}
+
+// ============================================================
+//  UTILITÁRIOS
+// ============================================================
+function fmt(v,dec=4){if(!isFinite(v))return'NA';return Number.isInteger(v)?String(v):v.toFixed(dec)}
+function pLabel(p){if(!isFinite(p))return'NA';if(p<0.001)return'< 0,001 ***';if(p<0.01)return'< 0,01 **';if(p<0.05)return'< 0,05 *';return fmt(p,4)+' ns'}
+function sigStar(p){if(!isFinite(p))return'—';if(p<0.001)return'***';if(p<0.01)return'**';if(p<0.05)return'*';return 'ns'}
+
+let toastTimer=null;
+function showToast(msg,type='info'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='t-'+type;
+  setTimeout(()=>t.classList.add('show'),10);
+  if(toastTimer)clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+function copyResult(){
+  const txt=document.getElementById('resultBox').textContent;
+  navigator.clipboard.writeText(txt).then(()=>showToast('Copiado!','success'));
+}
+function copyReg(){
+  const txt=document.getElementById('regResultBox').textContent;
+  navigator.clipboard.writeText(txt).then(()=>showToast('Copiado!','success'));
+}
+
+function exportMD(){
+  const r=lastResult;
+  let md=`# Dossiê Estatístico v2\n\n`;
+  md+=`**N** = ${lastRows.length}  **Grupos** = ${Object.keys(groupBy(lastRows)).length}\n\n`;
+  if(r){
+    md+=`## Resultado\n\`\`\`\n${document.getElementById('resultBox').textContent}\n\`\`\`\n`;
+    const interp=document.getElementById('interpText').textContent;
+    if(interp)md+=`\n## Interpretação\n${interp}\n`;
+  }
+  const a=document.createElement('a');
+  a.href='data:text/markdown;charset=utf-8,'+encodeURIComponent(md);
+  a.download='dossie-estatistico.md';a.click();
+  showToast('Exportado!','success');
+}
+
+// ============================================================
+//  NAVIGATION & STATE
+// ============================================================
+let stepDone=[false,false,false,false,false];
+
+function navTo(view){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.sidebar-nav-item').forEach(v=>v.classList.remove('active'));
+  const el=document.getElementById('view-'+view);if(el){el.classList.add('active');}
+  const sn=document.getElementById('snav-'+view);if(sn)sn.classList.add('active');
+  if(view==='decisao'&&treeNodes[0])renderTree();
+  window.scrollTo({top:0,behavior:'smooth'});
+  updateDashboardStats();
+}
+
+function markStepDone(i){
+  stepDone[i]=true;
+  const ids=['snav-planejamento','snav-dados','snav-premissas','snav-analise','snav-resultados'];
+  const dotIds=['sp0','sp1','sp2','sp3','sp4'];
+  if(i<ids.length){
+    const navEl=document.querySelector(`#${ids[i]} .sidebar-step-dot`)||document.getElementById(dotIds[i]);
+    if(navEl)navEl.parentElement.classList.add('done');
+  }
+}
+
+function validateStep0(){
+  markStepDone(0);navTo('dados');
+}
+function validateStep1(){
+  const raw=document.getElementById('dataInput').value;
+  if(!raw.trim()){showToast('Insira dados antes de continuar','error');return;}
+  lastRows=parseText(raw);
+  if(lastRows.length<2){showToast('Mínimo 2 observações necessárias','error');return;}
+  markStepDone(1);navTo('premissas');
+}
+function validateStep2(){
+  markStepDone(2);navTo('analise');
+}
+
+function toggleCk(id,wrapId){
+  const cb=document.getElementById(id);
+  if(cb)cb.checked=!cb.checked;
+  const wrap=document.getElementById(wrapId);
+  if(wrap)wrap.classList.toggle('checked',cb.checked);
+  const checks=['ckRep','ckPad','ckInd','ckTime'].map(i=>document.getElementById(i)?.checked);
+  const cnt=checks.filter(Boolean).length;
+  const ins=document.getElementById('checklistInsight');
+  if(!ins)return;
+  if(cnt===4){ins.style.borderLeftColor='var(--teal)';ins.innerHTML='<strong>Excelente!</strong> Todos os critérios confirmados.';}
+  else if(cnt>=2){ins.style.borderLeftColor='var(--gold)';ins.innerHTML=`<strong>${cnt} de 4</strong> critérios marcados.`;}
+  else{ins.style.borderLeftColor='var(--rust)';ins.innerHTML='<strong>Atenção:</strong> Poucos critérios confirmados.';}
+}
+
+function setHeaderMode(val){
+  hasHeader=val;
+  document.getElementById('hdrYes').classList.toggle('active',val);
+  document.getElementById('hdrNo').classList.toggle('active',!val);
+  const raw=document.getElementById('dataInput').value;
+  if(raw.trim())parseAndPreview();
+}
+
+function parseAndPreview(){
+  const raw=document.getElementById('dataInput').value;
+  lastRows=parseText(raw);
+  if(lastRows.length<2){document.getElementById('dataPreviewWrap').classList.add('hidden');return;}
+  const byG=groupBy(lastRows);
+  const hasX=lastRows.some(r=>isFinite(r.x));
+  const chipsEl=document.getElementById('varTypeChips');
+  let chips=`<span style="background:var(--navy);color:#fff;font-family:var(--font-mono);font-size:11px;padding:3px 9px;border-radius:5px;margin-right:4px">Grupo</span>`;
+  if(hasX)chips+=`<span style="background:var(--teal);color:#fff;font-family:var(--font-mono);font-size:11px;padding:3px 9px;border-radius:5px;margin-right:4px">X</span>`;
+  chips+=`<span style="background:var(--rust);color:#fff;font-family:var(--font-mono);font-size:11px;padding:3px 9px;border-radius:5px">Y</span>`;
+  chipsEl.innerHTML=chips;
+  document.getElementById('varTypeRow').classList.remove('hidden');
+  const keys=Object.keys(byG);
+  const maxRows=8;
+  let html=`<thead><tr style="background:var(--ink)">${['Grupo',hasX?'X':null,'Y'].filter(Boolean).map(h=>`<th style="padding:7px 12px;text-align:right;font-size:10px;font-weight:700;color:rgba(255,255,255,0.7);letter-spacing:0.06em;text-transform:uppercase">${h}</th>`).join('')}</tr></thead><tbody>`;
+  lastRows.slice(0,maxRows).forEach((r,i)=>{
+    html+=`<tr style="border-bottom:1px solid var(--line);${i%2?'background:var(--surface)':''}"><td style="padding:6px 12px;font-size:12px;text-align:right">${r.group}</td>${hasX?`<td style="padding:6px 12px;text-align:right;font-family:var(--font-mono);font-size:12px">${isFinite(r.x)?fmt(r.x,2):'—'}</td>`:''}<td style="padding:6px 12px;text-align:right;font-family:var(--font-mono);font-size:12px">${isFinite(r.y)?fmt(r.y,2):'—'}</td></tr>`;
+  });
+  if(lastRows.length>maxRows)html+=`<tr><td colspan="${hasX?3:2}" style="padding:8px 12px;font-size:12px;color:var(--muted);text-align:center">... e mais ${lastRows.length-maxRows} linhas</td></tr>`;
+  html+='</tbody>';
+  document.getElementById('dataPreviewTable').innerHTML=html;
+  document.getElementById('dataPreviewWrap').classList.remove('hidden');
+  updateDashboardStats();
+}
+
+function updateDashboardStats(){
+  const rows=lastRows.length>0?lastRows:parseText((document.getElementById('dataInput')||{}).value||'');
+  const byG=groupBy(rows);const keys=Object.keys(byG);
+  document.getElementById('hs-n').textContent=rows.length||'0';
+  document.getElementById('hs-g').textContent=keys.length||'0';
+  const pct=Math.round(stepDone.filter(Boolean).length/5*100);
+  document.getElementById('hs-pct').textContent=pct+'%';
+}
+
+function setDemo(n){
+  const demos={
+    1:`GrupoA, 23.1\nGrupoA, 24.5\nGrupoA, 22.8\nGrupoA, 25.2\nGrupoA, 23.9\nGrupoA, 24.1\nGrupoB, 28.3\nGrupoB, 27.9\nGrupoB, 29.1\nGrupoB, 28.7\nGrupoB, 27.5\nGrupoB, 29.3`,
+    2:`Controle, 15.2\nControle, 14.8\nControle, 16.1\nControle, 15.5\nDose1, 18.3\nDose1, 19.1\nDose1, 17.9\nDose1, 18.7\nDose2, 22.1\nDose2, 21.8\nDose2, 23.0\nDose2, 22.5\nDose3, 25.8\nDose3, 26.2\nDose3, 25.1`,
+    3:`Site1, 12.3, 45.6\nSite1, 13.1, 47.2\nSite1, 11.8, 42.1\nSite1, 14.2, 51.3\nSite2, 18.5, 63.2\nSite2, 19.3, 67.4\nSite2, 17.9, 61.5\nSite2, 20.1, 69.8\nSite3, 8.4, 31.2\nSite3, 9.1, 34.5\nSite3, 7.8, 28.9`,
+    4:`Jan, 18.2\nFev, 19.5\nMar, 22.1\nAbr, 26.3\nMai, 28.9\nJun, 30.1\nJul, 29.8\nAgo, 29.2\nSet, 27.4\nOut, 24.8\nNov, 21.3\nDez, 18.9`
+  };
+  const el=document.getElementById('dataInput');
+  if(el){el.value=demos[n]||demos[1];parseAndPreview();}
+  showToast(`Exemplo ${n} carregado`,'success');
+}
+function clearData(){document.getElementById('dataInput').value='';lastRows=[];document.getElementById('dataPreviewWrap').classList.add('hidden');document.getElementById('varTypeRow').classList.add('hidden');}
+
+function handleFileUpload(e){handleFile(e.target.files[0]);}
+function handleFile(file){
+  if(!file)return;
+  if(file.name.endsWith('.xlsx')||file.name.endsWith('.xls')){
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const data=XLSX.utils.sheet_to_csv(ws);
+      document.getElementById('dataInput').value=data;
+      parseAndPreview();
+      showToast('XLSX importado','success');
+    };
+    reader.readAsArrayBuffer(file);
+  }else{
+    const reader=new FileReader();
+    reader.onload=e=>{document.getElementById('dataInput').value=e.target.result;parseAndPreview();showToast('Arquivo importado','success');};
+    reader.readAsText(file,'UTF-8');
+  }
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const di=document.getElementById('dataInput');
+  if(di)di.addEventListener('input',()=>setTimeout(parseAndPreview,300));
+  const csv=document.getElementById('csvFile');
+  if(csv)csv.addEventListener('change',handleFileUpload);
+  const uz=document.getElementById('uploadZone');
+  if(uz){
+    uz.addEventListener('dragover',e=>{e.preventDefault();uz.classList.add('drag-over');});
+    uz.addEventListener('dragleave',()=>uz.classList.remove('drag-over'));
+    uz.addEventListener('drop',e=>{e.preventDefault();uz.classList.remove('drag-over');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+  }
+  const rdi=document.getElementById('regDataInput');
+  if(rdi)rdi.addEventListener('input',()=>setTimeout(updateRegUI,350));
+  renderTree();
+  updateDashboardStats();
+});
+
+// ============================================================
+//  DOWNLOAD DE PLANILHAS-MODELO
+// ============================================================
+const PLANILHAS_B64 = {
+  "modelo_dois_grupos": "UEsDBBQAAAAIAKCCsFxGx01IlQAAAM0AAAAQAAAAZG9jUHJvcHMvYXBwLnhtbE3PTQvCMAwG4L9SdreZih6kDkQ9ip68zy51hbYpbYT67+0EP255ecgboi6JIia2mEXxLuRtMzLHDUDWI/o+y8qhiqHke64x3YGMsRoPpB8eA8OibdeAhTEMOMzit7Dp1C5GZ3XPlkJ3sjpRJsPiWDQ6sScfq9wcChDneiU+ixNLOZcrBf+LU8sVU57mym/8ZAW/B7oXUEsDBBQAAAAIAKCCsFwJAUpk7gAAACsCAAARAAAAZG9jUHJvcHMvY29yZS54bWzNksFKxDAQhl9Fcm8n6WIPoduL4klBcEHxFpLZ3WCThmSk3bc3jbtdRB/AY2b+fPMNTKeD1GPE5zgGjGQx3cxu8EnqsGVHoiABkj6iU6nOCZ+b+zE6RfkZDxCU/lAHhIbzFhySMooULMAqrETWd0ZLHVHRGM94o1d8+IxDgRkNOKBDTwlELYD1y8RwmocOroAFRhhd+i6gWYml+ie2dICdk3Oya2qapnralFzeQcDb0+NLWbeyPpHyGvOvZCWdAm7ZZfLr5u5+98D6hjdtxW8r0e5EKxshuXhfXH/4XYXdaOze/mPji2Dfwa+76L8AUEsDBBQAAAAIAKCCsFyZXJwjEAYAAJwnAAATAAAAeGwvdGhlbWUvdGhlbWUxLnhtbO1aW3PaOBR+76/QeGf2bQvGNoG2tBNzaXbbtJmE7U4fhRFYjWx5ZJGEf79HNhDLlg3tkk26mzwELOn7zkVH5+g4efPuLmLohoiU8nhg2S/b1ru3L97gVzIkEUEwGaev8MAKpUxetVppAMM4fckTEsPcgosIS3gUy9Zc4FsaLyPW6rTb3VaEaWyhGEdkYH1eLGhA0FRRWm9fILTlHzP4FctUjWWjARNXQSa5iLTy+WzF/NrePmXP6TodMoFuMBtYIH/Ob6fkTlqI4VTCxMBqZz9Wa8fR0kiAgsl9lAW6Sfaj0xUIMg07Op1YznZ89sTtn4zK2nQ0bRrg4/F4OLbL0otwHATgUbuewp30bL+kQQm0o2nQZNj22q6RpqqNU0/T933f65tonAqNW0/Ta3fd046Jxq3QeA2+8U+Hw66JxqvQdOtpJif9rmuk6RZoQkbj63oSFbXlQNMgAFhwdtbM0gOWXin6dZQa2R273UFc8FjuOYkR/sbFBNZp0hmWNEZynZAFDgA3xNFMUHyvQbaK4MKS0lyQ1s8ptVAaCJrIgfVHgiHF3K/99Ze7yaQzep19Os5rlH9pqwGn7bubz5P8c+jkn6eT101CznC8LAnx+yNbYYcnbjsTcjocZ0J8z/b2kaUlMs/v+QrrTjxnH1aWsF3Pz+SejHIju932WH32T0duI9epwLMi15RGJEWfyC265BE4tUkNMhM/CJ2GmGpQHAKkCTGWoYb4tMasEeATfbe+CMjfjYj3q2+aPVehWEnahPgQRhrinHPmc9Fs+welRtH2Vbzco5dYFQGXGN80qjUsxdZ4lcDxrZw8HRMSzZQLBkGGlyQmEqk5fk1IE/4rpdr+nNNA8JQvJPpKkY9psyOndCbN6DMawUavG3WHaNI8ev4F+Zw1ChyRGx0CZxuzRiGEabvwHq8kjpqtwhErQj5iGTYacrUWgbZxqYRgWhLG0XhO0rQR/FmsNZM+YMjszZF1ztaRDhGSXjdCPmLOi5ARvx6GOEqa7aJxWAT9nl7DScHogstm/bh+htUzbCyO90fUF0rkDyanP+kyNAejmlkJvYRWap+qhzQ+qB4yCgXxuR4+5Xp4CjeWxrxQroJ7Af/R2jfCq/iCwDl/Ln3Ppe+59D2h0rc3I31nwdOLW95GblvE+64x2tc0LihjV3LNyMdUr5Mp2DmfwOz9aD6e8e362SSEr5pZLSMWkEuBs0EkuPyLyvAqxAnoZFslCctU02U3ihKeQhtu6VP1SpXX5a+5KLg8W+Tpr6F0PizP+Txf57TNCzNDt3JL6raUvrUmOEr0scxwTh7LDDtnPJIdtnegHTX79l125COlMFOXQ7gaQr4Dbbqd3Do4npiRuQrTUpBvw/npxXga4jnZBLl9mFdt59jR0fvnwVGwo+88lh3HiPKiIe6hhpjPw0OHeXtfmGeVxlA0FG1srCQsRrdguNfxLBTgZGAtoAeDr1EC8lJVYDFbxgMrkKJ8TIxF6HDnl1xf49GS49umZbVuryl3GW0iUjnCaZgTZ6vK3mWxwVUdz1Vb8rC+aj20FU7P/lmtyJ8MEU4WCxJIY5QXpkqi8xlTvucrScRVOL9FM7YSlxi84+bHcU5TuBJ2tg8CMrm7Oal6ZTFnpvLfLQwJLFuIWRLiTV3t1eebnK56Inb6l3fBYPL9cMlHD+U751/0XUOufvbd4/pukztITJx5xREBdEUCI5UcBhYXMuRQ7pKQBhMBzZTJRPACgmSmHICY+gu98gy5KRXOrT45f0Usg4ZOXtIlEhSKsAwFIRdy4+/vk2p3jNf6LIFthFQyZNUXykOJwT0zckPYVCXzrtomC4Xb4lTNuxq+JmBLw3punS0n/9te1D20Fz1G86OZ4B6zh3OberjCRaz/WNYe+TLfOXDbOt4DXuYTLEOkfsF9ioqAEativrqvT/klnDu0e/GBIJv81tuk9t3gDHzUq1qlZCsRP0sHfB+SBmOMW/Q0X48UYq2msa3G2jEMeYBY8wyhZjjfh0WaGjPVi6w5jQpvQdVA5T/b1A1o9g00HJEFXjGZtjaj5E4KPNz+7w2wwsSO4e2LvwFQSwMEFAAAAAgAoIKwXNmly+GLAwAAPg0AABgAAAB4bC93b3Jrc2hlZXRzL3NoZWV0MS54bWydl12PmzgUhv+KRaWqvSjEhnzNJJHadLet1FFHnd322hNOglXA1DZJK+2P32OHgXSCiZSLJGD7nOf4gzcvi4NUP3QGYMivIi/1MsiMqW6iSG8yKLgOZQUl9mylKrjBW7WLdKWApy6oyCM2Gk2igosyWC1c271aLWRtclHCvSK6Lgqufr+DXB6WAQ2eGr6KXWZsQ7RaVHwHD2D+re4V3kVtllQUUGohS6Jguwze0ps1S2yAG/FNwEGfXBOdycMHJdLPSNaOZSf3KOUP2/0pXQYjWyPksDE2KcefPawhz21urOxngwnaKmzg6fUT72+3HDi9R65hLfPvIjXZMpgFJIUtr3PzVR4+QjPFsc23kbl23+RwHEtx8KbWRhZNMFZQiPL4y381S3MakHgCWBPAngXEI09A3ATEbqLHyty03nPDVwslD0TZ0ZjNXri1cdE4G1HajX0wCnsFxpnV3Zf3f33+ckPWsqi44i9fsJje4jeb3kpcDpJKoclO1ZXU5JV5Y0AbImtyx8vyzfdMmBJ+v15EBiux+aINfrCCtgzWlsFcGcxTxnFL5A35YFHkP/KN51KFBOvKgSAUCFc/a7GXpOSkynGq7lDbWjayEkCwvpSnUocD1SRtNYmrJvZU44r4M48Lezcc5moewI9b/NjlSTx51rI0CufdV8Excuwi7UO7X7E4pIto38ObtLzJ1bzJOS8Jx/28acubXs2bnvNYOOvnzVre7Gre7Jw3Dlk/b97y5lfz5n37N+/n0VH3EI+uJjahz7bQc2ToiW7Q65G0bxc9p4Z2GkHZ9UjWt5Geg0PjDhlfj4zPkdS7l5320GQQ+Y9CccO/TtOrQE3w5BQ6C2MPtFMcOiw5F6Djc+jUO9NOduiw7lyATs6hc++57bSHDovPBei0b3mnHmgnQHRYgS5AZ33L63tcOhWiwzJ0ATrvW17PQWKdErFhJRqGNsF/Lq8H2SkRG1aiC0h6hoxHvmPETvzKsBZdgLK+HfX8rbBOGlgy6JJevpiN5/EteagftRGmRieEzlwTDXVr0oDsrQ0BHZK3qdigVQZrkhQUcs8JZsy4RstUWvsEpIQNaG393vhWCdlrnqITd1mA2jnTbXPUpbFm6KS1s/rO/z5vZ8nTO8BZD3Y4P9sBjm8Wd1ztRKlJDluEjcIpSpE6WvPjjZGVc7eP0qBXdpcZvuCAsgOwfyulebqxgPaVafU/UEsDBBQAAAAIAKCCsFyIH9xMAAMAAGoPAAANAAAAeGwvc3R5bGVzLnhtbN1X626bMBR+FcQDjFtLw5RESpEiTdqmSu2P/XWCIZYMZsZUSZ9+PpgAaXx6XatpRBH2+Xy+c7WdzBt14PR2R6ly9iWvmoW7U6r+6nnNdkdL0nwRNa00kgtZEqWnsvCaWlKSNaBUci/0/dgrCavc5bxqy3WpGmcr2kotXN/1lvNcVKPk0jUCvZSU1LknfOGmhLONZN1aUjJ+MOIQBFvBhXSUdoUu3AAkzYOBAzMDL3ueklVCgtAzFh7bWUlGOOCbnmE0IIuN9tZP/SgJr0+shC8hZBjhrHumhMm7HFx3z3kaniMcVvuT1d2r0VqM89MCacFyXhOlqKzWetLpdMIzyOnHd4daV6iQ5BCEl+6LFRrBWQYmi3QaZ7CKVpdpRzNRfSfp2l9fmeT9TdK1pvVR0u6lc7wRMqNyyHLgHkXLOae50uqSFTt4K1FDBwilRKkHGSOFqEhXgqNGP9C0W8r5LezgX/kJ9z53zFb8lsEudKDSx6F2qB8aGjMB/imb4Z7QXr2J1qnZvVDXrY6m6ua/W6HojaQ523fzfT7Yx9gDnJ3UNT+sOCuqkprYX2xwOSdHPWcnJHvQ1mCLQDm6bOxz3KXw33MpGl0KP96lrRZQ6Tr3VCq2nUiec/PiQ1tlwh59WhJeEfLFpzvl9dt4clacnBSD1IFrY+H+hHuej2acTcu4YlU/27Eso9XZgaHpFdnoHxIn/Hp9RnPScnU3gAt3HP+gGWvLZFh1A6H3q8bxdzgYg3i4C7UtVmV0T7O0n+qj+ORMNg8oPEbG+/McwXQMZkcAw+xgHmA6Rguz8z/FM0PjMRjm28yKzFCdGapjtGxI2n0wO3adRD/2SJMkiuIYy2iaWj1IsbzFMXztbJhvoIHZAUuvyzVebbxDnu4DrKZPdQgWKd6JWKR4rgGx5w00ksRebcwOaGBVwHoH7NvtQE/ZdaIIqor5hu1gHEkSDIFetPdoHCPZieFjrw+2S6IoSewIYHYPoghDYDfiCOYB+IAhUdTdg4/uI+94T3njv+vlH1BLAwQUAAAACACggrBcl4q7HMAAAAATAgAACwAAAF9yZWxzLy5yZWxznZK5bsMwDEB/xdCeMAfQIYgzZfEWBPkBVqIP2BIFikWdv6/apXGQCxl5PTwS3B5pQO04pLaLqRj9EFJpWtW4AUi2JY9pzpFCrtQsHjWH0kBE22NDsFosPkAuGWa3vWQWp3OkV4hc152lPdsvT0FvgK86THFCaUhLMw7wzdJ/MvfzDDVF5UojlVsaeNPl/nbgSdGhIlgWmkXJ06IdpX8dx/aQ0+mvYyK0elvo+XFoVAqO3GMljHFitP41gskP7H4AUEsDBBQAAAAIAKCCsFyxYZ58OAEAACgCAAAPAAAAeGwvd29ya2Jvb2sueG1sjVHRSsNAEPyVcB9g0qIFS+OLxVoQLVb6Ktdk0yy9uw17m1b79W4SggVffLqb2WVuZm5xJj7uiY7Jl3ch5qYWaeZpGosavI031EDQSUXsrSjkQxobBlvGGkC8S6dZNku9xWAeFqPWhtNrQAKFIAUlO2KHcI6/8w4mJ4y4R4fynZv+7sAkHgN6vECZm8wksabzMzFeKIh124LJudxMhsEOWLD4Q287kx92H3tG7P7dqpHczDIVrJCj9Bu9vlWPJ9DlAbVCT+gEeGkFVkxtg+HQyWiK9CpG38N4DiXO+T81UlVhAUsqWg9Bhh4ZXGcwxBqbaJJgPeRmSRg/V9w2FLtU+sy6HBKKWrvqi+eoA16Xg8nRWQkVBihfVSwqry0VG066o9eZ3t5N7rWN1rlH5d7CC9lyDDp+0sMPUEsDBBQAAAAIAKCCsFwkHpuirQAAAPgBAAAaAAAAeGwvX3JlbHMvd29ya2Jvb2sueG1sLnJlbHO1kT0OgzAMha8S5QA1UKlDBUxdWCsuEAXzIxISxa4Kty+FAZA6dGGyni1/78lOn2gUd26gtvMkRmsGymTL7O8ApFu0ii7O4zBPahes4lmGBrzSvWoQkii6QdgzZJ7umaKcPP5DdHXdaXw4/bI48A8wvF3oqUVkKUoVGuRMwmi2NsFS4stMlqKoMhmKKpZwWiDiySBtaVZ9sE9OtOd5Fzf3Ra7N4wmu3wxweHT+AVBLAwQUAAAACACggrBcZZB5khkBAADPAwAAEwAAAFtDb250ZW50X1R5cGVzXS54bWytk01OwzAQha8SZVslLixYoKYbYAtdcAFjTxqr/pNnWtLbM07aSqASFYVNrHjevM+el6zejxGw6J312JQdUXwUAlUHTmIdIniutCE5SfyatiJKtZNbEPfL5YNQwRN4qih7lOvVM7Ryb6l46XkbTfBNmcBiWTyNwsxqShmjNUoS18XB6x+U6kSouXPQYGciLlhQiquEXPkdcOp7O0BKRkOxkYlepWOV6K1AOlrAetriyhlD2xoFOqi945YaYwKpsQMgZ+vRdDFNJp4wjM+72fzBZgrIyk0KETmxBH/HnSPJ3VVkI0hkpq94IbL17PtBTluDvpHN4/0MaTfkgWJY5s/4e8YX/xvO8RHC7r8/sbzWThp/5ovhP15/AVBLAQIUAxQAAAAIAKCCsFxGx01IlQAAAM0AAAAQAAAAAAAAAAAAAACAAQAAAABkb2NQcm9wcy9hcHAueG1sUEsBAhQDFAAAAAgAoIKwXAkBSmTuAAAAKwIAABEAAAAAAAAAAAAAAIABwwAAAGRvY1Byb3BzL2NvcmUueG1sUEsBAhQDFAAAAAgAoIKwXJlcnCMQBgAAnCcAABMAAAAAAAAAAAAAAIAB4AEAAHhsL3RoZW1lL3RoZW1lMS54bWxQSwECFAMUAAAACACggrBc2aXL4YsDAAA+DQAAGAAAAAAAAAAAAAAAgIEhCAAAeGwvd29ya3NoZWV0cy9zaGVldDEueG1sUEsBAhQDFAAAAAgAoIKwXIgf3EwAAwAAag8AAA0AAAAAAAAAAAAAAIAB4gsAAHhsL3N0eWxlcy54bWxQSwECFAMUAAAACACggrBcl4q7HMAAAAATAgAACwAAAAAAAAAAAAAAgAENDwAAX3JlbHMvLnJlbHNQSwECFAMUAAAACACggrBcsWGefDgBAAAoAgAADwAAAAAAAAAAAAAAgAH2DwAAeGwvd29ya2Jvb2sueG1sUEsBAhQDFAAAAAgAoIKwXCQem6KtAAAA+AEAABoAAAAAAAAAAAAAAIABWxEAAHhsL19yZWxzL3dvcmtib29rLnhtbC5yZWxzUEsBAhQDFAAAAAgAoIKwXGWQeZIZAQAAzwMAABMAAAAAAAAAAAAAAIABQBIAAFtDb250ZW50X1R5cGVzXS54bWxQSwUGAAAAAAkACQA+AgAAihMAAAAA",
+  "modelo_multiplos_grupos": "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",
+  "modelo_regressao_simples": "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",
+  "modelo_regressao_multipla": "UEsDBBQAAAAIAKCCsFxGx01IlQAAAM0AAAAQAAAAZG9jUHJvcHMvYXBwLnhtbE3PTQvCMAwG4L9SdreZih6kDkQ9ip68zy51hbYpbYT67+0EP255ecgboi6JIia2mEXxLuRtMzLHDUDWI/o+y8qhiqHke64x3YGMsRoPpB8eA8OibdeAhTEMOMzit7Dp1C5GZ3XPlkJ3sjpRJsPiWDQ6sScfq9wcChDneiU+ixNLOZcrBf+LU8sVU57mym/8ZAW/B7oXUEsDBBQAAAAIAKCCsFwJAUpk7gAAACsCAAARAAAAZG9jUHJvcHMvY29yZS54bWzNksFKxDAQhl9Fcm8n6WIPoduL4klBcEHxFpLZ3WCThmSk3bc3jbtdRB/AY2b+fPMNTKeD1GPE5zgGjGQx3cxu8EnqsGVHoiABkj6iU6nOCZ+b+zE6RfkZDxCU/lAHhIbzFhySMooULMAqrETWd0ZLHVHRGM94o1d8+IxDgRkNOKBDTwlELYD1y8RwmocOroAFRhhd+i6gWYml+ie2dICdk3Oya2qapnralFzeQcDb0+NLWbeyPpHyGvOvZCWdAm7ZZfLr5u5+98D6hjdtxW8r0e5EKxshuXhfXH/4XYXdaOze/mPji2Dfwa+76L8AUEsDBBQAAAAIAKCCsFyZXJwjEAYAAJwnAAATAAAAeGwvdGhlbWUvdGhlbWUxLnhtbO1aW3PaOBR+76/QeGf2bQvGNoG2tBNzaXbbtJmE7U4fhRFYjWx5ZJGEf79HNhDLlg3tkk26mzwELOn7zkVH5+g4efPuLmLohoiU8nhg2S/b1ru3L97gVzIkEUEwGaev8MAKpUxetVppAMM4fckTEsPcgosIS3gUy9Zc4FsaLyPW6rTb3VaEaWyhGEdkYH1eLGhA0FRRWm9fILTlHzP4FctUjWWjARNXQSa5iLTy+WzF/NrePmXP6TodMoFuMBtYIH/Ob6fkTlqI4VTCxMBqZz9Wa8fR0kiAgsl9lAW6Sfaj0xUIMg07Op1YznZ89sTtn4zK2nQ0bRrg4/F4OLbL0otwHATgUbuewp30bL+kQQm0o2nQZNj22q6RpqqNU0/T933f65tonAqNW0/Ta3fd046Jxq3QeA2+8U+Hw66JxqvQdOtpJif9rmuk6RZoQkbj63oSFbXlQNMgAFhwdtbM0gOWXin6dZQa2R273UFc8FjuOYkR/sbFBNZp0hmWNEZynZAFDgA3xNFMUHyvQbaK4MKS0lyQ1s8ptVAaCJrIgfVHgiHF3K/99Ze7yaQzep19Os5rlH9pqwGn7bubz5P8c+jkn6eT101CznC8LAnx+yNbYYcnbjsTcjocZ0J8z/b2kaUlMs/v+QrrTjxnH1aWsF3Pz+SejHIju932WH32T0duI9epwLMi15RGJEWfyC265BE4tUkNMhM/CJ2GmGpQHAKkCTGWoYb4tMasEeATfbe+CMjfjYj3q2+aPVehWEnahPgQRhrinHPmc9Fs+welRtH2Vbzco5dYFQGXGN80qjUsxdZ4lcDxrZw8HRMSzZQLBkGGlyQmEqk5fk1IE/4rpdr+nNNA8JQvJPpKkY9psyOndCbN6DMawUavG3WHaNI8ev4F+Zw1ChyRGx0CZxuzRiGEabvwHq8kjpqtwhErQj5iGTYacrUWgbZxqYRgWhLG0XhO0rQR/FmsNZM+YMjszZF1ztaRDhGSXjdCPmLOi5ARvx6GOEqa7aJxWAT9nl7DScHogstm/bh+htUzbCyO90fUF0rkDyanP+kyNAejmlkJvYRWap+qhzQ+qB4yCgXxuR4+5Xp4CjeWxrxQroJ7Af/R2jfCq/iCwDl/Ln3Ppe+59D2h0rc3I31nwdOLW95GblvE+64x2tc0LihjV3LNyMdUr5Mp2DmfwOz9aD6e8e362SSEr5pZLSMWkEuBs0EkuPyLyvAqxAnoZFslCctU02U3ihKeQhtu6VP1SpXX5a+5KLg8W+Tpr6F0PizP+Txf57TNCzNDt3JL6raUvrUmOEr0scxwTh7LDDtnPJIdtnegHTX79l125COlMFOXQ7gaQr4Dbbqd3Do4npiRuQrTUpBvw/npxXga4jnZBLl9mFdt59jR0fvnwVGwo+88lh3HiPKiIe6hhpjPw0OHeXtfmGeVxlA0FG1srCQsRrdguNfxLBTgZGAtoAeDr1EC8lJVYDFbxgMrkKJ8TIxF6HDnl1xf49GS49umZbVuryl3GW0iUjnCaZgTZ6vK3mWxwVUdz1Vb8rC+aj20FU7P/lmtyJ8MEU4WCxJIY5QXpkqi8xlTvucrScRVOL9FM7YSlxi84+bHcU5TuBJ2tg8CMrm7Oal6ZTFnpvLfLQwJLFuIWRLiTV3t1eebnK56Inb6l3fBYPL9cMlHD+U751/0XUOufvbd4/pukztITJx5xREBdEUCI5UcBhYXMuRQ7pKQBhMBzZTJRPACgmSmHICY+gu98gy5KRXOrT45f0Usg4ZOXtIlEhSKsAwFIRdy4+/vk2p3jNf6LIFthFQyZNUXykOJwT0zckPYVCXzrtomC4Xb4lTNuxq+JmBLw3punS0n/9te1D20Fz1G86OZ4B6zh3OberjCRaz/WNYe+TLfOXDbOt4DXuYTLEOkfsF9ioqAEativrqvT/klnDu0e/GBIJv81tuk9t3gDHzUq1qlZCsRP0sHfB+SBmOMW/Q0X48UYq2msa3G2jEMeYBY8wyhZjjfh0WaGjPVi6w5jQpvQdVA5T/b1A1o9g00HJEFXjGZtjaj5E4KPNz+7w2wwsSO4e2LvwFQSwMEFAAAAAgAoIKwXEVNWaqSBQAARxYAABgAAAB4bC93b3Jrc2hlZXRzL3NoZWV0MS54bWyNWGtv2zYU/SuECxQpVsgi9bRjG6hlBy2woEGybsmngLEYR6gkapSUZECx3z5KViSH98rYB9t6nPs45CUPfRcvUv0sn4SoyGuW5uVy8lRVxXw6LXdPIuOlJQuR6zePUmW80rdqPy0LJXjcGmXplNm2P814kk9Wi/bZlVotZF2lSS6uFCnrLOPqn7VI5ctyQidvD66T/VPVPJiuFgXfixtR/SiulL6b9l7iJBN5mcicKPG4nHyh8wvmNwYt4s9EvJRH16Sh8iDlz+bmW7yc2E1GIhW7qnHB9c+ziESaNp50Hn93Tid9zMbw+PrN+0VLXpN54KWIZPpXEldPy0k4IbF45HVaXcuXr6Ij5DX+djIt22/ycsBSDd7VZSWzzlhnkCX54Ze/dgPxfwxYZ8AMA2aPGDidgWNGGDNwOwPXjMBGDLzOwDMMnLEIfmfQTub0MFjtSG94xVcLJV+IatDaW3PRTldrrQc4yZvKuqmUfptou2p1+X2z/f37nFyLvRJl+fEDY8G5JJf6wrPP0yopUk4+fggZZefkjvxLbin5jdyy5sshlmUtppVOo3E23emPDt/nwPocWJsDG8nhUCJyTu7udQ6FLCtOfjWBfjWBfnWByFmhdE0nihNNus45udleXl1vdXbMcXRyn06k4vSpOG0qzkgqP0pB8gN91zmP61SaIxNzooek4u2iJmf523Nt9ZjWr5LoLPNdUvD0VD5en4/X5uOO5LNOpN5ISn6/f++stV2ftv1DZIVQvKoVv48Q8+i0+ZUSmkZS8R2X91mGONicdlB8RWy2p20imce13muSmMfivr45MYR+P4R+69JrXTY76fPK9Sy2mD4fjxUEsdBy3oMiCKKu9x6zgRjfCt9jtoif0O4x72gEPY2gNfKPjJzQogYNCGKeCYogiDLboAExgelniwSjIzTCnkYIuHvMcg0aEOTY5pRFEER9kwbE+JYxY1vMj4fTmPU0ZoC7S816WUMQA+EjCKKOSQNiAjPYFvEzG6FB7WH7t+HqCK2ZQQRBsRmoKwRFPWPWNgjItwKDC+YpYCNkjrSMwjXimc7XCIo55hqNEBS1Q5MMBAWgvrB4bGxmBlGkDK4UuG8hKIea6ylCUNQHZCDINz1tMU9eOEJmkFXqwPXigN0LQbEArHsERR1ABoJAkSF+wjEq7kDFhfNiW75JBaL0igFFBlHUMxUFAflmvC3mKRjZjOlwvKAeXDEB2I4RFHPBRoagKAVkIAjE22Lx6NjMDEJPEe1lsMggygGlGCGoY43uyGBiz0wy2KlhjMwg9xRR1xlQGAwFKEcIagYmBlN88+CChXPHqmzQfIqIfgj3ZUT1wdpHxDoAEoOpvimXmCdvbFcedJ8iwu/C1Y8oPxjNCEFRF5CBIN/U5y3mKRzRSzaIP4Myq5eCKTEIigFUhKCobZJBQAHYytB4I0XGBvFnUGZdIMZrBKUP+ubMIKjjNduRgSB41Mc8BSNlxo7+EUOZdW3T+RpBMd+kggg2Mxc/AgK6u8Wi2WNFNkg/gzLrOeCEiaAcQDhCUNR3TDIQBA/9qKcxMoNeMu9kq+Ljh9CbOefkymhFLMkdOXtrXnyyyEZkPCm7t6V+XSgRJ5XUEHJLP5Nb1nQ0yJc42SUyF0TWRIlMPvPeZCfzpsUgSC52XfvBO1eJPNlwGaSS+ad4NP3KeVnwnVhOdGalUM9isiKEbJIdn5O67YJkOtdY9AnFotypRP83l01yGanz9k86OROvc/Ku1/CZFF8/k6F1gTZCpkc9q0yofdtdbDzXeXXoj/RPuw4mm1+0fTvzOZ1fUOw5899anuYbZ37hoBaetmgbcdMhpUOL9ZKrfZKXJBWPOj3bCnSdqEPX8nBTyaLtsj3IqpJZe/kk9PioBqDfP0pZvd00Afre8eo/UEsDBBQAAAAIAKCCsFyFETjRCwMAAMYPAAANAAAAeGwvc3R5bGVzLnhtbN1XbW+bMBD+K4gfMELcsDAlkVKkSJO2qVL7YV+dYIglg5kxVdJfPx8mQBpf2+ylmgaqsO/xPff4zi/potZHwe73jGnvUIiyXvp7ratPQVDv9qyg9QdZsdIgmVQF1aar8qCuFKNpDU6FCKaTSRQUlJf+alE2xabQtbeTTamX/sQPVotMloMl8q3BDKUF8x6pWPoJFXyreDuWFlwcrXkKhp0UUnnaSGFLPwRL/WTh0PZAZcdT8FIqMAY2wvM4a8WpAHzbMQwBVL41aifJhMTT27Mo07cQcoxw3j5jwvhagSj3pdiruc/4Nu1zmeLXCPvRk9Ho9lMbLy5EX/yZbw2rRUW1ZqrcmE7r0xovIK9rPxwrU/1c0WM4nflvdqil4CmEzJPxPMM1Wc+Slmbk+pukm5l5N3+atK+Ik7T9mBxvpUqZ6rMc+ifTaiFYpo274vkevlpWsAKk1rIwjZTTXJa0LcHJo2sY2h0T4h5Oh+/ZGfch8+w2/5zCDveg0qemEdQ1LY3tAP+YzXKPaD/+Eq1X8Uepbxszm7Lt/2ikZneKZfzQ9g9ZHx9jD3F2WlXiuBY8Lwtm5/7mgKsFPfl5e6n4k4kGWwTK0WbjkOGSpv+eJPJXa3AzsE///oR3xsCU7z0ypfluZHktCbNBJnk3mVeIunl3UUG3jUdnxdlJ0Vs9uDaW/jf4DSGGMN624ULzsuvteZqy8uLAMPSabs2PlDN+Mz5lGW2EfujBpT+0v7KUN0Xcj7qDqXejhvYXOBjDqL8LTSxepuzA0qTrmqP47Ey2Dzg8R4bT+hLBfCzmRgDD4mAKMB/rhcX5n+YzR+djMUzb3InMUZ856mO9XEjSvlgct09sHvdM45iQKMIymiROBQmWtyiCPzcbpg08sDgQ6bpc49XGV8jL6wCr6UsrBJspvhKxmeK5BsSdN/CIY3e1sTjggVUBWzsQ3x0H1pTbhxCoKqYN28E4EscYAmvRvUajCMlOBK+7PtguISSO3QhgbgWEYAjsRhzBFIAGDCGkvQef3UfB6Z4Khv/cVz8BUEsDBBQAAAAIAKCCsFyXirscwAAAABMCAAALAAAAX3JlbHMvLnJlbHOdkrluwzAMQH/F0J4wB9AhiDNl8RYE+QFWog/YEgWKRZ2/r9qlcZALGXk9PBLcHmlA7TiktoupGP0QUmla1bgBSLYlj2nOkUKu1CweNYfSQETbY0OwWiw+QC4ZZre9ZBanc6RXiFzXnaU92y9PQW+ArzpMcUJpSEszDvDN0n8y9/MMNUXlSiOVWxp40+X+duBJ0aEiWBaaRcnToh2lfx3H9pDT6a9jIrR6W+j5cWhUCo7cYyWMcWK0/jWCyQ/sfgBQSwMEFAAAAAgAoIKwXJXtHQw9AQAALwIAAA8AAAB4bC93b3JrYm9vay54bWyNUctuwjAQ/JXIH9AAapGKCJeitkh9IKi4VibZkBW2N1pvoOXru0kUFamXnuyZXY1nxvMz8XFPdEy+vAsxM5VIPUvTmFfgbbyhGoJOSmJvRSEf0lgz2CJWAOJdOhmNpqm3GMxiPmitOb0GJJALUlCyJXYI5/g7b2Fywoh7dCjfmenuDkziMaDHCxSZGZkkVnR+JsYLBbFumzM5l5lxP9gBC+Z/6G1r8sPuY8eI3W+sGsnMdKSCJXKUbqPTt+rxBLrco0boEZ0AL63AE1NTYzi0MpoivYrR9TCcfYkz/k+NVJaYw5LyxkOQvkcG1xoMscI6miRYD5nZwIEhRkufr40TrJ1tw+lrq6IPKurwqjaeoQ54VfReB4MFlBigeFPNqLyWla85aY9OZ3J7N77XUhrnHpR7Dy9kiyHv8FeLH1BLAwQUAAAACACggrBcJB6boq0AAAD4AQAAGgAAAHhsL19yZWxzL3dvcmtib29rLnhtbC5yZWxztZE9DoMwDIWvEuUANVCpQwVMXVgrLhAF8yMSEsWuCrcvhQGQOnRhsp4tf+/JTp9oFHduoLbzJEZrBspky+zvAKRbtIouzuMwT2oXrOJZhga80r1qEJIoukHYM2Se7pminDz+Q3R13Wl8OP2yOPAPMLxd6KlFZClKFRrkTMJotjbBUuLLTJaiqDIZiiqWcFog4skgbWlWfbBPTrTneRc390WuzeMJrt8McHh0/gFQSwMEFAAAAAgAoIKwXGWQeZIZAQAAzwMAABMAAABbQ29udGVudF9UeXBlc10ueG1srZNNTsMwEIWvEmVbJS4sWKCmG2ALXXABY08aq/6TZ1rS2zNO2kqgEhWFTax43rzPnpes3o8RsOid9diUHVF8FAJVB05iHSJ4rrQhOUn8mrYiSrWTWxD3y+WDUMETeKooe5Tr1TO0cm+peOl5G03wTZnAYlk8jcLMakoZozVKEtfFwesflOpEqLlz0GBnIi5YUIqrhFz5HXDqeztASkZDsZGJXqVjleitQDpawHra4soZQ9saBTqoveOWGmMCqbEDIGfr0XQxTSaeMIzPu9n8wWYKyMpNChE5sQR/x50jyd1VZCNIZKaveCGy9ez7QU5bg76RzeP9DGk35IFiWObP+HvGF/8bzvERwu6/P7G81k4af+aL4T9efwFQSwECFAMUAAAACACggrBcRsdNSJUAAADNAAAAEAAAAAAAAAAAAAAAgAEAAAAAZG9jUHJvcHMvYXBwLnhtbFBLAQIUAxQAAAAIAKCCsFwJAUpk7gAAACsCAAARAAAAAAAAAAAAAACAAcMAAABkb2NQcm9wcy9jb3JlLnhtbFBLAQIUAxQAAAAIAKCCsFyZXJwjEAYAAJwnAAATAAAAAAAAAAAAAACAAeABAAB4bC90aGVtZS90aGVtZTEueG1sUEsBAhQDFAAAAAgAoIKwXEVNWaqSBQAARxYAABgAAAAAAAAAAAAAAICBIQgAAHhsL3dvcmtzaGVldHMvc2hlZXQxLnhtbFBLAQIUAxQAAAAIAKCCsFyFETjRCwMAAMYPAAANAAAAAAAAAAAAAACAAekNAAB4bC9zdHlsZXMueG1sUEsBAhQDFAAAAAgAoIKwXJeKuxzAAAAAEwIAAAsAAAAAAAAAAAAAAIABHxEAAF9yZWxzLy5yZWxzUEsBAhQDFAAAAAgAoIKwXJXtHQw9AQAALwIAAA8AAAAAAAAAAAAAAIABCBIAAHhsL3dvcmtib29rLnhtbFBLAQIUAxQAAAAIAKCCsFwkHpuirQAAAPgBAAAaAAAAAAAAAAAAAACAAXITAAB4bC9fcmVscy93b3JrYm9vay54bWwucmVsc1BLAQIUAxQAAAAIAKCCsFxlkHmSGQEAAM8DAAATAAAAAAAAAAAAAACAAVcUAABbQ29udGVudF9UeXBlc10ueG1sUEsFBgAAAAAJAAkAPgIAAKEVAAAAAA==",
+  "modelo_regressao_por_grupo": "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"
+};
+
+function downloadPlanilha(key, filename) {
+  const b64 = PLANILHAS_B64[key];
+  if (!b64) { showToast("Planilha não encontrada", "error"); return; }
+  const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+  const blob = new Blob([bytes], {type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  showToast("Planilha baixada: " + filename, "success");
+}
+
+
+// ============================================================
+//  MOBILE NAV
+// ============================================================
+function mnavTo(view) {
+  navTo(view);
+  // atualiza botoes da bottom bar
+  document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('mnav-' + view);
+  if (btn) btn.classList.add('active');
+}
+
+function openMobileMenu() {
+  document.getElementById('mobileOverlay').classList.add('open');
+  document.getElementById('mobileDrawer').classList.add('open');
+}
+
+function closeMobileMenu() {
+  document.getElementById('mobileOverlay').classList.remove('open');
+  document.getElementById('mobileDrawer').classList.remove('open');
+}
+
+// patch navTo para atualizar mobile nav também
+const _navToOrig = navTo;
+// Override já incluído via mnavTo — mas garantir que navTo direto tb atualize
+
+</script>
+</body>
+</html>
