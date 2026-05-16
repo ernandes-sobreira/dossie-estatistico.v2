@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estatística Bloco 4 — Dossiê v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Karla:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f8f7f4;--surface:#f0ede8;--surface2:#e8e4dd;--card:#fff;
+  --text:#1a1814;--text2:#5a554e;--muted:#9e9890;--line:#e2ddd7;--ink:#1a1814;
+  --rust:#c0392b;--rust-light:rgba(192,57,43,0.1);
+  --teal:#0a7c6e;--teal-light:rgba(10,124,110,0.1);
+  --navy:#1a3a5c;--navy-light:rgba(26,58,92,0.1);
+  --gold:#c47a00;--gold-light:rgba(196,122,0,0.1);
+  --plum:#6b2e7e;--plum-light:rgba(107,46,126,0.1);
+  --green:#1a7c3a;--green-light:rgba(26,124,58,0.1);
+  --font-display:'Syne',sans-serif;--font-body:'Karla',sans-serif;--font-mono:'Space Mono',monospace;
+  --radius-sm:8px;--radius:14px;--radius-lg:20px;
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.07);--shadow-md:0 6px 20px rgba(0,0,0,0.09);
+  --transition:0.2s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+
+.topbar{background:var(--ink);color:#fff;display:flex;align-items:center;padding:0 24px;gap:16px;height:54px;position:sticky;top:0;z-index:100}
+.tlogo{font-family:var(--font-display);font-size:16px;font-weight:800;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px}
+.tbadge{background:var(--rust);font-family:var(--font-mono);font-size:10px;padding:2px 7px;border-radius:4px}
+.tsep{width:1px;height:22px;background:rgba(255,255,255,0.15)}
+.tsub{color:rgba(255,255,255,0.45);font-size:13px}
+.tback{margin-left:auto;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.85);font-family:var(--font-display);font-size:12px;font-weight:700;padding:5px 13px;border-radius:6px;cursor:pointer;transition:var(--transition)}
+.tback:hover{background:rgba(255,255,255,0.2);color:#fff}
+
+.shell{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 54px)}
+.sidebar{background:var(--ink);padding:20px 0;position:sticky;top:54px;height:calc(100vh - 54px);overflow-y:auto}
+.slabel{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;color:rgba(255,255,255,0.3);text-transform:uppercase;padding:0 18px 6px;margin-top:14px}
+.slabel:first-child{margin-top:0}
+.snav{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;font-size:13px;font-weight:500;color:rgba(255,255,255,0.5);border-left:3px solid transparent;transition:var(--transition)}
+.snav:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.05)}
+.snav.active{color:#fff;background:rgba(255,255,255,0.08);border-left-color:var(--rust)}
+.sicon{font-size:14px;width:20px;text-align:center}
+.main{padding:30px 34px;max-width:940px}
+
+.mtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:28px;border-bottom:2px solid var(--ink);padding-bottom:16px}
+.mtab{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--radius-sm);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;background:var(--surface);border:1.5px solid var(--line);color:var(--text2);transition:var(--transition)}
+.mtab:hover{border-color:var(--ink);color:var(--ink)}
+.mtab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:18px}
+.card:hover{box-shadow:var(--shadow-sm)}
+.ctitle{font-family:var(--font-display);font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.cicon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.c-teal{background:var(--teal-light)}.c-rust{background:var(--rust-light)}.c-navy{background:var(--navy-light)}.c-gold{background:var(--gold-light)}.c-plum{background:var(--plum-light)}.c-green{background:var(--green-light)}
+
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.fgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+label{font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text2)}
+input[type="text"],input[type="number"],select,textarea{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:9px 12px;font-family:var(--font-body);font-size:14px;color:var(--text);outline:none;width:100%;transition:var(--transition)}
+input:focus,select:focus,textarea:focus{border-color:var(--teal);background:#fff;box-shadow:0 0 0 3px rgba(10,124,110,0.1)}
+textarea{resize:vertical;font-family:var(--font-mono);font-size:12.5px;line-height:1.55}
+.hint{font-size:12px;color:var(--muted);line-height:1.4;margin-top:3px}
+
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;transition:var(--transition);border:none;white-space:nowrap}
+.btn-primary{background:var(--teal);color:#fff}.btn-primary:hover{background:#086b5e;transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.btn-danger{background:var(--rust);color:#fff}.btn-danger:hover{background:#a93226}
+.btn-ghost{background:transparent;border:1.5px solid var(--line);color:var(--text2)}.btn-ghost:hover{border-color:var(--text2);color:var(--text);background:var(--surface)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px}
+
+.rbox{background:var(--ink);border-radius:var(--radius);padding:18px 20px;font-family:var(--font-mono);font-size:12px;line-height:1.85;color:rgba(255,255,255,0.9);white-space:pre-wrap;overflow-x:auto;min-height:60px;margin-bottom:14px}
+.cwrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+.cwrap.hidden{display:none}
+.ctit{font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--text2);margin-bottom:12px}
+.cexp{font-size:13px;color:var(--text2);margin-top:10px;padding:9px 13px;background:var(--surface);border-radius:var(--radius-sm);border-left:3px solid var(--teal)}
+
+.kstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.kstrip5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;text-align:center}
+.klabel{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.kval{font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--ink);line-height:1}
+.knote{font-size:11px;color:var(--muted);margin-top:3px}
+.hi-teal{border-color:var(--teal)}.hi-teal .kval{color:var(--teal)}
+.hi-rust{border-color:var(--rust)}.hi-rust .kval{color:var(--rust)}
+.hi-gold{border-color:var(--gold)}.hi-gold .kval{color:var(--gold)}
+.hi-navy{border-color:var(--navy)}.hi-navy .kval{color:var(--navy)}
+
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:99px;font-family:var(--font-display);font-size:11px;font-weight:700}
+.badge-teal{background:var(--teal-light);color:var(--teal)}
+.badge-rust{background:var(--rust-light);color:var(--rust)}
+.badge-gold{background:var(--gold-light);color:var(--gold)}
+.badge-muted{background:var(--surface2);color:var(--muted)}
+
+.tbl{width:100%;border-collapse:collapse;font-size:13px;font-family:var(--font-mono)}
+.tbl th{background:var(--ink);color:rgba(255,255,255,0.8);font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:8px 12px;text-align:right}
+.tbl th:first-child{text-align:left}
+.tbl td{padding:8px 12px;border-bottom:1px solid var(--line);text-align:right;font-size:12.5px}
+.tbl td:first-child{text-align:left;font-family:var(--font-display);font-weight:700;font-size:12px}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--surface)}
+.sig{color:var(--rust);font-weight:700}.ns{color:var(--muted)}
+
+.dbox{background:var(--ink);border-radius:var(--radius-sm);padding:12px 16px;font-family:var(--font-mono);font-size:11.5px;color:rgba(255,255,255,0.75);line-height:1.6;margin-bottom:12px}
+.dbox .c{color:rgba(255,255,255,0.35)}
+
+.interp{background:#f9f7f4;border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:var(--radius);padding:14px 16px;font-size:14px;line-height:1.7;margin-top:12px;display:none}
+.interp.show{display:block}
+
+.mv{display:none}.mv.active{display:block}
+
+/* DENDROGRAM */
+#dendroCanvas{display:block;width:100%;border-radius:var(--radius-sm)}
+
+/* BOOTSTRAP */
+.boot-ci-bar{height:24px;background:var(--surface2);border-radius:4px;position:relative;margin-bottom:8px}
+.boot-ci-fill{position:absolute;height:100%;background:var(--teal);opacity:0.35;border-radius:4px}
+.boot-ci-point{position:absolute;top:0;width:3px;height:100%;background:var(--rust)}
+.boot-ci-label{font-family:var(--font-mono);font-size:11px;color:var(--text2);margin-bottom:2px}
+
+/* CLUSTER CHIPS */
+.cluster-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:5px;font-family:var(--font-display);font-size:11px;font-weight:700;margin:3px;border:1.5px solid transparent}
+
+/* POISSON */
+.poi-sig{color:var(--rust);font-weight:700}
+.poi-ns{color:var(--muted)}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:10px 22px;border-radius:99px;font-family:var(--font-display);font-size:13px;font-weight:600;z-index:9999;transition:0.35s cubic-bezier(0.22,1,0.36,1);pointer-events:none;box-shadow:var(--shadow-md)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.t-success{background:var(--teal)}
+#toast.t-error{background:var(--rust)}
+#toast.t-info{background:var(--navy)}
+
+.mob-bot{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--ink);border-top:1px solid rgba(255,255,255,0.1);z-index:200;padding:6px 0 env(safe-area-inset-bottom,6px)}
+.mob-items{display:flex;justify-content:space-around}
+.mbb{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.45);font-family:var(--font-display);font-size:9px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase}
+.mbb .mi{font-size:18px;line-height:1}
+.mbb.active{color:var(--rust)}
+
+@media(max-width:820px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .mob-bot{display:block}
+  .main{padding:18px 14px 90px;max-width:100%}
+  .fgrid,.fgrid3{grid-template-columns:1fr}
+  .kstrip,.kstrip5{grid-template-columns:1fr 1fr}
+  .mtabs{gap:4px}
+  .mtab{padding:7px 11px;font-size:12px}
+  .tsub,.tsep{display:none}
+}
+@media(max-width:480px){
+  .kstrip,.kstrip5{grid-template-columns:1fr 1fr;gap:8px}
+  .kval{font-size:17px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="tlogo"><span>Dossiê Estatístico</span><span class="tbadge">v2</span></div>
+  <div class="tsep"></div>
+  <span class="tsub">Bloco 4 — Cluster · Poisson · Bootstrap</span>
+  <button class="tback" onclick="window.location.href='index.html'">← Painel principal</button>
+</header>
+
+<div class="shell">
+<nav class="sidebar">
+  <div class="slabel">Módulos</div>
+  <div class="snav active" id="snav-cluster" onclick="sw('cluster')"><span class="sicon">🌳</span>Análise de Cluster</div>
+  <div class="snav" id="snav-poisson" onclick="sw('poisson')"><span class="sicon">🔢</span>Regressão de Poisson</div>
+  <div class="snav" id="snav-boot" onclick="sw('boot')"><span class="sicon">🎲</span>Bootstrap</div>
+  <div class="slabel">Referência</div>
+  <div class="snav" id="snav-ajuda" onclick="sw('ajuda')"><span class="sicon">📖</span>Guia</div>
+  <div style="margin-top:auto;padding:16px 18px;border-top:1px solid rgba(255,255,255,0.08);margin-top:30px">
+    <div style="font-family:var(--font-mono);font-size:10px;color:rgba(255,255,255,0.22)">Dossiê v2 · Bloco 4<br>UNEMAT — Cáceres</div>
+  </div>
+</nav>
+
+<main class="main">
+
+<div class="mtabs">
+  <div class="mtab active" onclick="sw('cluster')">🌳 Cluster</div>
+  <div class="mtab" onclick="sw('poisson')">🔢 Poisson</div>
+  <div class="mtab" onclick="sw('boot')">🎲 Bootstrap</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MÓDULO 1 — ANÁLISE DE CLUSTER
+══════════════════════════════════════════ -->
+<div class="mv active" id="mv-cluster">
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">Módulo 01</div>
+    <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">Análise de Cluster</div>
+    <div style="color:var(--text2);font-size:14px;margin-top:5px">Agrupamento hierárquico (Ward, Complete, Average) + k-means — dendrograma e silhueta</div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-navy">📥</span>Dados</div>
+    <div class="dbox">
+      <span class="c"># Primeira linha = cabeçalho. Primeira coluna = rótulo (opcional).</span><br>
+      <span class="c"># Demais colunas = variáveis numéricas</span><br>
+      Site, Temperatura, pH, OD, Turbidez<br>
+      Rio_A, 28.3, 6.8, 7.2, 12.4<br>
+      Rio_B, 25.1, 7.1, 8.1, 8.3
+    </div>
+    <div class="field">
+      <label>Matriz de dados</label>
+      <textarea id="clData" rows="12" placeholder="Site, Var1, Var2, Var3&#10;A, 28.3, 6.8, 7.2&#10;B, 25.1, 7.1, 8.1&#10;..."></textarea>
+    </div>
+    <div class="btn-row" style="margin-bottom:12px">
+      <button class="btn btn-ghost btn-sm" onclick="clDemo('hidro')">💧 Limnologia</button>
+      <button class="btn btn-ghost btn-sm" onclick="clDemo('solo')">🌱 Solo</button>
+      <button class="btn btn-ghost btn-sm" onclick="clDemo('especies')">🌿 Espécies</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('clData').value=''">🗑 Limpar</button>
+    </div>
+    <div class="fgrid3">
+      <div class="field">
+        <label>Método de ligação</label>
+        <select id="clMethod">
+          <option value="ward">Ward (minimiza variância)</option>
+          <option value="complete">Complete linkage</option>
+          <option value="average">Average linkage (UPGMA)</option>
+          <option value="single">Single linkage</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Distância</label>
+        <select id="clDist">
+          <option value="euclidean">Euclidiana</option>
+          <option value="manhattan">Manhattan</option>
+          <option value="bray">Bray-Curtis (ecologia)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Padronizar variáveis</label>
+        <select id="clScale">
+          <option value="yes">Sim (Z-score)</option>
+          <option value="no">Não</option>
+        </select>
+      </div>
+    </div>
+    <div class="fgrid">
+      <div class="field">
+        <label>Número de clusters (k-means)</label>
+        <input type="number" id="clK" value="3" min="2" max="10">
+      </div>
+      <div class="field">
+        <label>Corte do dendrograma (nº grupos)</label>
+        <input type="number" id="clCut" value="3" min="2" max="10">
+      </div>
+    </div>
+    <button class="btn btn-danger" onclick="runCluster()">▶ Executar Cluster</button>
+  </div>
+
+  <div id="clResultsWrap" style="display:none">
+    <div class="kstrip">
+      <div class="kpi hi-teal"><div class="klabel">N amostras</div><div class="kval" id="clKN">—</div></div>
+      <div class="kpi"><div class="klabel">Variáveis</div><div class="kval" id="clKV">—</div></div>
+      <div class="kpi hi-navy"><div class="klabel">Grupos (corte)</div><div class="kval" id="clKG">—</div></div>
+      <div class="kpi"><div class="klabel">Silhueta média</div><div class="kval" id="clKSil">—</div><div class="knote" id="clKSilNote"></div></div>
+    </div>
+
+    <div class="cwrap">
+      <div class="ctit">Dendrograma</div>
+      <canvas id="dendroCanvas" height="340"></canvas>
+      <div class="cexp" id="clDendroExplain"></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+      <div class="cwrap">
+        <div class="ctit">Silhueta por amostra</div>
+        <canvas id="clSilChart" height="240"></canvas>
+        <div class="cexp" id="clSilExplain"></div>
+      </div>
+      <div class="cwrap">
+        <div class="ctit">Dispersão k-means (PC1 × PC2)</div>
+        <canvas id="clScatterChart" height="240"></canvas>
+        <div class="cexp" id="clScatterExplain"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-teal">🏷</span>Composição dos grupos</div>
+      <div id="clGroupChips"></div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-navy">📄</span>Saída completa</div>
+      <div class="rbox" id="clResultBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="copyEl('clResultBox')">📋 Copiar</button>
+        <button class="btn btn-ghost btn-sm" onclick="genClInterp()">💬 Interpretação</button>
+      </div>
+    </div>
+    <div class="interp" id="clInterp"><strong style="font-family:var(--font-display)">Interpretação:</strong> <span id="clInterpText"></span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MÓDULO 2 — REGRESSÃO DE POISSON
+══════════════════════════════════════════ -->
+<div class="mv" id="mv-poisson">
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">Módulo 02</div>
+    <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">Regressão de Poisson</div>
+    <div style="color:var(--text2);font-size:14px;margin-top:5px">Para dados de contagem — espécies, eventos, focos de queimada, ocorrências</div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-navy">📥</span>Dados</div>
+    <div class="dbox">
+      <span class="c"># Primeira coluna = Y (contagem inteira ≥ 0). Demais = preditores X.</span><br>
+      Riqueza, Temperatura, Precipitacao, pH<br>
+      12, 28.3, 145, 6.8<br>
+      8, 25.1, 120, 7.1<br>
+      18, 30.2, 160, 6.5
+    </div>
+    <div class="field">
+      <label>Dados (Y contagem | X1 | X2 ...)</label>
+      <textarea id="poiData" rows="12" placeholder="Y, X1, X2&#10;12, 28.3, 6.8&#10;8, 25.1, 7.1&#10;..."></textarea>
+    </div>
+    <div class="btn-row" style="margin-bottom:12px">
+      <button class="btn btn-ghost btn-sm" onclick="poiDemo(1)">🐟 Riqueza de peixes</button>
+      <button class="btn btn-ghost btn-sm" onclick="poiDemo(2)">🔥 Focos de queimada</button>
+      <button class="btn btn-ghost btn-sm" onclick="poiDemo(3)">🦟 Vetores de doença</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('poiData').value=''">🗑 Limpar</button>
+    </div>
+    <div class="fgrid">
+      <div class="field">
+        <label>Iterações máximas (IRLS)</label>
+        <input type="number" id="poiIter" value="100" min="20" max="500">
+      </div>
+      <div class="field">
+        <label>Testar superdispersão</label>
+        <select id="poiOverdisp">
+          <option value="yes">Sim (calcular índice φ)</option>
+          <option value="no">Não</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-danger" onclick="runPoisson()">▶ Ajustar Regressão de Poisson</button>
+  </div>
+
+  <div id="poiResultsWrap" style="display:none">
+    <div class="kstrip5">
+      <div class="kpi hi-teal"><div class="klabel">Deviance nula</div><div class="kval" id="poiDevNull">—</div><div class="knote" id="poiDevNullNote"></div></div>
+      <div class="kpi"><div class="klabel">Deviance residual</div><div class="kval" id="poiDevRes">—</div><div class="knote" id="poiDevResNote"></div></div>
+      <div class="kpi hi-navy"><div class="klabel">AIC</div><div class="kval" id="poiAIC">—</div><div class="knote">menor = melhor</div></div>
+      <div class="kpi"><div class="klabel">Pseudo-R²</div><div class="kval" id="poiR2">—</div><div class="knote">McFadden</div></div>
+      <div class="kpi" id="poiDispCard"><div class="klabel">Superdispersão φ</div><div class="kval" id="poiPhi">—</div><div class="knote" id="poiPhiNote"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-rust">📊</span>Coeficientes</div>
+      <div style="overflow-x:auto">
+        <table class="tbl" id="poiCoefTable">
+          <thead><tr>
+            <th style="text-align:left">Preditor</th>
+            <th>β (log-escala)</th><th>SE</th><th>z</th><th>p-valor</th>
+            <th>IRR (exp β)</th><th>IC 95% IRR</th><th>Sig.</th>
+          </tr></thead>
+          <tbody id="poiCoefBody"></tbody>
+        </table>
+      </div>
+      <div style="font-size:11.5px;color:var(--text2);margin-top:10px;line-height:1.6">
+        <strong>IRR (Incidence Rate Ratio)</strong> — quanto a contagem esperada se multiplica para cada unidade de aumento em X. IRR = 1: sem efeito · IRR > 1: aumenta contagem · IRR &lt; 1: reduz contagem
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+      <div class="cwrap">
+        <div class="ctit">Observado vs. Predito</div>
+        <canvas id="poiObsPredChart" height="240"></canvas>
+        <div class="cexp" id="poiObsPredExplain"></div>
+      </div>
+      <div class="cwrap">
+        <div class="ctit">Resíduos de Pearson</div>
+        <canvas id="poiResidChart" height="240"></canvas>
+        <div class="cexp" id="poiResidExplain"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-teal">📄</span>Saída completa</div>
+      <div class="rbox" id="poiResultBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="copyEl('poiResultBox')">📋 Copiar</button>
+        <button class="btn btn-ghost btn-sm" onclick="genPoiInterp()">💬 Interpretação</button>
+      </div>
+    </div>
+    <div class="interp" id="poiInterp"><strong style="font-family:var(--font-display)">Interpretação:</strong> <span id="poiInterpText"></span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MÓDULO 3 — BOOTSTRAP
+══════════════════════════════════════════ -->
+<div class="mv" id="mv-boot">
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">Módulo 03</div>
+    <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">Bootstrap</div>
+    <div style="color:var(--text2);font-size:14px;margin-top:5px">IC sem assumir distribuição — média, mediana, correlação, diferença de médias — qualquer n</div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-gold">⚙️</span>Configuração</div>
+    <div class="fgrid">
+      <div class="field">
+        <label>Estatística de interesse</label>
+        <select id="bootStat" onchange="updateBootUI()">
+          <option value="mean">Média</option>
+          <option value="median">Mediana</option>
+          <option value="sd">Desvio padrão</option>
+          <option value="diff_means">Diferença de médias (2 grupos)</option>
+          <option value="corr">Correlação de Pearson (X,Y)</option>
+          <option value="ratio">Razão de médias (grupo1/grupo2)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Número de reamostras (B)</label>
+        <select id="bootB">
+          <option value="1000">1.000 (rápido)</option>
+          <option value="5000" selected>5.000 (padrão)</option>
+          <option value="10000">10.000 (preciso)</option>
+        </select>
+      </div>
+    </div>
+    <div class="fgrid">
+      <div class="field">
+        <label>Nível de confiança</label>
+        <select id="bootConf">
+          <option value="0.95">95%</option>
+          <option value="0.99">99%</option>
+          <option value="0.90">90%</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Método do IC</label>
+        <select id="bootMethod">
+          <option value="percentile">Percentil (simples)</option>
+          <option value="bca">BCa (bias-corrected, recomendado)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-navy">📥</span>Dados</div>
+    <div id="bootDataHelp" style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.6">
+      Para <strong>média / mediana / DP</strong>: uma coluna de valores.<br>
+      Para <strong>diferença de médias / razão</strong>: <code style="background:var(--surface);padding:1px 6px;border-radius:4px;font-family:var(--font-mono);font-size:11px">Grupo, Valor</code><br>
+      Para <strong>correlação</strong>: <code style="background:var(--surface);padding:1px 6px;border-radius:4px;font-family:var(--font-mono);font-size:11px">X, Y</code>
+    </div>
+    <div class="field">
+      <label>Dados</label>
+      <textarea id="bootData" rows="10" placeholder="Cole os dados aqui..."></textarea>
+    </div>
+    <div class="btn-row" style="margin-bottom:12px">
+      <button class="btn btn-ghost btn-sm" onclick="bootDemo('mean')">Média (1 grupo)</button>
+      <button class="btn btn-ghost btn-sm" onclick="bootDemo('diff')">Diferença de médias</button>
+      <button class="btn btn-ghost btn-sm" onclick="bootDemo('corr')">Correlação</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('bootData').value=''">🗑 Limpar</button>
+    </div>
+    <button class="btn btn-danger" onclick="runBoot()">▶ Executar Bootstrap</button>
+  </div>
+
+  <div id="bootResultsWrap" style="display:none">
+    <div class="kstrip5">
+      <div class="kpi hi-teal"><div class="klabel">Estimativa</div><div class="kval" id="bootEst">—</div><div class="knote" id="bootEstNote"></div></div>
+      <div class="kpi hi-navy"><div class="klabel">IC inferior</div><div class="kval" id="bootLo">—</div></div>
+      <div class="kpi hi-navy"><div class="klabel">IC superior</div><div class="kval" id="bootHi">—</div></div>
+      <div class="kpi"><div class="klabel">SE bootstrap</div><div class="kval" id="bootSE">—</div></div>
+      <div class="kpi"><div class="klabel">B amostras</div><div class="kval" id="bootBval">—</div></div>
+    </div>
+
+    <div class="cwrap">
+      <div class="ctit">Distribuição bootstrap das estimativas</div>
+      <canvas id="bootHistChart" height="220"></canvas>
+      <div class="cexp" id="bootHistExplain"></div>
+    </div>
+
+    <!-- Múltiplas estatísticas side-by-side -->
+    <div class="card" id="bootMultiCard">
+      <div class="ctitle"><span class="cicon c-teal">📊</span>Estatísticas descritivas com IC bootstrap</div>
+      <div id="bootMultiBody"></div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-navy">📄</span>Saída completa</div>
+      <div class="rbox" id="bootResultBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="copyEl('bootResultBox')">📋 Copiar</button>
+        <button class="btn btn-ghost btn-sm" onclick="genBootInterp()">💬 Interpretação</button>
+      </div>
+    </div>
+    <div class="interp" id="bootInterp"><strong style="font-family:var(--font-display)">Interpretação:</strong> <span id="bootInterpText"></span></div>
+  </div>
+</div>
+
+<!-- AJUDA -->
+<div class="mv" id="mv-ajuda">
+  <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;margin-bottom:20px">Guia — Bloco 4</div>
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-navy">🌳</span>Cluster — quando usar</div>
+    <div style="font-size:13.5px;color:var(--text2);line-height:1.8">
+      <strong>Ward</strong> — minimiza a variância intra-grupo. Produz clusters compactos e de tamanho similar. Mais usado em ecologia.<br>
+      <strong>Complete linkage</strong> — baseia-se na maior distância entre elementos de dois grupos. Gera clusters compactos.<br>
+      <strong>UPGMA (Average)</strong> — usa a distância média. Padrão em filogenética e análises de comunidades.<br>
+      <strong>Bray-Curtis</strong> — distância recomendada para dados de abundância de espécies (insensível a duplos zeros).<br>
+      <strong>Silhueta</strong> — mede quão bem cada amostra pertence ao seu cluster: próximo de 1 = ótimo, 0 = fronteira, negativo = possível erro de classificação.
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-rust">🔢</span>Poisson — superdispersão</div>
+    <div style="font-size:13.5px;color:var(--text2);line-height:1.8">
+      A regressão de Poisson assume que média = variância. Quando a variância é muito maior que a média (superdispersão, φ > 1,5), os erros padrão são subestimados e os p-valores ficam otimistas demais.<br><br>
+      <strong>φ ≈ 1</strong>: Poisson adequado · <strong>φ > 1,5</strong>: considere Quasi-Poisson ou Binomial Negativa · <strong>φ >> 2</strong>: use Binomial Negativa.<br><br>
+      <strong>IRR</strong> (Incidence Rate Ratio) = exp(β). É o multiplicador da contagem esperada por unidade de aumento em X.
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-gold">🎲</span>Bootstrap — vantagens</div>
+    <div style="font-size:13.5px;color:var(--text2);line-height:1.8">
+      Não assume normalidade. Funciona para qualquer estatística (mediana, correlação, razões). Ideal para n pequeno onde testes paramétricos são arriscados.<br><br>
+      <strong>Método percentil</strong> — simples: usa os quantis da distribuição bootstrap diretamente.<br>
+      <strong>BCa (bias-corrected and accelerated)</strong> — corrige viés e assimetria. Mais preciso, especialmente para distribuições assimétricas. Recomendado.
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<div class="mob-bot">
+  <div class="mob-items">
+    <button class="mbb active" id="mbb-cluster" onclick="sw('cluster')"><span class="mi">🌳</span>Cluster</button>
+    <button class="mbb" id="mbb-poisson" onclick="sw('poisson')"><span class="mi">🔢</span>Poisson</button>
+    <button class="mbb" id="mbb-boot" onclick="sw('boot')"><span class="mi">🎲</span>Bootstrap</button>
+    <button class="mbb" onclick="window.location.href='index.html'"><span class="mi">⌂</span>Hub</button>
+    <button class="mbb" onclick="window.location.href='estatistica-bloco3.html'"><span class="mi">🌿</span>Bloco3</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// MATH UTILS
+// ============================================================
+function mean(a){return a.reduce((s,v)=>s+v,0)/a.length}
+function sd(a,samp=true){if(a.length<2)return 0;const m=mean(a),n=a.length;return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/(samp?n-1:n))}
+function median(a){const s=[...a].sort((x,y)=>x-y),n=s.length;return n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2}
+function sum(a){return a.reduce((s,v)=>s+v,0)}
+function fmt(v,d=4){if(!isFinite(v))return'—';return v.toFixed(d)}
+function pLabel(p){if(!isFinite(p))return'—';if(p<0.001)return'< 0,001 ***';if(p<0.01)return'< 0,01 **';if(p<0.05)return'< 0,05 *';return fmt(p,4)+' ns'}
+function sigStar(p){if(p<0.001)return'***';if(p<0.01)return'**';if(p<0.05)return'*';return'ns'}
+
+function lnGamma(z){return(z-.5)*Math.log(z+4.5)-(z+4.5)+.5*Math.log(2*Math.PI)+1/(12*(z+4.5))}
+function normCDF(z){return 0.5*(1+erf(z/Math.sqrt(2)))}
+function erf(x){const t=1/(1+0.3275911*Math.abs(x));const y=1-t*(0.254829592+t*(-0.284496736+t*(1.421413741+t*(-1.453152027+t*1.061405429))))*Math.exp(-x*x);return x<0?-y:y}
+
+function parseMatrix(raw,hasLabel=true){
+  const lines=raw.trim().split(/\n/).filter(l=>l.trim()&&!l.startsWith('#'));
+  if(lines.length<3)return null;
+  const headers=lines[0].split(/[,;\t]+/).map(s=>s.trim());
+  const varNames=hasLabel?headers.slice(1):headers;
+  const labels=[],rows=[];
+  for(const l of lines.slice(1)){
+    const p=l.split(/[,;\t]+/).map(s=>s.trim());
+    if(hasLabel){labels.push(p[0]);rows.push(p.slice(1).map(Number));}
+    else{labels.push(`S${rows.length+1}`);rows.push(p.map(Number));}
+    if(rows[rows.length-1].some(isNaN)){rows.pop();if(hasLabel)labels.pop();}
+  }
+  return rows.length>=3?{varNames,labels,rows}:null;
+}
+
+// ============================================================
+// MÓDULO 1 — CLUSTER
+// ============================================================
+const CL_DEMOS={
+  hidro:`Site, Temperatura, pH, OD, Turbidez, Condutividade, DBO
+Rio_Cuiaba_1, 28.3, 6.8, 7.2, 12.4, 180, 2.1
+Rio_Cuiaba_2, 27.1, 7.0, 7.8, 8.3, 165, 1.8
+Rio_Paraguai_1, 30.2, 6.5, 6.5, 18.2, 210, 3.2
+Rio_Paraguai_2, 29.8, 6.7, 6.9, 15.4, 195, 2.8
+Corixo_A, 25.4, 7.2, 8.4, 5.2, 145, 1.2
+Corixo_B, 26.1, 7.1, 8.1, 6.8, 138, 1.5
+Lagoa_1, 32.5, 6.2, 5.2, 28.4, 280, 5.8
+Lagoa_2, 31.8, 6.4, 5.8, 24.1, 260, 4.9
+Baia_1, 29.1, 6.9, 6.8, 16.8, 220, 3.5
+Baia_2, 28.6, 7.0, 7.1, 14.2, 208, 3.0
+Canal_1, 33.2, 6.1, 4.8, 32.5, 295, 6.5
+Canal_2, 32.8, 6.3, 5.1, 29.8, 275, 6.0`,
+  solo:`Site, pH, MO, P, K, Ca, Mg, Al
+Pastagem_1, 5.2, 28.4, 8.2, 0.18, 2.1, 0.8, 1.2
+Pastagem_2, 5.0, 25.1, 6.8, 0.15, 1.8, 0.7, 1.5
+Cerrado_1, 5.8, 35.2, 12.4, 0.22, 3.2, 1.2, 0.8
+Cerrado_2, 5.6, 32.8, 11.1, 0.20, 2.9, 1.1, 0.9
+Plantio_1, 6.2, 22.3, 18.5, 0.35, 4.8, 1.8, 0.3
+Plantio_2, 6.4, 20.8, 20.2, 0.38, 5.1, 2.0, 0.2
+Mata_1, 6.0, 48.2, 14.8, 0.28, 3.8, 1.5, 0.5
+Mata_2, 5.9, 45.5, 13.2, 0.25, 3.5, 1.4, 0.6
+Varzea_1, 5.4, 55.8, 10.2, 0.20, 2.8, 1.0, 1.1
+Varzea_2, 5.3, 52.4, 9.8, 0.18, 2.5, 0.9, 1.2`,
+  especies:`Parcela, Sp_A, Sp_B, Sp_C, Sp_D, Sp_E, Sp_F, Sp_G
+P1, 45, 12, 0, 8, 32, 0, 5
+P2, 42, 15, 2, 6, 28, 0, 8
+P3, 8, 45, 32, 0, 5, 18, 12
+P4, 5, 48, 28, 2, 3, 22, 15
+P5, 12, 38, 35, 0, 8, 15, 20
+P6, 0, 5, 8, 45, 32, 28, 2
+P7, 2, 8, 5, 42, 35, 30, 0
+P8, 0, 3, 12, 38, 40, 25, 5
+P9, 22, 18, 15, 12, 20, 8, 35
+P10, 18, 22, 18, 8, 25, 5, 40`
+};
+
+let clCharts=[];
+
+function clDemo(type){document.getElementById('clData').value=CL_DEMOS[type]||CL_DEMOS.hidro;}
+
+function distEuclidean(a,b){return Math.sqrt(a.reduce((s,v,i)=>s+(v-b[i])**2,0))}
+function distManhattan(a,b){return a.reduce((s,v,i)=>s+Math.abs(v-b[i]),0)}
+function distBray(a,b){const num=a.reduce((s,v,i)=>s+Math.abs(v-b[i]),0),den=a.reduce((s,v,i)=>s+v+b[i],0);return den===0?0:num/den}
+
+function getDistFn(name){return name==='manhattan'?distManhattan:name==='bray'?distBray:distEuclidean}
+
+function buildDistMatrix(rows,distFn){
+  const n=rows.length;
+  return Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?0:distFn(rows[i],rows[j])));
+}
+
+// Hierarchical clustering — returns merge tree
+function hierarchicalCluster(distMat,method){
+  const n=distMat.length;
+  const clusters=Array.from({length:n},(_,i)=>({id:i,items:[i],size:1}));
+  const D=distMat.map(r=>[...r]);
+  const merges=[];
+
+  for(let step=0;step<n-1;step++){
+    // Find minimum distance
+    let minD=Infinity,minI=-1,minJ=-1;
+    const active=clusters.filter(c=>c);
+    for(let a=0;a<active.length;a++) for(let b=a+1;b<active.length;b++){
+      const i=active[a].id,j=active[b].id;
+      if(D[i][j]<minD){minD=D[i][j];minI=a;minJ=b;}
+    }
+    const ci=active[minI],cj=active[minJ];
+    merges.push({left:ci.items,right:cj.items,dist:minD,height:minD});
+
+    // Merge and update distances
+    const newCluster={id:ci.id,items:[...ci.items,...cj.items],size:ci.size+cj.size};
+    // Update distance row
+    for(let a=0;a<active.length;a++){
+      if(a===minI||a===minJ)continue;
+      const k=active[a].id;
+      let newDist;
+      if(method==='complete')newDist=Math.max(D[ci.id][k],D[cj.id][k]);
+      else if(method==='single')newDist=Math.min(D[ci.id][k],D[cj.id][k]);
+      else if(method==='ward'){
+        const ni=ci.size,nj=cj.size,nk=active[a].size,n_ij=ni+nj;
+        newDist=Math.sqrt(((ni+nk)*D[ci.id][k]**2+(nj+nk)*D[cj.id][k]**2-nk*minD**2)/(n_ij+nk));
+      } else { // average
+        newDist=(ci.size*D[ci.id][k]+cj.size*D[cj.id][k])/(ci.size+cj.size);
+      }
+      D[ci.id][k]=newDist;D[k][ci.id]=newDist;
+    }
+    clusters[clusters.indexOf(cj)]=null;
+    clusters[clusters.indexOf(ci)]=newCluster;
+  }
+  return merges;
+}
+
+// Cut dendrogram into k groups
+function cutTree(merges,k,n){
+  const assignments=Array.from({length:n},(_,i)=>i);
+  // Take last k-1 merges to get k groups
+  const cutMerges=merges.slice(0,merges.length-(k-1));
+  let groupId=n;
+  const clusterMap={};
+  for(let i=0;i<n;i++)clusterMap[i]=[i];
+  for(const m of cutMerges){
+    const newItems=[...m.left,...m.right];
+    m.left.forEach(i=>delete clusterMap[i]);
+    m.right.forEach(i=>delete clusterMap[i]);
+    clusterMap[groupId]=newItems;
+    groupId++;
+  }
+  const groups=Object.values(clusterMap);
+  const labels=new Array(n);
+  groups.forEach((g,gi)=>g.forEach(i=>labels[i]=gi));
+  return labels;
+}
+
+// Silhouette
+function silhouette(rows,labels,distFn){
+  const n=rows.length;
+  const D=buildDistMatrix(rows,distFn);
+  return rows.map((_,i)=>{
+    const myCluster=labels[i];
+    const sameCluster=rows.map((_,j)=>j).filter(j=>j!==i&&labels[j]===myCluster);
+    if(sameCluster.length===0)return 0;
+    const a=sum(sameCluster.map(j=>D[i][j]))/sameCluster.length;
+    const otherClusters=[...new Set(labels)].filter(c=>c!==myCluster);
+    const b=Math.min(...otherClusters.map(c=>{
+      const members=rows.map((_,j)=>j).filter(j=>labels[j]===c);
+      return members.length?sum(members.map(j=>D[i][j]))/members.length:Infinity;
+    }));
+    return (b-a)/Math.max(a,b);
+  });
+}
+
+// K-means
+function kmeans(rows,k,iter=100){
+  const n=rows.length,p=rows[0].length;
+  // Init with k-means++ style
+  let centroids=[rows[Math.floor(Math.random()*n)]];
+  while(centroids.length<k){
+    const dists=rows.map(r=>Math.min(...centroids.map(c=>distEuclidean(r,c))));
+    const total=sum(dists);let rand=Math.random()*total;
+    for(let i=0;i<n;i++){rand-=dists[i];if(rand<=0){centroids.push(rows[i]);break;}}
+  }
+  let labels=new Array(n).fill(0);
+  for(let it=0;it<iter;it++){
+    const newLabels=rows.map(r=>{
+      let minD=Infinity,cl=0;
+      centroids.forEach((c,ci)=>{const d=distEuclidean(r,c);if(d<minD){minD=d;cl=ci;}});
+      return cl;
+    });
+    const changed=newLabels.some((l,i)=>l!==labels[i]);
+    labels=newLabels;
+    if(!changed)break;
+    centroids=Array.from({length:k},(_,ci)=>{
+      const members=rows.filter((_,i)=>labels[i]===ci);
+      if(!members.length)return centroids[ci];
+      return Array.from({length:p},(_,j)=>mean(members.map(r=>r[j])));
+    });
+  }
+  return labels;
+}
+
+// PCA for scatter (2 components)
+function pca2(rows){
+  const n=rows.length,p=rows[0].length;
+  const means=Array.from({length:p},(_,j)=>mean(rows.map(r=>r[j])));
+  const stds=Array.from({length:p},(_,j)=>{const m=means[j];return Math.sqrt(rows.map(r=>r[j]).reduce((s,v)=>s+(v-m)**2,0)/(n-1))||1;});
+  const X=rows.map(row=>row.map((v,j)=>(v-means[j])/stds[j]));
+  const C=Array.from({length:p},(_,i)=>Array.from({length:p},(_,j)=>X.reduce((s,r)=>s+r[i]*r[j],0)/(n-1)));
+  // Power iteration for 2 PCs
+  const evs=[];
+  const Cd=C.map(r=>[...r]);
+  for(let pc=0;pc<2;pc++){
+    let v=Array.from({length:p},()=>Math.random()-0.5);
+    let norm=Math.sqrt(v.reduce((s,x)=>s+x*x,0));v=v.map(x=>x/norm);
+    for(let it=0;it<200;it++){
+      let w=Cd.map(row=>row.reduce((s,c,j)=>s+c*v[j],0));
+      for(const prev of evs){const dot=w.reduce((s,x,i)=>s+x*prev[i],0);w=w.map((x,i)=>x-dot*prev[i]);}
+      norm=Math.sqrt(w.reduce((s,x)=>s+x*x,0));if(norm<1e-12)break;
+      const vNew=w.map(x=>x/norm);if(vNew.reduce((s,x,i)=>s+Math.abs(x-v[i]),0)<1e-8)break;
+      v=vNew;
+    }
+    evs.push(v);
+  }
+  return X.map(row=>evs.map(ev=>row.reduce((s,x,j)=>s+x*ev[j],0)));
+}
+
+function drawDendrogram(canvas,merges,labels,clusterLabels,cutK){
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width=canvas.parentElement.offsetWidth||700;
+  const H=canvas.height=340;
+  ctx.clearRect(0,0,W,H);
+
+  const n=labels.length;
+  const PADL=80,PADR=20,PADT=20,PADB=60;
+  const plotW=W-PADL-PADR,plotH=H-PADT-PADB;
+
+  const maxH=Math.max(...merges.map(m=>m.height));
+  const xPos={};labels.forEach((l,i)=>xPos[JSON.stringify([i])]=(i+0.5)/n*plotW+PADL);
+  const yScale=h=>PADT+plotH*(1-h/maxH);
+
+  const colors=['#1a3a5c','#c0392b','#0a7c6e','#c47a00','#6b2e7e','#374151','#8b5cf6','#059669','#dc2626','#2563eb'];
+
+  ctx.font='11px Karla,sans-serif';ctx.textAlign='center';
+
+  // Draw leaf labels
+  labels.forEach((lbl,i)=>{
+    const x=(i+0.5)/n*plotW+PADL;
+    ctx.fillStyle=colors[clusterLabels[i]%colors.length];
+    ctx.save();ctx.translate(x,H-PADB+6);ctx.rotate(-Math.PI/4);
+    ctx.fillText(lbl.substring(0,14),0,0);ctx.restore();
+    ctx.beginPath();ctx.moveTo(x,yScale(0));ctx.lineTo(x,H-PADB);
+    ctx.strokeStyle=colors[clusterLabels[i]%colors.length];ctx.lineWidth=2;ctx.stroke();
+  });
+
+  // Draw merge lines
+  const mergePos={};
+  merges.forEach((m,mi)=>{
+    const leftKey=JSON.stringify(m.left.slice().sort((a,b)=>a-b));
+    const rightKey=JSON.stringify(m.right.slice().sort((a,b)=>a-b));
+    const allItems=[...m.left,...m.right].sort((a,b)=>a-b);
+    const allKey=JSON.stringify(allItems);
+
+    const xL=mergePos[leftKey]||(m.left.length===1?(m.left[0]+0.5)/n*plotW+PADL:0);
+    const xR=mergePos[rightKey]||(m.right.length===1?(m.right[0]+0.5)/n*plotW+PADL:0);
+    const yH=yScale(m.height);
+
+    const isCutLine=mi===merges.length-cutK;
+    ctx.strokeStyle=isCutLine?'rgba(192,57,43,0.3)':'rgba(26,58,92,0.7)';
+    ctx.lineWidth=isCutLine?1.5:2;
+    ctx.setLineDash(isCutLine?[4,4]:[]);
+
+    ctx.beginPath();ctx.moveTo(xL,yScale(mi>0&&merges[mi-1]?(m.left.length>1?m.height:0):0)||yScale(0));
+    ctx.lineTo(xL,yH);ctx.lineTo(xR,yH);
+    const yRprev=m.right.length===1?yScale(0):(mergePos['h_'+rightKey]||yScale(0));
+    ctx.lineTo(xR,yRprev);ctx.stroke();
+    ctx.setLineDash([]);
+
+    const xMid=(xL+xR)/2;
+    mergePos[allKey]=xMid;
+    mergePos['h_'+allKey]=yH;
+    mergePos[leftKey]=mergePos[leftKey]||xL;
+    mergePos[rightKey]=mergePos[rightKey]||xR;
+  });
+
+  // Y axis
+  ctx.strokeStyle='rgba(0,0,0,0.15)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(PADL-10,PADT);ctx.lineTo(PADL-10,H-PADB);ctx.stroke();
+  ctx.fillStyle='#5a554e';ctx.font='10px Space Mono,monospace';ctx.textAlign='right';
+  [0,0.25,0.5,0.75,1].forEach(t=>{
+    const y=PADT+plotH*(1-t);const val=maxH*t;
+    ctx.fillText(val.toFixed(2),PADL-14,y+4);
+    ctx.beginPath();ctx.moveTo(PADL-12,y);ctx.lineTo(PADL-10,y);ctx.stroke();
+  });
+  ctx.save();ctx.translate(14,PADT+plotH/2);ctx.rotate(-Math.PI/2);
+  ctx.textAlign='center';ctx.fillStyle='#9e9890';ctx.font='11px Karla,sans-serif';
+  ctx.fillText('Distância',0,0);ctx.restore();
+}
+
+function runCluster(){
+  const raw=document.getElementById('clData').value;
+  const parsed=parseMatrix(raw,true);
+  if(!parsed){showToast('Dados inválidos','error');return;}
+  const{varNames,labels,rows}=parsed;
+  const n=rows.length,p=varNames.length;
+  const method=document.getElementById('clMethod').value;
+  const distName=document.getElementById('clDist').value;
+  const scale=document.getElementById('clScale').value==='yes';
+  const k=Math.min(+document.getElementById('clK').value,n-1);
+  const cut=Math.min(+document.getElementById('clCut').value,n-1);
+
+  // Scale
+  const means_=varNames.map((_,j)=>mean(rows.map(r=>r[j])));
+  const stds_=varNames.map((_,j)=>{const m=means_[j];return Math.sqrt(rows.map(r=>r[j]).reduce((s,v)=>s+(v-m)**2,0)/(n-1))||1;});
+  const data=scale?rows.map(row=>row.map((v,j)=>(v-means_[j])/stds_[j])):rows;
+
+  const distFn=getDistFn(distName);
+  const merges=hierarchicalCluster(buildDistMatrix(data,distFn),method);
+  const hierLabels=cutTree(merges,cut,n);
+  const kmLabels=kmeans(data,k);
+  const sils=silhouette(data,hierLabels,distFn);
+  const avgSil=mean(sils);
+
+  // KPIs
+  document.getElementById('clKN').textContent=n;
+  document.getElementById('clKV').textContent=p;
+  document.getElementById('clKG').textContent=cut;
+  document.getElementById('clKSil').textContent=fmt(avgSil,3);
+  document.getElementById('clKSilNote').textContent=avgSil>0.7?'Forte':avgSil>0.5?'Razoável':avgSil>0.25?'Fraca':'Sem estrutura';
+
+  // Dendrogram
+  const canvas=document.getElementById('dendroCanvas');
+  setTimeout(()=>drawDendrogram(canvas,merges,labels,hierLabels,cut),50);
+  document.getElementById('clDendroExplain').textContent=`Método: ${method} · Distância: ${distName} · Corte em k = ${cut} grupos`;
+
+  // Silhouette chart
+  clCharts.forEach(c=>c&&c.destroy());clCharts=[];
+  const colors=['#1a3a5c','#c0392b','#0a7c6e','#c47a00','#6b2e7e','#374151'];
+  const silSorted=labels.map((l,i)=>({label:l,sil:sils[i],cluster:hierLabels[i]})).sort((a,b)=>a.cluster-b.cluster||b.sil-a.sil);
+  clCharts.push(new Chart(document.getElementById('clSilChart'),{
+    type:'bar',
+    data:{labels:silSorted.map(s=>s.label),datasets:[{label:'Silhueta',data:silSorted.map(s=>+s.sil.toFixed(3)),backgroundColor:silSorted.map(s=>colors[s.cluster%colors.length]+'99'),borderColor:silSorted.map(s=>colors[s.cluster%colors.length]),borderWidth:1.5}]},
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},
+    scales:{x:{min:-1,max:1,title:{display:true,text:'Coeficiente de silhueta'},grid:{color:'rgba(0,0,0,0.04)'}},y:{ticks:{font:{family:'Karla',size:10}}}}}
+  }));
+  document.getElementById('clSilExplain').textContent=`Silhueta média = ${fmt(avgSil,3)}. Valores próximos de 1 indicam boa separação entre clusters.`;
+
+  // Scatter (PCA-reduced)
+  const scores=pca2(data);
+  const scatterDatasets=[...new Set(kmLabels)].map(cl=>({
+    label:`Cluster ${cl+1}`,
+    data:scores.map((s,i)=>kmLabels[i]===cl?{x:s[0],y:s[1],label:labels[i]}:null).filter(Boolean),
+    backgroundColor:colors[cl%colors.length]+'99',borderColor:colors[cl%colors.length],pointRadius:7,type:'scatter'
+  }));
+  clCharts.push(new Chart(document.getElementById('clScatterChart'),{
+    type:'scatter',data:{datasets:scatterDatasets},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:11},usePointStyle:true}},
+    tooltip:{callbacks:{label:c=>c.raw.label||''}}},
+    scales:{x:{title:{display:true,text:'PC1'},grid:{color:'rgba(0,0,0,0.04)'}},y:{title:{display:true,text:'PC2'},grid:{color:'rgba(0,0,0,0.04)'}}}}
+  }));
+  document.getElementById('clScatterExplain').textContent=`K-means com k = ${k} no espaço PC1×PC2. Cores = clusters k-means.`;
+
+  // Group chips
+  const groups=[...new Set(hierLabels)].map(cl=>({cl,items:labels.filter((_,i)=>hierLabels[i]===cl)}));
+  document.getElementById('clGroupChips').innerHTML=groups.map(({cl,items})=>
+    `<div style="margin-bottom:10px"><span style="font-family:var(--font-display);font-size:11px;font-weight:700;color:${colors[cl%colors.length]};text-transform:uppercase;letter-spacing:0.06em">Grupo ${cl+1}</span><br>${items.map(lbl=>`<span class="cluster-chip" style="background:${colors[cl%colors.length]}18;border-color:${colors[cl%colors.length]}66;color:${colors[cl%colors.length]}">${lbl}</span>`).join('')}</div>`
+  ).join('');
+
+  // Output
+  const sep='─'.repeat(52);
+  let txt=`${sep}\nANÁLISE DE CLUSTER\nMétodo: ${method} · Distância: ${distName} · Padronização: ${scale?'sim':'não'}\nN = ${n} · Variáveis: ${varNames.join(', ')}\n${sep}\n\nSILHUETA\n  Média = ${fmt(avgSil,4)}\n`;
+  labels.forEach((l,i)=>txt+=`  ${l.padEnd(22)} cluster=${hierLabels[i]+1}  sil=${fmt(sils[i],4)}\n`);
+  txt+=`\nGRUPOS (corte k=${cut})\n`;
+  groups.forEach(({cl,items})=>txt+=`  Grupo ${cl+1}: ${items.join(', ')}\n`);
+  txt+=`${sep}\n`;
+  document.getElementById('clResultBox').textContent=txt;
+  document.getElementById('clResultsWrap').style.display='block';
+  window._clRes={groups,labels,hierLabels,avgSil,cut,method};
+  showToast('Cluster concluído','success');
+}
+
+function genClInterp(){
+  if(!window._clRes){showToast('Execute primeiro','error');return;}
+  const{groups,avgSil,cut,method}=window._clRes;
+  const qualSil=avgSil>0.7?'forte':avgSil>0.5?'razoável':avgSil>0.25?'fraca':'ausente';
+  let txt=`A análise de cluster hierárquico (método ${method}) identificou ${cut} grupos distintos. A separação entre os grupos foi ${qualSil} (silhueta média = ${fmt(avgSil,3)}). `;
+  txt+=groups.map(({cl,items})=>`O Grupo ${cl+1} reuniu: ${items.join(', ')}`).join('. ')+'.';
+  document.getElementById('clInterpText').textContent=txt;
+  document.getElementById('clInterp').classList.add('show');
+}
+
+// ============================================================
+// MÓDULO 2 — REGRESSÃO DE POISSON (IRLS)
+// ============================================================
+const POI_DEMOS={
+  1:`Riqueza, Temperatura, Precipitacao, pH
+12, 28.3, 145, 6.8
+8, 25.1, 120, 7.1
+18, 30.2, 160, 6.5
+14, 26.5, 130, 7.3
+16, 29.1, 152, 6.7
+6, 23.8, 108, 7.5
+20, 31.4, 168, 6.4
+13, 27.2, 138, 7.0
+17, 29.8, 155, 6.6
+9, 24.5, 115, 7.4
+24, 33.1, 180, 6.2
+5, 22.1, 95, 7.8
+22, 32.0, 172, 6.3
+14, 27.8, 142, 6.9
+7, 23.2, 102, 7.6`,
+  2:`Focos, Temperatura_max, Umidade, Area_queimada_anterior
+45, 36.2, 38, 1200
+128, 39.5, 28, 3500
+8, 30.1, 62, 450
+215, 41.2, 22, 5800
+32, 33.8, 48, 980
+89, 37.4, 32, 2200
+156, 40.1, 25, 4200
+12, 31.5, 58, 620
+195, 41.8, 20, 5200
+67, 36.8, 35, 1800
+22, 32.5, 52, 820
+142, 39.2, 27, 3800`,
+  3:`Casos, IDH, Densidade_pop, Cobertura_florestal, Temp_media
+45, 0.62, 85, 42, 27.5
+128, 0.55, 145, 28, 29.2
+12, 0.78, 62, 68, 25.8
+89, 0.58, 120, 35, 28.8
+8, 0.82, 45, 75, 24.5
+156, 0.50, 180, 18, 30.1
+23, 0.75, 55, 72, 25.2
+95, 0.57, 135, 30, 29.5
+6, 0.85, 38, 82, 24.1
+110, 0.53, 160, 22, 30.5`
+};
+
+let poiCharts=[];
+
+function poiDemo(n){document.getElementById('poiData').value=POI_DEMOS[n]||POI_DEMOS[1];}
+
+function sigmoid(z){return 1/(1+Math.exp(-Math.min(Math.max(z,-500),500)))}
+
+function poissonIRLS(Y,Xmat,maxIter){
+  const n=Y.length,k=Xmat[0].length;
+  const X=Xmat.map(row=>[1,...row]);
+  let beta=new Array(k+1).fill(0);
+  for(let iter=0;iter<maxIter;iter++){
+    const mu=X.map(row=>Math.exp(Math.min(row.reduce((s,v,j)=>s+v*beta[j],0),20)));
+    // IRLS: W = diag(mu), z = X*beta + (Y-mu)/mu
+    // beta_new = (X'WX)^{-1} X'Wz
+    const XtWX=Array.from({length:k+1},()=>new Array(k+1).fill(0));
+    const XtWz=new Array(k+1).fill(0);
+    for(let i=0;i<n;i++){
+      const w=mu[i],z_i=X[i].reduce((s,v,j)=>s+v*beta[j],0)+(Y[i]-mu[i])/mu[i];
+      for(let a=0;a<=k;a++){
+        XtWz[a]+=w*X[i][a]*z_i;
+        for(let b=0;b<=k;b++) XtWX[a][b]+=w*X[i][a]*X[i][b];
+      }
+    }
+    const inv=matInv(XtWX);if(!inv)break;
+    const betaNew=inv.map(row=>row.reduce((s,v,j)=>s+v*XtWz[j],0));
+    const change=betaNew.reduce((s,v,i)=>s+Math.abs(v-beta[i]),0);
+    beta=betaNew;if(change<1e-8)break;
+  }
+  const mu=X.map(row=>Math.exp(Math.min(row.reduce((s,v,j)=>s+v*beta[j],0),20)));
+  // Deviance
+  const devResid=Y.map((y,i)=>2*(y===0?0:y*Math.log(y/mu[i]))-(y-mu[i]));
+  const deviance=sum(devResid);
+  const muNull=mean(Y);
+  const devNull=2*Y.reduce((s,y)=>s+(y===0?0:y*Math.log(y/muNull))-(y-muNull),0);
+  // SE via Fisher info
+  const X2=X.map(row=>[...row]);
+  const muFit=mu;
+  const FI=Array.from({length:k+1},()=>new Array(k+1).fill(0));
+  for(let i=0;i<n;i++) for(let a=0;a<=k;a++) for(let b=0;b<=k;b++) FI[a][b]+=muFit[i]*X2[i][a]*X2[i][b];
+  const invFI=matInv(FI);
+  const se=invFI?beta.map((_,i)=>Math.sqrt(Math.max(0,invFI[i][i]))):new Array(k+1).fill(NaN);
+  const z=beta.map((b,i)=>b/(se[i]||1));
+  const pVals=z.map(zi=>2*(1-normCDF(Math.abs(zi))));
+  // AIC
+  const logLik=Y.reduce((s,y,i)=>s+y*Math.log(mu[i]+1e-10)-mu[i],0);
+  const AIC=-2*logLik+2*(k+1);
+  const r2McF=1-deviance/devNull;
+  // Overdispersion
+  const pearsonResid=Y.map((y,i)=>(y-mu[i])/Math.sqrt(mu[i]));
+  const phi=sum(pearsonResid.map(r=>r*r))/(n-k-1);
+  return{beta,se,z,pVals,mu,deviance,devNull,AIC,r2McF,phi,pearsonResid,n,k};
+}
+
+function matInv(A){
+  const n=A.length,M=A.map((r,i)=>[...r,...Array.from({length:n},(_,j)=>i===j?1:0)]);
+  for(let col=0;col<n;col++){
+    let maxRow=col;
+    for(let row=col+1;row<n;row++)if(Math.abs(M[row][col])>Math.abs(M[maxRow][col]))maxRow=row;
+    [M[col],M[maxRow]]=[M[maxRow],M[col]];
+    const piv=M[col][col];if(Math.abs(piv)<1e-12)return null;
+    for(let j=0;j<2*n;j++)M[col][j]/=piv;
+    for(let row=0;row<n;row++){if(row===col)continue;const f=M[row][col];for(let j=0;j<2*n;j++)M[row][j]-=f*M[col][j];}
+  }
+  return M.map(r=>r.slice(n));
+}
+
+function runPoisson(){
+  const raw=document.getElementById('poiData').value;
+  const parsed=parseMatrix(raw,false);
+  if(!parsed){showToast('Dados inválidos','error');return;}
+  // Re-parse with header
+  const lines=raw.trim().split(/\n/).filter(l=>l.trim());
+  const headers=lines[0].split(/[,;\t]+/).map(s=>s.trim());
+  const dataRows=[];
+  for(const l of lines.slice(1)){
+    const p=l.split(/[,;\t]+/).map(s=>+s.trim());
+    if(!p.some(isNaN)&&p.length===headers.length)dataRows.push(p);
+  }
+  if(dataRows.length<5){showToast('Mínimo 5 observações','error');return;}
+  const Y=dataRows.map(r=>r[0]);
+  const Xmat=dataRows.map(r=>r.slice(1));
+  const xNames=headers.slice(1);
+  const maxIter=+document.getElementById('poiIter').value||100;
+  const checkDisp=document.getElementById('poiOverdisp').value==='yes';
+
+  const res=poissonIRLS(Y,Xmat,maxIter);
+  const{beta,se,z,pVals,mu,deviance,devNull,AIC,r2McF,phi,pearsonResid}=res;
+
+  // KPIs
+  document.getElementById('poiDevNull').textContent=fmt(devNull,2);
+  document.getElementById('poiDevNullNote').textContent=`df=${Y.length-1}`;
+  document.getElementById('poiDevRes').textContent=fmt(deviance,2);
+  document.getElementById('poiDevResNote').textContent=`df=${Y.length-xNames.length-1}`;
+  document.getElementById('poiAIC').textContent=fmt(AIC,1);
+  document.getElementById('poiR2').textContent=fmt(r2McF,3);
+  document.getElementById('poiPhi').textContent=checkDisp?fmt(phi,3):'—';
+  document.getElementById('poiPhiNote').textContent=checkDisp?(phi>2?'⚠️ Superdispersão severa':phi>1.5?'⚠️ Superdispersão':phi>0.5?'✅ Adequado':'⚠️ Subdispersão'):'';
+
+  // Coef table
+  const allNames=['(Intercept)',...xNames];
+  document.getElementById('poiCoefBody').innerHTML=beta.map((b,i)=>{
+    const IRR=Math.exp(b);
+    const IRR_lo=Math.exp(b-1.96*se[i]);const IRR_hi=Math.exp(b+1.96*se[i]);
+    const sig=pVals[i]<0.05;
+    return`<tr>
+      <td>${allNames[i]}</td>
+      <td>${fmt(b,4)}</td><td>${fmt(se[i],4)}</td><td>${fmt(z[i],3)}</td>
+      <td class="${sig?'poi-sig':'poi-ns'}">${pVals[i]<0.001?'< 0,001':fmt(pVals[i],4)}</td>
+      <td><strong>${fmt(IRR,3)}</strong></td>
+      <td>[${fmt(IRR_lo,3)}, ${fmt(IRR_hi,3)}]</td>
+      <td class="${sig?'poi-sig':'poi-ns'}">${sigStar(pVals[i])}</td>
+    </tr>`;
+  }).join('');
+
+  // Charts
+  poiCharts.forEach(c=>c&&c.destroy());poiCharts=[];
+  const pts=Y.map((y,i)=>({x:mu[i],y}));
+  const mnPt=Math.min(...[...Y,...mu]),mxPt=Math.max(...[...Y,...mu]);
+  poiCharts.push(new Chart(document.getElementById('poiObsPredChart'),{
+    type:'scatter',
+    data:{datasets:[
+      {label:'Observado vs. Predito',data:pts,backgroundColor:'rgba(10,124,110,0.4)',borderColor:'var(--teal)',pointRadius:6},
+      {label:'1:1',data:[{x:mnPt,y:mnPt},{x:mxPt,y:mxPt}],borderColor:'rgba(192,57,43,0.5)',borderWidth:1.5,borderDash:[5,5],pointRadius:0,showLine:true,type:'line'}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:12},usePointStyle:true}}},
+    scales:{x:{title:{display:true,text:'Predito (μ)'},grid:{color:'rgba(0,0,0,0.04)'}},y:{title:{display:true,text:'Observado (Y)'},grid:{color:'rgba(0,0,0,0.04)'}}}}
+  }));
+  document.getElementById('poiObsPredExplain').textContent='Pontos próximos à linha 1:1 = bom ajuste.';
+
+  poiCharts.push(new Chart(document.getElementById('poiResidChart'),{
+    type:'scatter',
+    data:{datasets:[
+      {label:'Resíduos de Pearson',data:mu.map((m,i)=>({x:m,y:pearsonResid[i]})),backgroundColor:'rgba(26,58,92,0.4)',borderColor:'var(--navy)',pointRadius:5},
+      {label:'y=0',data:[{x:Math.min(...mu),y:0},{x:Math.max(...mu),y:0}],borderColor:'rgba(192,57,43,0.5)',borderWidth:1.5,borderDash:[4,4],pointRadius:0,showLine:true,type:'line'}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:12},usePointStyle:true}}},
+    scales:{x:{title:{display:true,text:'Predito (μ)'},grid:{color:'rgba(0,0,0,0.04)'}},y:{title:{display:true,text:'Resíduo de Pearson'},grid:{color:'rgba(0,0,0,0.04)'}}}}
+  }));
+  document.getElementById('poiResidExplain').textContent=`φ = ${fmt(phi,3)}. Resíduos com |r| > 2 podem indicar outliers.`;
+
+  // Output
+  const sep='─'.repeat(52);
+  let txt=`${sep}\nREGRESSÃO DE POISSON (IRLS)\nVariável resposta: ${headers[0]} (contagem)\nPreditores: ${xNames.join(', ')}\nN = ${Y.length}\n${sep}\n\nAJUSTE\n  Deviance nula     = ${fmt(devNull,4)}\n  Deviance residual = ${fmt(deviance,4)}\n  AIC               = ${fmt(AIC,3)}\n  Pseudo-R² (McFadden) = ${fmt(r2McF,4)}\n  Superdispersão φ  = ${fmt(phi,4)}\n\nCOEFICIENTES\n${sep}\n`;
+  allNames.forEach((nm,i)=>{txt+=`  ${nm.padEnd(22)} β=${fmt(beta[i],4).padStart(9)}  IRR=${fmt(Math.exp(beta[i]),4).padStart(8)}  z=${fmt(z[i],3).padStart(7)}  p=${pVals[i]<0.001?'< 0,001   ':fmt(pVals[i],4)+' '}${sigStar(pVals[i])}\n`;});
+  txt+=`${sep}\n`;
+  document.getElementById('poiResultBox').textContent=txt;
+  document.getElementById('poiResultsWrap').style.display='block';
+  window._poiRes={beta,xNames,pVals,phi,r2McF,headers,AIC};
+  showToast('Poisson ajustado','success');
+}
+
+function genPoiInterp(){
+  if(!window._poiRes){showToast('Execute primeiro','error');return;}
+  const{beta,xNames,pVals,phi,r2McF,headers,AIC}=window._poiRes;
+  const sigPreds=xNames.filter((_,i)=>pVals[i+1]<0.05);
+  const IRRs=beta.slice(1).map(b=>Math.exp(b));
+  let txt=`A regressão de Poisson modelou a variável ${headers[0]} em função de ${xNames.length} preditor(es). `;
+  txt+=`O ajuste geral foi ${r2McF>0.2?'satisfatório':'moderado'} (pseudo-R² de McFadden = ${fmt(r2McF,3)}, AIC = ${fmt(AIC,1)}). `;
+  txt+=phi>1.5?`Detectou-se superdispersão (φ = ${fmt(phi,3)}), sugerindo considerar o modelo Quasi-Poisson ou Binomial Negativa. `:'';
+  txt+=sigPreds.length?`Preditores significativos: ${sigPreds.map((nm,i)=>`${nm} (IRR = ${fmt(IRRs[xNames.indexOf(nm)],3)})`).join('; ')}.`:'Nenhum preditor foi significativo (p < 0,05).';
+  document.getElementById('poiInterpText').textContent=txt;
+  document.getElementById('poiInterp').classList.add('show');
+}
+
+// ============================================================
+// MÓDULO 3 — BOOTSTRAP
+// ============================================================
+let bootCharts=[];
+
+const BOOT_DEMOS={
+  mean:`23.1\n24.5\n22.8\n25.2\n23.9\n24.1\n22.5\n25.8\n21.9\n24.8\n23.3\n25.1\n22.2\n24.6\n23.7`,
+  diff:`Controle, 23.1\nControle, 24.5\nControle, 22.8\nControle, 25.2\nControle, 23.9\nControle, 24.1\nTratamento, 28.3\nTratamento, 27.9\nTratamento, 29.1\nTratamento, 28.7\nTratamento, 27.5\nTratamento, 29.3`,
+  corr:`12.3, 45.6\n13.1, 47.2\n11.8, 42.1\n14.2, 51.3\n12.7, 46.8\n10.5, 38.4\n18.5, 63.2\n19.3, 67.4\n17.9, 61.5\n20.1, 69.8\n8.4, 31.2\n9.1, 34.5`
+};
+
+function bootDemo(type){document.getElementById('bootData').value=BOOT_DEMOS[type]||BOOT_DEMOS.mean;}
+
+function parseBootData(raw,stat){
+  const lines=raw.trim().split(/\n/).filter(l=>l.trim()&&!l.startsWith('#'));
+  if(stat==='diff_means'||stat==='ratio'){
+    const groups={};
+    for(const l of lines){
+      const p=l.split(/[,;\t]+/).map(s=>s.trim());
+      if(p.length<2)continue;
+      const g=isFinite(+p[0])?'G1':p[0];const v=isFinite(+p[0])?+p[0]:+p[1];
+      if(!isFinite(v))continue;
+      if(!groups[g])groups[g]=[];groups[g].push(v);
+    }
+    const keys=Object.keys(groups);
+    if(keys.length<2)return null;
+    return{type:'two',g1:groups[keys[0]],g2:groups[keys[1]],names:keys};
+  }
+  if(stat==='corr'){
+    const pairs=lines.map(l=>l.split(/[,;\t]+/).map(s=>+s.trim())).filter(p=>p.length>=2&&!p.some(isNaN));
+    if(pairs.length<5)return null;
+    return{type:'xy',x:pairs.map(p=>p[0]),y:pairs.map(p=>p[1])};
+  }
+  const vals=lines.map(l=>+l.trim()).filter(isFinite);
+  if(vals.length<3)return null;
+  return{type:'single',vals};
+}
+
+function statFn(data,stat){
+  if(stat==='mean')return mean(data.vals);
+  if(stat==='median')return median(data.vals);
+  if(stat==='sd')return sd(data.vals,true);
+  if(stat==='diff_means')return mean(data.g1)-mean(data.g2);
+  if(stat==='ratio')return mean(data.g1)/mean(data.g2);
+  if(stat==='corr'){
+    const{x,y}=data,mx=mean(x),my=mean(y);
+    let num=0,dx2=0,dy2=0;
+    x.forEach((xi,i)=>{num+=(xi-mx)*(y[i]-my);dx2+=(xi-mx)**2;dy2+=(y[i]-my)**2;});
+    return dx2===0||dy2===0?0:num/Math.sqrt(dx2*dy2);
+  }
+  return NaN;
+}
+
+function resample(data,stat){
+  if(data.type==='single'){
+    const n=data.vals.length;
+    const boot=Array.from({length:n},()=>data.vals[Math.floor(Math.random()*n)]);
+    return statFn({type:'single',vals:boot},stat);
+  }
+  if(data.type==='two'){
+    const n1=data.g1.length,n2=data.g2.length;
+    const bg1=Array.from({length:n1},()=>data.g1[Math.floor(Math.random()*n1)]);
+    const bg2=Array.from({length:n2},()=>data.g2[Math.floor(Math.random()*n2)]);
+    return statFn({type:'two',g1:bg1,g2:bg2},stat);
+  }
+  if(data.type==='xy'){
+    const n=data.x.length;
+    const idx=Array.from({length:n},()=>Math.floor(Math.random()*n));
+    return statFn({type:'xy',x:idx.map(i=>data.x[i]),y:idx.map(i=>data.y[i])},stat);
+  }
+  return NaN;
+}
+
+function runBoot(){
+  const raw=document.getElementById('bootData').value;
+  const stat=document.getElementById('bootStat').value;
+  const B=+document.getElementById('bootB').value||5000;
+  const conf=+document.getElementById('bootConf').value||0.95;
+  const method=document.getElementById('bootMethod').value;
+
+  const data=parseBootData(raw,stat);
+  if(!data){showToast('Dados inválidos para o tipo selecionado','error');return;}
+
+  const obs=statFn(data,stat);
+  const boots=Array.from({length:B},()=>resample(data,stat)).filter(isFinite);
+  boots.sort((a,b)=>a-b);
+  const alpha=1-conf;
+
+  let lo,hi;
+  if(method==='percentile'){
+    lo=boots[Math.floor(alpha/2*boots.length)];
+    hi=boots[Math.floor((1-alpha/2)*boots.length)];
+  } else {
+    // BCa
+    const z0=normQuantile(boots.filter(b=>b<=obs).length/boots.length);
+    // Jackknife acceleration
+    const n=data.type==='single'?data.vals.length:data.type==='two'?data.g1.length+data.g2.length:data.x.length;
+    const jackStats=[];
+    if(data.type==='single'){
+      for(let i=0;i<data.vals.length;i++){
+        const jv=data.vals.filter((_,j)=>j!==i);
+        jackStats.push(statFn({type:'single',vals:jv},stat));
+      }
+    } else {jackStats.push(...boots.slice(0,10));}
+    const jmean=mean(jackStats);
+    const accNum=jackStats.reduce((s,j)=>s+(jmean-j)**3,0);
+    const accDen=6*Math.pow(jackStats.reduce((s,j)=>s+(jmean-j)**2,0),1.5);
+    const acc=accDen===0?0:accNum/accDen;
+    const a1=normCDF(z0+(z0+normQuantile(alpha/2))/(1-acc*(z0+normQuantile(alpha/2))));
+    const a2=normCDF(z0+(z0+normQuantile(1-alpha/2))/(1-acc*(z0+normQuantile(1-alpha/2))));
+    lo=boots[Math.max(0,Math.floor(a1*boots.length))];
+    hi=boots[Math.min(boots.length-1,Math.floor(a2*boots.length))];
+  }
+
+  function normQuantile(p){
+    const a=[2.50662823884,-18.61500062529,41.39119773534,-25.44106049637];
+    const b=[-8.47351093090,23.08336743743,-21.06224101826,3.13082909833];
+    const c=[0.3374754822726147,0.9761690190917186,0.1607979714918209,0.0276438810333863,0.0038405729373609,0.0003951896511349,0.0000321767881768,0.0000002888167364,0.0000003960315187];
+    if(p<=0||p>=1)return NaN;
+    const q=p-0.5;
+    if(Math.abs(q)<0.42){const r=q*q;return q*(((a[3]*r+a[2])*r+a[1])*r+a[0])/((((b[3]*r+b[2])*r+b[1])*r+b[0])*r+1);}
+    const r=Math.log(-Math.log(q<0?p:1-p));
+    const x=c[0]+r*(c[1]+r*(c[2]+r*(c[3]+r*(c[4]+r*(c[5]+r*(c[6]+r*(c[7]+r*c[8])))))));
+    return q<0?-x:x;
+  }
+
+  const bootSE=sd(boots,true);
+  const statLabels={mean:'Média',median:'Mediana',sd:'Desvio Padrão',diff_means:'Diferença de Médias',corr:'Correlação de Pearson',ratio:'Razão de Médias'};
+
+  document.getElementById('bootEst').textContent=fmt(obs,4);
+  document.getElementById('bootEstNote').textContent=statLabels[stat];
+  document.getElementById('bootLo').textContent=fmt(lo,4);
+  document.getElementById('bootHi').textContent=fmt(hi,4);
+  document.getElementById('bootSE').textContent=fmt(bootSE,4);
+  document.getElementById('bootBval').textContent=boots.length;
+
+  // Histogram
+  bootCharts.forEach(c=>c&&c.destroy());bootCharts=[];
+  const nbins=Math.min(40,Math.ceil(Math.sqrt(boots.length)));
+  const bmin=Math.min(...boots),bmax=Math.max(...boots),bw=(bmax-bmin)/nbins;
+  const counts=new Array(nbins).fill(0);
+  boots.forEach(v=>{let idx=Math.floor((v-bmin)/bw);if(idx>=nbins)idx=nbins-1;counts[idx]++;});
+  const binLabels=counts.map((_,i)=>+(bmin+i*bw).toFixed(3));
+  bootCharts.push(new Chart(document.getElementById('bootHistChart'),{
+    type:'bar',
+    data:{labels:binLabels,datasets:[
+      {label:'Distribuição bootstrap',data:counts,backgroundColor:binLabels.map(v=>v>=lo&&v<=hi?'rgba(10,124,110,0.55)':'rgba(26,58,92,0.2)'),borderColor:binLabels.map(v=>v>=lo&&v<=hi?'var(--teal)':'rgba(26,58,92,0.4)'),borderWidth:1}
+    ]},
+    options:{responsive:true,plugins:{legend:{display:false}},
+    scales:{x:{ticks:{font:{family:'Space Mono',size:9},maxTicksLimit:10}},y:{grid:{color:'rgba(0,0,0,0.04)'}}}}
+  }));
+  document.getElementById('bootHistExplain').innerHTML=`IC ${(conf*100).toFixed(0)}% ${method==='bca'?'BCa':'percentil'}: [<strong>${fmt(lo,4)}</strong>, <strong>${fmt(hi,4)}</strong>] · Estimativa = ${fmt(obs,4)} · SE bootstrap = ${fmt(bootSE,4)}`;
+
+  // Multi stats panel (for single group)
+  if(data.type==='single'){
+    const statsToShow=[
+      {name:'Média',fn:'mean'},{name:'Mediana',fn:'median'},{name:'Desvio Padrão',fn:'sd'}
+    ];
+    const multiHtml=statsToShow.map(({name,fn})=>{
+      const obs_=statFn({type:'single',vals:data.vals},fn);
+      const boots_=Array.from({length:Math.min(B,2000),},()=>{
+        const n=data.vals.length;const bv=Array.from({length:n},()=>data.vals[Math.floor(Math.random()*n)]);
+        return statFn({type:'single',vals:bv},fn);
+      }).filter(isFinite).sort((a,b)=>a-b);
+      const lo_=boots_[Math.floor(alpha/2*boots_.length)];
+      const hi_=boots_[Math.floor((1-alpha/2)*boots_.length)];
+      const range_=hi_-lo_;const all_range=Math.max(...boots_)-Math.min(...boots_)||1;
+      const fillW=range_/all_range*100;const fillL=(lo_-Math.min(...boots_))/all_range*100;
+      const pctObs=(obs_-Math.min(...boots_))/all_range*100;
+      return`<div style="margin-bottom:14px">
+        <div class="boot-ci-label">${name} = ${fmt(obs_,4)} &nbsp;|&nbsp; IC ${(conf*100).toFixed(0)}%: [${fmt(lo_,4)}, ${fmt(hi_,4)}]</div>
+        <div class="boot-ci-bar">
+          <div class="boot-ci-fill" style="left:${fillL}%;width:${fillW}%"></div>
+          <div class="boot-ci-point" style="left:${Math.max(0,Math.min(99,pctObs))}%"></div>
+        </div>
+      </div>`;
+    }).join('');
+    document.getElementById('bootMultiBody').innerHTML=multiHtml;
+    document.getElementById('bootMultiCard').style.display='block';
+  } else {
+    document.getElementById('bootMultiCard').style.display='none';
+  }
+
+  // Output
+  const sep='─'.repeat(52);
+  const txt=`${sep}\nBOOTSTRAP — ${statLabels[stat].toUpperCase()}\nB = ${boots.length} reamostras · Método IC: ${method}\nConfiança: ${(conf*100).toFixed(0)}%\n${sep}\n\nESTATÍSTICA OBSERVADA = ${fmt(obs,6)}\nSE bootstrap          = ${fmt(bootSE,6)}\n\nINTERVALO DE CONFIANÇA ${(conf*100).toFixed(0)}%\n  Limite inferior = ${fmt(lo,6)}\n  Limite superior = ${fmt(hi,6)}\n  Amplitude       = ${fmt(hi-lo,6)}\n${sep}\n`;
+  document.getElementById('bootResultBox').textContent=txt;
+  document.getElementById('bootResultsWrap').style.display='block';
+  window._bootRes={obs,lo,hi,bootSE,stat,statLabels,conf,method};
+  showToast('Bootstrap concluído','success');
+}
+
+function genBootInterp(){
+  if(!window._bootRes){showToast('Execute primeiro','error');return;}
+  const{obs,lo,hi,bootSE,stat,statLabels,conf,method}=window._bootRes;
+  const txt=`O bootstrap (método ${method==='bca'?'BCa':'percentil'}) estimou a ${statLabels[stat]} como ${fmt(obs,4)} (IC ${(conf*100).toFixed(0)}%: [${fmt(lo,4)}, ${fmt(hi,4)}]). O erro padrão bootstrap foi ${fmt(bootSE,4)}. ${lo>0&&stat==='diff_means'?'O intervalo de confiança não inclui zero, indicando diferença significativa entre os grupos.':lo<0&&hi>0&&stat==='diff_means'?'O intervalo de confiança inclui zero, não evidenciando diferença significativa entre os grupos.':''}`;
+  document.getElementById('bootInterpText').textContent=txt;
+  document.getElementById('bootInterp').classList.add('show');
+}
+
+function updateBootUI(){
+  const stat=document.getElementById('bootStat').value;
+  const helps={
+    mean:'Uma coluna de valores numéricos.',
+    median:'Uma coluna de valores numéricos.',
+    sd:'Uma coluna de valores numéricos.',
+    diff_means:'Formato: Grupo, Valor (dois grupos)',
+    corr:'Formato: X, Y (dois valores por linha)',
+    ratio:'Formato: Grupo, Valor (dois grupos)'
+  };
+  document.getElementById('bootDataHelp').innerHTML=`<strong>${['diff_means','ratio'].includes(stat)?'Formato: Grupo, Valor':stat==='corr'?'Formato: X, Y':'Formato: uma coluna de valores'}</strong><br>${helps[stat]||''}`;
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function sw(name){
+  document.querySelectorAll('.mv').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.snav').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.mtab').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.mbb').forEach(v=>v.classList.remove('active'));
+  const mv=document.getElementById('mv-'+name);if(mv)mv.classList.add('active');
+  const sn=document.getElementById('snav-'+name);if(sn)sn.classList.add('active');
+  const mb=document.getElementById('mbb-'+name);if(mb)mb.classList.add('active');
+  const tabMap={cluster:0,poisson:1,boot:2};
+  const tabs=document.querySelectorAll('.mtab');
+  if(tabMap[name]!==undefined)tabs[tabMap[name]].classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+let toastT=null;
+function showToast(msg,type='info'){
+  const t=document.getElementById('toast');t.textContent=msg;t.className='t-'+type;
+  setTimeout(()=>t.classList.add('show'),10);
+  if(toastT)clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function copyEl(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>showToast('Copiado!','success'));}
+window.addEventListener('resize',()=>{
+  if(window._clRes)setTimeout(()=>{
+    const canvas=document.getElementById('dendroCanvas');
+    if(canvas&&window._clRes)runCluster();
+  },100);
+});
+</script>
+</body>
+</html>

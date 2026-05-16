@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estatística Bloco 2 — Dossiê v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Karla:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg:#f8f7f4;--surface:#f0ede8;--surface2:#e8e4dd;--card:#fff;
+  --text:#1a1814;--text2:#5a554e;--muted:#9e9890;--line:#e2ddd7;--ink:#1a1814;
+  --rust:#c0392b;--rust-light:rgba(192,57,43,0.1);
+  --teal:#0a7c6e;--teal-light:rgba(10,124,110,0.1);
+  --navy:#1a3a5c;--navy-light:rgba(26,58,92,0.1);
+  --gold:#c47a00;--gold-light:rgba(196,122,0,0.1);
+  --plum:#6b2e7e;--plum-light:rgba(107,46,126,0.1);
+  --green:#1a7c3a;--green-light:rgba(26,124,58,0.1);
+  --font-display:'Syne',sans-serif;--font-body:'Karla',sans-serif;--font-mono:'Space Mono',monospace;
+  --radius-sm:8px;--radius:14px;--radius-lg:20px;
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.07);--shadow-md:0 6px 20px rgba(0,0,0,0.09);
+  --transition:0.2s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+
+/* TOPBAR */
+.topbar{background:var(--ink);color:#fff;display:flex;align-items:center;padding:0 24px;gap:16px;height:54px;position:sticky;top:0;z-index:100}
+.tlogo{font-family:var(--font-display);font-size:16px;font-weight:800;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px}
+.tbadge{background:var(--rust);font-family:var(--font-mono);font-size:10px;padding:2px 7px;border-radius:4px}
+.tsep{width:1px;height:22px;background:rgba(255,255,255,0.15)}
+.tsub{color:rgba(255,255,255,0.45);font-size:13px}
+.tback{margin-left:auto;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.85);font-family:var(--font-display);font-size:12px;font-weight:700;padding:5px 13px;border-radius:6px;cursor:pointer;transition:var(--transition)}
+.tback:hover{background:rgba(255,255,255,0.2);color:#fff}
+
+/* LAYOUT */
+.shell{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 54px)}
+.sidebar{background:var(--ink);padding:20px 0;position:sticky;top:54px;height:calc(100vh - 54px);overflow-y:auto}
+.slabel{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;color:rgba(255,255,255,0.3);text-transform:uppercase;padding:0 18px 6px;margin-top:14px}
+.slabel:first-child{margin-top:0}
+.snav{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;font-size:13px;font-weight:500;color:rgba(255,255,255,0.5);border-left:3px solid transparent;transition:var(--transition)}
+.snav:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.05)}
+.snav.active{color:#fff;background:rgba(255,255,255,0.08);border-left-color:var(--rust)}
+.sicon{font-size:14px;width:20px;text-align:center}
+.main{padding:30px 34px;max-width:940px}
+
+/* MODULE TABS */
+.mtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:28px;border-bottom:2px solid var(--ink);padding-bottom:16px}
+.mtab{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--radius-sm);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;background:var(--surface);border:1.5px solid var(--line);color:var(--text2);transition:var(--transition)}
+.mtab:hover{border-color:var(--ink);color:var(--ink)}
+.mtab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:18px}
+.card:hover{box-shadow:var(--shadow-sm)}
+.ctitle{font-family:var(--font-display);font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.cicon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.c-teal{background:var(--teal-light)}.c-rust{background:var(--rust-light)}.c-navy{background:var(--navy-light)}.c-gold{background:var(--gold-light)}.c-plum{background:var(--plum-light)}.c-green{background:var(--green-light)}
+
+/* FORMS */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.fgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+label{font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text2)}
+input[type="text"],input[type="number"],select,textarea{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:9px 12px;font-family:var(--font-body);font-size:14px;color:var(--text);outline:none;width:100%;transition:var(--transition)}
+input:focus,select:focus,textarea:focus{border-color:var(--teal);background:#fff;box-shadow:0 0 0 3px rgba(10,124,110,0.1)}
+textarea{resize:vertical;font-family:var(--font-mono);font-size:12.5px;line-height:1.55}
+.hint{font-size:12px;color:var(--muted);line-height:1.4;margin-top:3px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;transition:var(--transition);border:none;white-space:nowrap}
+.btn-primary{background:var(--teal);color:#fff}.btn-primary:hover{background:#086b5e;transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.btn-danger{background:var(--rust);color:#fff}.btn-danger:hover{background:#a93226}
+.btn-ghost{background:transparent;border:1.5px solid var(--line);color:var(--text2)}.btn-ghost:hover{border-color:var(--text2);color:var(--text);background:var(--surface)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px}
+
+/* RESULTS */
+.rbox{background:var(--ink);border-radius:var(--radius);padding:18px 20px;font-family:var(--font-mono);font-size:12px;line-height:1.85;color:rgba(255,255,255,0.9);white-space:pre-wrap;overflow-x:auto;min-height:60px;margin-bottom:14px}
+.cwrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+.cwrap.hidden{display:none}
+.ctit{font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--text2);margin-bottom:12px}
+.cexp{font-size:13px;color:var(--text2);margin-top:10px;padding:9px 13px;background:var(--surface);border-radius:var(--radius-sm);border-left:3px solid var(--teal)}
+
+/* KPI */
+.kstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.kstrip5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;text-align:center}
+.klabel{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.kval{font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--ink);line-height:1}
+.knote{font-size:11px;color:var(--muted);margin-top:3px}
+.hi-teal{border-color:var(--teal)}.hi-teal .kval{color:var(--teal)}
+.hi-rust{border-color:var(--rust)}.hi-rust .kval{color:var(--rust)}
+.hi-gold{border-color:var(--gold)}.hi-gold .kval{color:var(--gold)}
+.hi-navy{border-color:var(--navy)}.hi-navy .kval{color:var(--navy)}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:99px;font-family:var(--font-display);font-size:11px;font-weight:700}
+.badge-teal{background:var(--teal-light);color:var(--teal)}
+.badge-rust{background:var(--rust-light);color:var(--rust)}
+.badge-gold{background:var(--gold-light);color:var(--gold)}
+.badge-navy{background:var(--navy-light);color:var(--navy)}
+.badge-muted{background:var(--surface2);color:var(--muted)}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:13px;font-family:var(--font-mono)}
+.tbl th{background:var(--ink);color:rgba(255,255,255,0.8);font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:8px 12px;text-align:right}
+.tbl th:first-child{text-align:left}
+.tbl td{padding:8px 12px;border-bottom:1px solid var(--line);text-align:right;font-size:12.5px}
+.tbl td:first-child{text-align:left;font-family:var(--font-display);font-weight:700;font-size:12px}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--surface)}
+.sig{color:var(--rust);font-weight:700}.ns{color:var(--muted)}
+
+/* DEMO BOX */
+.dbox{background:var(--ink);border-radius:var(--radius-sm);padding:12px 16px;font-family:var(--font-mono);font-size:11.5px;color:rgba(255,255,255,0.75);line-height:1.6;margin-bottom:12px}
+.dbox .c{color:rgba(255,255,255,0.35)}
+
+/* INTERP */
+.interp{background:#f9f7f4;border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:var(--radius);padding:14px 16px;font-size:14px;line-height:1.7;margin-top:12px;display:none}
+.interp.show{display:block}
+
+/* MODULE VIEW */
+.mv{display:none}.mv.active{display:block}
+
+/* POWER CALCULATOR */
+.power-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:16px}
+.power-result{background:var(--surface);border-radius:var(--radius);padding:20px;text-align:center}
+.power-val{font-family:var(--font-mono);font-size:42px;font-weight:700;line-height:1;margin-bottom:8px}
+.power-label{font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2)}
+
+/* LOGISTIC TABLE */
+.or-chip{display:inline-block;background:var(--teal-light);color:var(--teal);font-family:var(--font-mono);font-size:11px;padding:2px 7px;border-radius:4px;font-weight:700}
+
+/* RANGE SLIDER */
+input[type="range"]{width:100%;accent-color:var(--teal);height:6px;border-radius:3px;background:var(--surface2);border:none;cursor:pointer;padding:0}
+
+/* TREND INDICATOR */
+.trend-box{display:flex;align-items:center;gap:12px;padding:14px 18px;border-radius:var(--radius);border:1.5px solid var(--line);margin-bottom:12px}
+.trend-icon{font-size:28px;line-height:1}
+.trend-label{font-family:var(--font-display);font-size:13px;font-weight:700}
+.trend-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.trend-box.up{border-color:var(--rust);background:var(--rust-light)}
+.trend-box.down{border-color:var(--navy);background:var(--navy-light)}
+.trend-box.none{border-color:var(--muted);background:var(--surface)}
+
+/* TOAST */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:10px 22px;border-radius:99px;font-family:var(--font-display);font-size:13px;font-weight:600;z-index:9999;transition:0.35s cubic-bezier(0.22,1,0.36,1);pointer-events:none;box-shadow:var(--shadow-md)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.t-success{background:var(--teal)}
+#toast.t-error{background:var(--rust)}
+#toast.t-info{background:var(--navy)}
+
+/* MOBILE */
+.mob-bot{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--ink);border-top:1px solid rgba(255,255,255,0.1);z-index:200;padding:6px 0 env(safe-area-inset-bottom,6px)}
+.mob-items{display:flex;justify-content:space-around}
+.mbb{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.45);font-family:var(--font-display);font-size:9px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase}
+.mbb .mi{font-size:18px;line-height:1}
+.mbb.active{color:var(--rust)}
+
+@media(max-width:820px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .mob-bot{display:block}
+  .main{padding:18px 14px 90px;max-width:100%}
+  .fgrid,.fgrid3,.power-grid{grid-template-columns:1fr}
+  .kstrip,.kstrip5{grid-template-columns:1fr 1fr}
+  .mtabs{gap:5px}
+  .mtab{padding:7px 11px;font-size:12px}
+  .tsub,.tsep{display:none}
+}
+@media(max-width:480px){
+  .kstrip,.kstrip5{grid-template-columns:1fr 1fr;gap:8px}
+  .kval{font-size:17px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="tlogo"><span>Dossiê Estatístico</span><span class="tbadge">v2</span></div>
+  <div class="tsep"></div>
+  <span class="tsub">Bloco 2 — Séries Temporais · Poder · Regressão Logística</span>
+  <button class="tback" onclick="window.location.href='index.html'">← Painel principal</button>
+</header>
+
+<div class="shell">
+<nav class="sidebar">
+  <div class="slabel">Módulos</div>
+  <div class="snav active" id="snav-mk" onclick="sw('mk')"><span class="sicon">📉</span>Mann-Kendall</div>
+  <div class="snav" id="snav-poder" onclick="sw('poder')"><span class="sicon">⚡</span>Poder Estatístico</div>
+  <div class="snav" id="snav-logreg" onclick="sw('logreg')"><span class="sicon">🎯</span>Reg. Logística</div>
+  <div class="slabel">Referência</div>
+  <div class="snav" id="snav-ajuda" onclick="sw('ajuda')"><span class="sicon">📖</span>Guia</div>
+  <div style="margin-top:auto;padding:16px 18px;border-top:1px solid rgba(255,255,255,0.08);margin-top:30px">
+    <div style="font-family:var(--font-mono);font-size:10px;color:rgba(255,255,255,0.22)">Dossiê v2 · Bloco 2<br>UNEMAT — Cáceres</div>
+  </div>
+</nav>
+
+<main class="main">
+
+<div class="mtabs">
+  <div class="mtab active" onclick="sw('mk')">📉 Mann-Kendall</div>
+  <div class="mtab" onclick="sw('poder')">⚡ Poder Estatístico</div>
+  <div class="mtab" onclick="sw('logreg')">🎯 Reg. Logística</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MÓDULO 1 — MANN-KENDALL
+══════════════════════════════════════════════ -->
+<div class="mv active" id="mv-mk">
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">Módulo 01</div>
+    <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">Teste de Mann-Kendall</div>
+    <div style="color:var(--text2);font-size:14px;margin-top:5px">Tendência monotônica em séries temporais — não paramétrico, robusto a outliers e não normalidade</div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-navy">📥</span>Dados da série temporal</div>
+    <div class="dbox">
+      <span class="c"># Uma observação por linha. Formato: Ano, Valor  ou só o Valor</span><br>
+      2000, 18.2<br>2001, 19.5<br>2002, 22.1<br>2003, 24.8
+    </div>
+    <div class="field">
+      <label>Série temporal</label>
+      <textarea id="mkData" rows="12" placeholder="Ano, Valor&#10;2000, 18.2&#10;2001, 19.5&#10;..."></textarea>
+    </div>
+    <div class="btn-row" style="margin-bottom:12px">
+      <button class="btn btn-ghost btn-sm" onclick="mkDemo('temp')">🌡 Temperatura</button>
+      <button class="btn btn-ghost btn-sm" onclick="mkDemo('prec')">💧 Precipitação</button>
+      <button class="btn btn-ghost btn-sm" onclick="mkDemo('vazao')">🏞 Vazão</button>
+      <button class="btn btn-ghost btn-sm" onclick="mkDemo('pm25')">🌫 PM2.5</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById(\'mkData\').value=\'\'">🗑 Limpar</button>
+    </div>
+    <div class="fgrid">
+      <div class="field">
+        <label>Nível α</label>
+        <select id="mkAlpha">
+          <option value="0.05">0,05 (padrão)</option>
+          <option value="0.01">0,01</option>
+          <option value="0.10">0,10</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Calcular Sen's slope</label>
+        <select id="mkSens">
+          <option value="yes">Sim (inclinação da tendência)</option>
+          <option value="no">Não</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-danger" onclick="runMK()">▶ Executar Mann-Kendall</button>
+  </div>
+
+  <div id="mkResultsWrap" style="display:none">
+    <div id="mkTrendBox" class="trend-box none" style="margin-bottom:16px">
+      <div class="trend-icon" id="mkTrendIcon">—</div>
+      <div>
+        <div class="trend-label" id="mkTrendLabel">—</div>
+        <div class="trend-sub" id="mkTrendSub">—</div>
+      </div>
+      <span class="badge badge-muted" id="mkTrendBadge" style="margin-left:auto">—</span>
+    </div>
+
+    <div class="kstrip5">
+      <div class="kpi hi-teal"><div class="klabel">S (Mann-Kendall)</div><div class="kval" id="mkS">—</div><div class="knote">estatística</div></div>
+      <div class="kpi"><div class="klabel">Var(S)</div><div class="kval" id="mkVarS">—</div></div>
+      <div class="kpi"><div class="klabel">Z normalizado</div><div class="kval" id="mkZ">—</div></div>
+      <div class="kpi"><div class="klabel">p-valor</div><div class="kval" id="mkP">—</div><div class="knote" id="mkPnote"></div></div>
+      <div class="kpi"><div class="klabel">Sen's slope</div><div class="kval" id="mkSlope">—</div><div class="knote" id="mkSlopenote">por período</div></div>
+    </div>
+
+    <div class="cwrap">
+      <div class="ctit">Série temporal com linha de tendência (Sen's slope)</div>
+      <canvas id="mkChart" height="240"></canvas>
+      <div class="cexp" id="mkChartExplain"></div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-teal">📄</span>Saída completa</div>
+      <div class="rbox" id="mkResultBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="copyEl('mkResultBox')">📋 Copiar</button>
+        <button class="btn btn-ghost btn-sm" onclick="genMKInterp()">💬 Interpretação</button>
+      </div>
+    </div>
+    <div class="interp" id="mkInterp"><strong style="font-family:var(--font-display)">Interpretação:</strong> <span id="mkInterpText"></span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MÓDULO 2 — PODER ESTATÍSTICO
+══════════════════════════════════════════════ -->
+<div class="mv" id="mv-poder">
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">Módulo 02</div>
+    <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">Poder Estatístico</div>
+    <div style="color:var(--text2);font-size:14px;margin-top:5px">Calcula poder (1−β), N mínimo necessário e tamanho de efeito para t-test, ANOVA e correlação</div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-gold">⚙️</span>Configuração</div>
+    <div class="fgrid">
+      <div class="field">
+        <label>Tipo de teste</label>
+        <select id="pwTest" onchange="updatePowerUI()">
+          <option value="t2">Teste t (2 grupos independentes)</option>
+          <option value="t1">Teste t (1 amostra)</option>
+          <option value="anova">ANOVA (k grupos)</option>
+          <option value="corr">Correlação (Pearson/Spearman)</option>
+          <option value="prop">Proporções (qui-quadrado)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Calcular</label>
+        <select id="pwCalc" onchange="updatePowerUI()">
+          <option value="power">Poder (dado N)</option>
+          <option value="n">N mínimo (dado poder desejado)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="fgrid" id="pwParamsGrid">
+      <div class="field" id="pwEffectWrap">
+        <label>Tamanho de efeito</label>
+        <select id="pwEffectPreset" onchange="syncEffect()">
+          <option value="">Personalizado</option>
+          <option value="0.2">Pequeno (d = 0,2)</option>
+          <option value="0.5">Médio (d = 0,5)</option>
+          <option value="0.8">Grande (d = 0,8)</option>
+        </select>
+        <input type="number" id="pwEffect" value="0.5" step="0.05" min="0.01" max="3" style="margin-top:6px">
+        <div class="hint" id="pwEffectHint">Cohen's d para t-test</div>
+      </div>
+      <div class="field">
+        <label>Nível α (erro tipo I)</label>
+        <input type="number" id="pwAlpha" value="0.05" step="0.01" min="0.001" max="0.20">
+      </div>
+    </div>
+
+    <div class="fgrid" id="pwParamsGrid2">
+      <div class="field" id="pwNWrap">
+        <label id="pwNLabel">N por grupo</label>
+        <input type="number" id="pwN" value="30" min="2" max="10000">
+        <div class="hint" id="pwNHint">Tamanho de cada grupo</div>
+      </div>
+      <div class="field" id="pwPowerWrap" style="display:none">
+        <label>Poder desejado (1−β)</label>
+        <input type="number" id="pwPowerTarget" value="0.80" step="0.01" min="0.50" max="0.999">
+        <div class="hint">0,80 = padrão; 0,90 = conservador</div>
+      </div>
+      <div class="field" id="pwGroupsWrap" style="display:none">
+        <label>Número de grupos (ANOVA)</label>
+        <input type="number" id="pwGroups" value="3" min="2" max="20">
+      </div>
+    </div>
+
+    <button class="btn btn-danger" onclick="runPower()">▶ Calcular Poder</button>
+  </div>
+
+  <div id="pwResultsWrap" style="display:none">
+    <div class="power-grid">
+      <div class="power-result" id="pwMainResult">
+        <div class="power-val" id="pwMainVal" style="color:var(--teal)">—</div>
+        <div class="power-label" id="pwMainLabel">Poder (1−β)</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:8px" id="pwMainSub"></div>
+      </div>
+      <div style="display:grid;gap:10px">
+        <div class="kpi hi-teal"><div class="klabel">Erro tipo I (α)</div><div class="kval" id="pwKalpha">—</div></div>
+        <div class="kpi"><div class="klabel">Erro tipo II (β)</div><div class="kval" id="pwKbeta">—</div><div class="knote">P(falso negativo)</div></div>
+        <div class="kpi hi-navy"><div class="klabel">N total</div><div class="kval" id="pwKN">—</div></div>
+      </div>
+    </div>
+
+    <div class="cwrap">
+      <div class="ctit">Curva de poder — N vs. 1−β</div>
+      <canvas id="pwChart" height="220"></canvas>
+      <div class="cexp" id="pwChartExplain"></div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-teal">📄</span>Saída completa</div>
+      <div class="rbox" id="pwResultBox"></div>
+      <button class="btn btn-ghost btn-sm" onclick="copyEl('pwResultBox')">📋 Copiar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MÓDULO 3 — REGRESSÃO LOGÍSTICA
+══════════════════════════════════════════════ -->
+<div class="mv" id="mv-logreg">
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">Módulo 03</div>
+    <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">Regressão Logística</div>
+    <div style="color:var(--text2);font-size:14px;margin-top:5px">Variável resposta binária (0/1) — coeficientes, Odds Ratio, curva ROC, AUC</div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-navy">📥</span>Dados</div>
+    <div class="dbox">
+      <span class="c"># Primeira coluna = Y (0 ou 1). Demais = preditores X. Com cabeçalho.</span><br>
+      Ocorrencia, Temperatura, Precipitacao, pH<br>
+      1, 28.3, 145, 6.8<br>
+      0, 22.1, 95, 7.5<br>
+      1, 30.2, 160, 6.5
+    </div>
+    <div class="field">
+      <label>Dados (Y binário | X1 | X2 ...)</label>
+      <textarea id="lrData" rows="12" placeholder="Y, X1, X2&#10;1, 28.3, 6.8&#10;0, 22.1, 7.5&#10;..."></textarea>
+    </div>
+    <div class="btn-row" style="margin-bottom:12px">
+      <button class="btn btn-ghost btn-sm" onclick="lrDemo(1)">Exemplo simples (Y~X)</button>
+      <button class="btn btn-ghost btn-sm" onclick="lrDemo(2)">Exemplo múltiplo (Y~X1+X2+X3)</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById(\'lrData\').value=\'\'">🗑 Limpar</button>
+    </div>
+    <div class="fgrid">
+      <div class="field">
+        <label>Iterações máximas</label>
+        <input type="number" id="lrIter" value="200" min="50" max="1000">
+      </div>
+      <div class="field">
+        <label>Taxa de aprendizado</label>
+        <input type="number" id="lrLR" value="0.1" min="0.001" max="1" step="0.01">
+      </div>
+    </div>
+    <button class="btn btn-danger" onclick="runLogReg()">▶ Ajustar Regressão Logística</button>
+  </div>
+
+  <div id="lrResultsWrap" style="display:none">
+    <div class="kstrip5">
+      <div class="kpi hi-teal"><div class="klabel">AUC-ROC</div><div class="kval" id="lrAUC">—</div><div class="knote" id="lrAUCnote"></div></div>
+      <div class="kpi"><div class="klabel">Acurácia</div><div class="kval" id="lrAcc">—</div></div>
+      <div class="kpi"><div class="klabel">Sensibilidade</div><div class="kval" id="lrSens">—</div><div class="knote">verdadeiros pos.</div></div>
+      <div class="kpi"><div class="klabel">Especificidade</div><div class="kval" id="lrSpec">—</div><div class="knote">verdadeiros neg.</div></div>
+      <div class="kpi hi-navy"><div class="klabel">N</div><div class="kval" id="lrN">—</div><div class="knote" id="lrNnote"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-rust">📊</span>Coeficientes e Odds Ratio</div>
+      <div style="overflow-x:auto">
+        <table class="tbl" id="lrCoefTable">
+          <thead><tr>
+            <th style="text-align:left">Preditor</th>
+            <th>β (log-odds)</th><th>SE</th><th>z</th><th>p-valor</th>
+            <th>OR</th><th>IC 95% OR</th><th>Sig.</th>
+          </tr></thead>
+          <tbody id="lrCoefBody"></tbody>
+        </table>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;font-family:var(--font-mono)">OR > 1 = fator de risco · OR &lt; 1 = fator protetor · IC 95% não inclui 1 = significativo</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+      <div class="cwrap">
+        <div class="ctit">Curva ROC</div>
+        <canvas id="lrROCChart" height="240"></canvas>
+        <div class="cexp" id="lrROCExplain"></div>
+      </div>
+      <div class="cwrap">
+        <div class="ctit">Distribuição de probabilidades preditas</div>
+        <canvas id="lrProbChart" height="240"></canvas>
+        <div class="cexp" id="lrProbExplain"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-teal">📄</span>Saída completa</div>
+      <div class="rbox" id="lrResultBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="copyEl('lrResultBox')">📋 Copiar</button>
+        <button class="btn btn-ghost btn-sm" onclick="genLRInterp()">💬 Interpretação</button>
+      </div>
+    </div>
+    <div class="interp" id="lrInterp"><strong style="font-family:var(--font-display)">Interpretação:</strong> <span id="lrInterpText"></span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     AJUDA
+══════════════════════════════════════════════ -->
+<div class="mv" id="mv-ajuda">
+  <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;margin-bottom:20px">Guia — Bloco 2</div>
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-navy">📉</span>Mann-Kendall — quando usar</div>
+    <div style="font-size:13.5px;color:var(--text2);line-height:1.8">
+      Teste não paramétrico para detectar tendência monotônica (crescente ou decrescente) em séries temporais. Não exige normalidade. Robusto a outliers.<br><br>
+      <strong>H₀:</strong> não há tendência. <strong>H₁:</strong> há tendência monotônica.<br>
+      <strong>S positivo</strong> = tendência de alta. <strong>S negativo</strong> = tendência de baixa.<br>
+      <strong>Sen's slope</strong> = magnitude da tendência (unidade da variável por período de tempo). É a mediana de todas as inclinações entre pares de pontos — robusto a outliers.
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-gold">⚡</span>Poder estatístico — conceitos</div>
+    <div style="font-size:13.5px;color:var(--text2);line-height:1.8">
+      <strong>Poder (1−β)</strong> = probabilidade de detectar um efeito real. Padrão mínimo: 0,80.<br>
+      <strong>Erro tipo I (α)</strong> = rejeitar H₀ quando ela é verdadeira (falso positivo). Geralmente 0,05.<br>
+      <strong>Erro tipo II (β)</strong> = não rejeitar H₀ quando ela é falsa (falso negativo). = 1 − poder.<br><br>
+      Quatro fatores se relacionam: α, poder, N e tamanho de efeito. Fixados três, o quarto é determinado.
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-rust">🎯</span>Regressão Logística — interpretação</div>
+    <div style="font-size:13.5px;color:var(--text2);line-height:1.8">
+      <strong>Odds Ratio (OR)</strong> = quanto a chance do evento aumenta para cada unidade de X.<br>
+      OR = 1: sem efeito · OR > 1: fator de risco · OR &lt; 1: fator protetor<br><br>
+      <strong>AUC-ROC</strong>: 0,5 = modelo aleatório · 0,7–0,8 = aceitável · 0,8–0,9 = bom · > 0,9 = excelente<br><br>
+      <strong>Sensibilidade</strong> = % de casos positivos corretamente identificados.<br>
+      <strong>Especificidade</strong> = % de casos negativos corretamente identificados.
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- MOBILE NAV -->
+<div class="mob-bot">
+  <div class="mob-items">
+    <button class="mbb active" id="mbb-mk" onclick="sw('mk')"><span class="mi">📉</span>M-Kendall</button>
+    <button class="mbb" id="mbb-poder" onclick="sw('poder')"><span class="mi">⚡</span>Poder</button>
+    <button class="mbb" id="mbb-logreg" onclick="sw('logreg')"><span class="mi">🎯</span>Log. Reg.</button>
+    <button class="mbb" onclick="window.location.href='index.html'"><span class="mi">⌂</span>Hub</button>
+    <button class="mbb" onclick="window.location.href='estatistica-avancada.html'"><span class="mi">🔬</span>Bloco 1</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// MATH UTILS
+// ============================================================
+function mean(a){return a.reduce((s,v)=>s+v,0)/a.length}
+function sd(a,samp=true){if(a.length<2)return 0;const m=mean(a),n=a.length;return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/(samp?n-1:n))}
+function sum(a){return a.reduce((s,v)=>s+v,0)}
+
+function lnGamma(z){return(z-.5)*Math.log(z+4.5)-(z+4.5)+.5*Math.log(2*Math.PI)+1/(12*(z+4.5))}
+function ibeta(x,a,b){
+  if(x<=0)return 0;if(x>=1)return 1;
+  const lb=lnGamma(a)+lnGamma(b)-lnGamma(a+b);
+  const fr=Math.exp(Math.log(x)*a+Math.log(1-x)*b-lb)/a;
+  let d=1,s=1,c=1;
+  for(let m=1;m<=200;m++){
+    const m2=2*m;
+    let aa=m*(b-m)*x/((a+m2-1)*(a+m2));
+    d=1+aa*d;if(Math.abs(d)<1e-30)d=1e-30;d=1/d;c=1+aa/c;if(Math.abs(c)<1e-30)c=1e-30;s*=d*c;
+    aa=-(a+m)*(a+b+m)*x/((a+m2)*(a+m2+1));
+    d=1+aa*d;if(Math.abs(d)<1e-30)d=1e-30;d=1/d;c=1+aa/c;if(Math.abs(c)<1e-30)c=1e-30;s*=d*c;
+    if(Math.abs(d*c-1)<1e-9)break;
+  }
+  return fr*s;
+}
+function normCDF(z){return 0.5*(1+erf(z/Math.sqrt(2)))}
+function erf(x){
+  const t=1/(1+0.3275911*Math.abs(x));
+  const y=1-t*(0.254829592+t*(-0.284496736+t*(1.421413741+t*(-1.453152027+t*1.061405429))))*Math.exp(-x*x);
+  return x<0?-y:y;
+}
+function normQuantile(p){
+  const a=[2.50662823884,-18.61500062529,41.39119773534,-25.44106049637];
+  const b=[-8.47351093090,23.08336743743,-21.06224101826,3.13082909833];
+  const c=[0.3374754822726147,0.9761690190917186,0.1607979714918209,0.0276438810333863,0.0038405729373609,0.0003951896511349,0.0000321767881768,0.0000002888167364,0.0000003960315187];
+  if(p<=0||p>=1)return NaN;
+  const q=p-0.5;
+  if(Math.abs(q)<0.42){const r=q*q;return q*(((a[3]*r+a[2])*r+a[1])*r+a[0])/((((b[3]*r+b[2])*r+b[1])*r+b[0])*r+1);}
+  const r=Math.log(-Math.log(q<0?p:1-p));
+  const x=c[0]+r*(c[1]+r*(c[2]+r*(c[3]+r*(c[4]+r*(c[5]+r*(c[6]+r*(c[7]+r*c[8])))))));
+  return q<0?-x:x;
+}
+function fmt(v,d=4){if(!isFinite(v))return'—';return v.toFixed(d)}
+function pLabel(p){if(!isFinite(p))return'—';if(p<0.001)return'< 0,001 ***';if(p<0.01)return'< 0,01 **';if(p<0.05)return'< 0,05 *';return fmt(p,4)+' ns'}
+function sigStar(p){if(p<0.001)return'***';if(p<0.01)return'**';if(p<0.05)return'*';return'ns'}
+
+// ============================================================
+// MÓDULO 1 — MANN-KENDALL
+// ============================================================
+let mkChartInst=null;
+
+const MK_DEMOS={
+  temp:`2000, 18.2\n2001, 19.5\n2002, 22.1\n2003, 24.8\n2004, 26.3\n2005, 28.9\n2006, 27.4\n2007, 30.1\n2008, 29.8\n2009, 31.5\n2010, 32.4\n2011, 30.8\n2012, 33.2\n2013, 34.1\n2014, 35.5\n2015, 36.2\n2016, 34.8\n2017, 37.1\n2018, 36.5\n2019, 38.2\n2020, 37.8\n2021, 39.1\n2022, 40.3`,
+  prec:`2000, 1450\n2001, 1380\n2002, 1410\n2003, 1320\n2004, 1290\n2005, 1350\n2006, 1280\n2007, 1240\n2008, 1310\n2009, 1180\n2010, 1220\n2011, 1160\n2012, 1100\n2013, 1140\n2014, 1080\n2015, 1020\n2016, 1060\n2017, 980\n2018, 1010\n2019, 940\n2020, 960\n2021, 900\n2022, 880`,
+  vazao:`2000, 485\n2001, 462\n2002, 510\n2003, 438\n2004, 491\n2005, 445\n2006, 420\n2007, 398\n2008, 415\n2009, 380\n2010, 392\n2011, 365\n2012, 340\n2013, 358\n2014, 330\n2015, 312\n2016, 325\n2017, 298\n2018, 310\n2019, 285\n2020, 295\n2021, 272\n2022, 260`,
+  pm25:`2000, 14.2\n2001, 15.8\n2002, 18.3\n2003, 22.1\n2004, 25.4\n2005, 28.9\n2006, 32.1\n2007, 29.8\n2008, 35.4\n2009, 38.7\n2010, 41.2\n2011, 39.5\n2012, 44.8\n2013, 48.3\n2014, 52.1\n2015, 58.4\n2016, 55.2\n2017, 61.8\n2018, 65.3\n2019, 70.1\n2020, 45.2\n2021, 68.9\n2022, 72.4`
+};
+
+function mkDemo(type){document.getElementById('mkData').value=MK_DEMOS[type]||MK_DEMOS.temp;}
+
+function parseSeries(raw){
+  const lines=raw.trim().split(/\n/).filter(l=>l.trim()&&!l.startsWith('#'));
+  const labels=[],values=[];
+  for(const l of lines){
+    const p=l.split(/[,;\t]+/).map(s=>s.trim());
+    if(p.length===1&&isFinite(+p[0])){labels.push(labels.length+1);values.push(+p[0]);}
+    else if(p.length>=2&&isFinite(+p[p.length-1])){labels.push(p[0]);values.push(+p[p.length-1]);}
+  }
+  return{labels,values};
+}
+
+function mannKendall(x){
+  const n=x.length;
+  let S=0;
+  for(let i=0;i<n-1;i++) for(let j=i+1;j<n;j++){const d=x[j]-x[i];S+=d>0?1:d<0?-1:0;}
+  // Variance with tie correction
+  // Count ties
+  const tieGroups={};
+  x.forEach(v=>{tieGroups[v]=(tieGroups[v]||0)+1;});
+  const tieSum=Object.values(tieGroups).filter(t=>t>1).reduce((s,t)=>s+t*(t-1)*(2*t+5),0);
+  const varS=(n*(n-1)*(2*n+5)-tieSum)/18;
+  const Z=S===0?0:(S>0?(S-1):( S+1))/Math.sqrt(varS);
+  const p=2*(1-normCDF(Math.abs(Z)));
+  // Sen's slope
+  const slopes=[];
+  for(let i=0;i<n-1;i++) for(let j=i+1;j<n;j++) slopes.push((x[j]-x[i])/(j-i));
+  slopes.sort((a,b)=>a-b);
+  const sens=slopes.length%2?slopes[(slopes.length-1)/2]:(slopes[slopes.length/2-1]+slopes[slopes.length/2])/2;
+  return{S,varS,Z,p,sens,n};
+}
+
+function runMK(){
+  const raw=document.getElementById('mkData').value;
+  const{labels,values}=parseSeries(raw);
+  if(values.length<4){showToast('Mínimo 4 observações','error');return;}
+  const alpha=+document.getElementById('mkAlpha').value;
+  const doSens=document.getElementById('mkSens').value==='yes';
+  const res=mannKendall(values);
+
+  // Trend box
+  const box=document.getElementById('mkTrendBox');
+  const sig=res.p<alpha;
+  const up=res.S>0;
+  box.className='trend-box '+(sig?(up?'up':'down'):'none');
+  document.getElementById('mkTrendIcon').textContent=sig?(up?'📈':'📉'):'➡️';
+  document.getElementById('mkTrendLabel').textContent=sig?(up?'Tendência crescente significativa':'Tendência decrescente significativa'):'Sem tendência significativa';
+  document.getElementById('mkTrendSub').textContent=`S = ${res.S} · Z = ${fmt(res.Z,3)} · p = ${res.p<0.001?'< 0,001':fmt(res.p,4)}`;
+  document.getElementById('mkTrendBadge').textContent=sig?'Significativo':'Não sig.';
+  document.getElementById('mkTrendBadge').className='badge '+(sig?(up?'badge-rust':'badge-navy'):'badge-muted');
+
+  // KPIs
+  document.getElementById('mkS').textContent=res.S;
+  document.getElementById('mkVarS').textContent=fmt(res.varS,1);
+  document.getElementById('mkZ').textContent=fmt(res.Z,3);
+  document.getElementById('mkP').textContent=res.p<0.001?'< 0,001':fmt(res.p,4);
+  document.getElementById('mkPnote').textContent=sig?'Sig.':'Não sig.';
+  document.getElementById('mkSlope').textContent=doSens?fmt(res.sens,4):'—';
+  document.getElementById('mkSlopenote').textContent=doSens?'unid./período':'(desativado)';
+
+  // Chart
+  if(mkChartInst){mkChartInst.destroy();mkChartInst=null;}
+  const b0=mean(values)-res.sens*((values.length-1)/2);
+  const trendLine=values.map((_,i)=>b0+res.sens*i);
+  mkChartInst=new Chart(document.getElementById('mkChart'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Série observada',data:values,borderColor:'#1a3a5c',backgroundColor:'rgba(26,58,92,0.08)',borderWidth:2,pointRadius:4,tension:0.2,fill:true},
+      {label:`Sen's slope (${fmt(res.sens,4)}/período)`,data:trendLine,borderColor:'#c0392b',borderWidth:2.5,borderDash:[6,4],pointRadius:0,tension:0}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:12},usePointStyle:true}}},
+    scales:{x:{ticks:{font:{family:'Karla',size:11},maxRotation:45},grid:{color:'rgba(0,0,0,0.04)'}},
+    y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'Space Mono',size:11}}}}}
+  });
+  document.getElementById('mkChartExplain').innerHTML=
+    `<strong>Mann-Kendall:</strong> S = ${res.S}, Z = ${fmt(res.Z,3)}, p = ${pLabel(res.p)} · `+
+    (doSens?`<strong>Sen's slope = ${fmt(res.sens,4)}</strong> unidades por período`:'');
+
+  // Output
+  const sep='─'.repeat(50);
+  const txt=`${sep}\nTESTE DE MANN-KENDALL\nN = ${res.n} observações\n${sep}\n\nESTATÍSTICA\n  S          = ${res.S}\n  Var(S)     = ${fmt(res.varS,4)}\n  Z          = ${fmt(res.Z,4)}\n  p-valor    = ${res.p<0.001?'< 0,001':fmt(res.p,4)}\n  Tendência  = ${sig?(up?'CRESCENTE':'DECRESCENTE'):'NÃO DETECTADA'} (α = ${alpha})\n\nSEN'S SLOPE\n  β (slope)  = ${fmt(res.sens,6)} unidades/período\n  Interpretação: a variável ${up?'aumenta':'diminui'} em média ${fmt(Math.abs(res.sens),4)} unidades por período\n${sep}\n`;
+  document.getElementById('mkResultBox').textContent=txt;
+  document.getElementById('mkResultsWrap').style.display='block';
+  window._mkRes={res,values,labels,sig,up,alpha};
+  showToast('Mann-Kendall concluído','success');
+}
+
+function genMKInterp(){
+  if(!window._mkRes){showToast('Execute o teste primeiro','error');return;}
+  const{res,values,sig,up,alpha}=window._mkRes;
+  const txt=`O teste de Mann-Kendall detectou ${sig?`tendência ${up?'crescente':'decrescente'} estatisticamente significativa`:'ausência de tendência significativa'} na série temporal analisada (S = ${res.S}, Z = ${fmt(res.Z,3)}, p ${pLabel(res.p)}, α = ${alpha}). ${sig?`A inclinação estimada por Sen's slope foi de ${fmt(res.sens,4)} unidades por período, indicando que a variável ${up?'aumentou':'diminuiu'} em média ${fmt(Math.abs(res.sens),4)} unidades a cada período de tempo.`:'Não há evidência estatística de mudança direcional ao longo do período analisado.'}`;
+  document.getElementById('mkInterpText').textContent=txt;
+  document.getElementById('mkInterp').classList.add('show');
+}
+
+// ============================================================
+// MÓDULO 2 — PODER ESTATÍSTICO
+// ============================================================
+let pwChartInst=null;
+
+function updatePowerUI(){
+  const test=document.getElementById('pwTest').value;
+  const calc=document.getElementById('pwCalc').value;
+  const hints={t2:"Cohen's d · pequeno=0,2 · médio=0,5 · grande=0,8",t1:"Cohen's d (1 amostra)",anova:"Cohen's f · pequeno=0,1 · médio=0,25 · grande=0,4",corr:"Coeficiente r esperado (0–1)",prop:"Cohen's h · pequeno=0,2 · médio=0,5 · grande=0,8"};
+  document.getElementById('pwEffectHint').textContent=hints[test]||"Tamanho de efeito";
+  document.getElementById('pwGroupsWrap').style.display=test==='anova'?'block':'none';
+  document.getElementById('pwNWrap').style.display=calc==='power'?'block':'none';
+  document.getElementById('pwPowerWrap').style.display=calc==='n'?'block':'none';
+  if(test==='anova')document.getElementById('pwNLabel').textContent='N por grupo';
+  else document.getElementById('pwNLabel').textContent=test==='t1'?'N (amostra)':'N por grupo';
+}
+
+function syncEffect(){
+  const v=document.getElementById('pwEffectPreset').value;
+  if(v)document.getElementById('pwEffect').value=v;
+}
+
+// Power calculations
+function powerT2(d,n,alpha){
+  // Non-central t approximation
+  const df=2*n-2,se=Math.sqrt(2/n),z_alpha=normQuantile(1-alpha/2);
+  const ncp=d/se;
+  // P(|T| > t_alpha | ncp) ≈ 1 - normCDF(t_alpha - ncp) + normCDF(-t_alpha - ncp)
+  const power=1-normCDF(z_alpha-ncp)+normCDF(-z_alpha-ncp);
+  return Math.max(0,Math.min(1,power));
+}
+function powerT1(d,n,alpha){
+  const z_alpha=normQuantile(1-alpha/2),ncp=d*Math.sqrt(n);
+  return Math.max(0,Math.min(1,1-normCDF(z_alpha-ncp)+normCDF(-z_alpha-ncp)));
+}
+function powerANOVA(f,n,k,alpha){
+  // Cohen's f, n per group, k groups
+  const lambda=n*k*f*f; // non-centrality parameter
+  // Power ≈ P(F > F_crit | lambda) — simplified via non-central chi-sq approx
+  const df1=k-1,df2=k*(n-1);
+  const Fcrit=fQuantile(1-alpha,df1,df2);
+  // P(F_nc > Fcrit) approximation via normal
+  const mu=lambda+df1,sigma2=2*(df2/(df2-2))*(1+2*lambda/df1);
+  const z=(df1*Fcrit-mu)/Math.sqrt(sigma2);
+  return Math.max(0,Math.min(1,1-normCDF(z)));
+}
+function powerCorr(r,n,alpha){
+  const z_alpha=normQuantile(1-alpha/2),zr=0.5*Math.log((1+r)/(1-r)),se=1/Math.sqrt(n-3);
+  return Math.max(0,Math.min(1,1-normCDF(z_alpha-zr/se)+normCDF(-z_alpha-zr/se)));
+}
+function fQuantile(p,df1,df2){let lo=0,hi=20;for(let i=0;i<80;i++){const mid=(lo+hi)/2;fCDF(mid,df1,df2)<p?lo=mid:hi=mid;}return(lo+hi)/2}
+function fCDF(F,df1,df2){const x=df2/(df2+df1*F);return 1-ibeta(x,df2/2,df1/2)}
+
+function calcPower(test,d,n,alpha,k){
+  if(test==='t2')return powerT2(d,n,alpha);
+  if(test==='t1')return powerT1(d,n,alpha);
+  if(test==='anova')return powerANOVA(d,n,k,alpha);
+  if(test==='corr')return powerCorr(Math.min(d,0.999),n,alpha);
+  return powerT2(d,n,alpha); // prop uses same as t2 approx
+}
+
+function findN(test,d,alpha,k,targetPower){
+  for(let n=2;n<=5000;n++){if(calcPower(test,d,n,alpha,k)>=targetPower)return n;}
+  return 5000;
+}
+
+function runPower(){
+  const test=document.getElementById('pwTest').value;
+  const calc=document.getElementById('pwCalc').value;
+  const d=+document.getElementById('pwEffect').value;
+  const alpha=+document.getElementById('pwAlpha').value;
+  const k=+document.getElementById('pwGroups').value||3;
+
+  if(d<=0||d>3){showToast('Tamanho de efeito inválido','error');return;}
+
+  let n,power;
+  if(calc==='power'){
+    n=+document.getElementById('pwN').value;
+    power=calcPower(test,d,n,alpha,k);
+  } else {
+    const target=+document.getElementById('pwPowerTarget').value;
+    n=findN(test,d,alpha,k,target);
+    power=calcPower(test,d,n,alpha,k);
+  }
+
+  const beta=1-power;
+  const nTotal=test==='t2'||test==='anova'?n*(test==='anova'?k:2):n;
+
+  // Color power
+  const pwEl=document.getElementById('pwMainVal');
+  pwEl.textContent=(power*100).toFixed(1)+'%';
+  pwEl.style.color=power>=0.8?'var(--teal)':power>=0.6?'var(--gold)':'var(--rust)';
+  document.getElementById('pwMainLabel').textContent=calc==='n'?'Poder atingido':'Poder (1−β)';
+  document.getElementById('pwMainSub').textContent=power>=0.8?'✅ Adequado (≥ 80%)':`⚠️ ${power>=0.6?'Marginal':'Insuficiente'} — aumente N ou d`;
+
+  document.getElementById('pwKalpha').textContent=fmt(alpha,3);
+  document.getElementById('pwKbeta').textContent=fmt(beta,3);
+  document.getElementById('pwKN').textContent=nTotal;
+
+  // Power curve
+  if(pwChartInst){pwChartInst.destroy();pwChartInst=null;}
+  const ns=Array.from({length:60},(_,i)=>Math.max(3,Math.round(i*Math.max(n*2,50)/59)));
+  const powers=ns.map(ni=>calcPower(test,d,ni,alpha,k)*100);
+  pwChartInst=new Chart(document.getElementById('pwChart'),{
+    type:'line',
+    data:{labels:ns,datasets:[
+      {label:'Poder (%)',data:powers,borderColor:'var(--teal)',backgroundColor:'rgba(10,124,110,0.08)',borderWidth:2.5,pointRadius:0,fill:true,tension:0.4},
+      {label:'80% (padrão)',data:ns.map(()=>80),borderColor:'rgba(192,57,43,0.6)',borderWidth:1.5,borderDash:[5,5],pointRadius:0},
+      {label:`N = ${n}`,data:ns.map((ni)=>ni===ns.find(x=>x>=n)?power*100:null),borderColor:'transparent',backgroundColor:'#c0392b',pointRadius:8,pointStyle:'circle',showLine:false}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:12},usePointStyle:true}}},
+    scales:{x:{title:{display:true,text:'N por grupo'},grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'Space Mono',size:10}}},
+    y:{min:0,max:100,title:{display:true,text:'Poder (%)'},grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'Space Mono',size:10},callback:v=>v+'%'}}}}
+  });
+  document.getElementById('pwChartExplain').innerHTML=`N = <strong>${n}</strong> → poder = <strong>${(power*100).toFixed(1)}%</strong> · efeito = ${d} · α = ${alpha}`;
+
+  // Output
+  const testNames={t2:'Teste t (2 grupos)',t1:'Teste t (1 amostra)',anova:`ANOVA (${k} grupos)`,corr:'Correlação',prop:'Qui-quadrado/Proporções'};
+  const sep='─'.repeat(50);
+  const txt=`${sep}\nANÁLISE DE PODER ESTATÍSTICO\nTeste: ${testNames[test]}\n${sep}\n\nPARÂMETROS\n  Tamanho de efeito = ${d}\n  Nível α           = ${alpha}\n  N ${test==='anova'?'por grupo':''}     = ${n}\n  ${test==='anova'?`Grupos = ${k}\n  `:''}N total          = ${nTotal}\n\nRESULTADO\n  Poder (1−β) = ${(power*100).toFixed(2)}%\n  Erro β      = ${(beta*100).toFixed(2)}%\n  ${power>=0.8?'✅ Poder adequado (≥ 80%)':'⚠️ Poder insuficiente — aumente N ou o tamanho de efeito esperado'}\n${sep}\n`;
+  document.getElementById('pwResultBox').textContent=txt;
+  document.getElementById('pwResultsWrap').style.display='block';
+  showToast('Poder calculado','success');
+}
+
+// ============================================================
+// MÓDULO 3 — REGRESSÃO LOGÍSTICA (gradient descent)
+// ============================================================
+let lrROCInst=null,lrProbInst=null;
+
+const LR_DEMOS={
+  1:`Ocorrencia, Temperatura\n1, 28.3\n1, 30.2\n1, 31.4\n1, 29.8\n1, 33.1\n1, 27.2\n1, 32.0\n1, 29.1\n0, 22.1\n0, 23.8\n0, 25.1\n0, 21.8\n0, 24.5\n0, 22.8\n0, 26.5\n0, 23.2\n1, 27.8\n0, 24.1\n1, 31.0\n0, 23.5`,
+  2:`Ocorrencia, Temperatura, pH, Condutividade\n1, 28.3, 6.5, 180\n1, 30.2, 6.3, 165\n1, 31.4, 6.4, 158\n1, 29.8, 6.6, 170\n1, 33.1, 6.2, 148\n1, 27.2, 6.9, 188\n1, 32.0, 6.3, 155\n1, 29.1, 6.7, 172\n0, 22.1, 7.5, 225\n0, 23.8, 7.3, 210\n0, 25.1, 7.1, 200\n0, 21.8, 7.8, 240\n0, 24.5, 7.4, 218\n0, 22.8, 7.6, 230\n0, 26.5, 7.2, 195\n0, 23.2, 7.7, 235\n1, 27.8, 6.8, 182\n0, 24.1, 7.3, 208\n1, 31.0, 6.4, 162\n0, 23.5, 7.5, 222\n1, 29.5, 6.6, 175\n0, 22.5, 7.4, 215`
+};
+
+function lrDemo(n){document.getElementById('lrData').value=LR_DEMOS[n]||LR_DEMOS[1];}
+
+function parseMatrix(raw){
+  const lines=raw.trim().split(/\n/).filter(l=>l.trim()&&!l.startsWith('#'));
+  if(!lines.length)return null;
+  const headers=lines[0].split(/[,;\t]+/).map(s=>s.trim());
+  const rows=[];
+  for(const l of lines.slice(1)){
+    const p=l.split(/[,;\t]+/).map(s=>+s.trim());
+    if(p.some(isNaN)||p.length!==headers.length)continue;
+    rows.push(p);
+  }
+  if(rows.length<5)return null;
+  return{headers,rows};
+}
+
+function sigmoid(z){return 1/(1+Math.exp(-Math.min(Math.max(z,-500),500)))}
+
+function runLogReg(){
+  const raw=document.getElementById('lrData').value;
+  const parsed=parseMatrix(raw);
+  if(!parsed){showToast('Dados inválidos — verifique o formato','error');return;}
+  const{headers,rows}=parsed;
+  const maxIter=+document.getElementById('lrIter').value||200;
+  const lr=+document.getElementById('lrLR').value||0.1;
+
+  const Y=rows.map(r=>r[0]);
+  const XrawMat=rows.map(r=>r.slice(1));
+  const xNames=headers.slice(1);
+  const n=rows.length,k=xNames.length;
+
+  // Normalize X for stability
+  const means=xNames.map((_,j)=>mean(XrawMat.map(r=>r[j])));
+  const stds=xNames.map((_,j)=>{const v=XrawMat.map(r=>r[j]);const m=means[j];return Math.sqrt(v.reduce((s,x)=>s+(x-m)**2,0)/(v.length-1))||1;});
+  const X=XrawMat.map(row=>row.map((v,j)=>(v-means[j])/stds[j]));
+
+  // Gradient descent
+  let beta=new Array(k+1).fill(0); // [intercept, b1, b2, ...]
+  for(let iter=0;iter<maxIter;iter++){
+    const grad=new Array(k+1).fill(0);
+    let loss=0;
+    for(let i=0;i<n;i++){
+      const z=beta[0]+X[i].reduce((s,x,j)=>s+beta[j+1]*x,0);
+      const p=sigmoid(z);
+      const e=p-Y[i];
+      grad[0]+=e;
+      for(let j=0;j<k;j++)grad[j+1]+=e*X[i][j];
+      loss-=Y[i]*Math.log(p+1e-10)+(1-Y[i])*Math.log(1-p+1e-10);
+    }
+    for(let j=0;j<=k;j++)beta[j]-=(lr/n)*grad[j];
+  }
+
+  // Transform coefficients back to original scale
+  const betaOrig=[beta[0]-beta.slice(1).reduce((s,b,j)=>s+b*means[j]/stds[j],0),...beta.slice(1).map((b,j)=>b/stds[j])];
+
+  // Predictions
+  const probs=rows.map(r=>{const z=betaOrig[0]+r.slice(1).reduce((s,x,j)=>s+betaOrig[j+1]*x,0);return sigmoid(z);});
+  const preds=probs.map(p=>p>=0.5?1:0);
+
+  // Standard errors via Hessian (Fisher information)
+  const H=Array.from({length:k+1},()=>new Array(k+1).fill(0));
+  for(let i=0;i<n;i++){
+    const xi=[1,...X[i]];
+    const z=beta[0]+X[i].reduce((s,x,j)=>s+beta[j+1]*x,0);
+    const p=sigmoid(z),w=p*(1-p);
+    for(let a=0;a<=k;a++) for(let b=0;b<=k;b++) H[a][b]+=w*xi[a]*xi[b];
+  }
+  // Invert H (Gauss-Jordan)
+  const invH=matInv(H);
+  const betaSE=invH?beta.map((_,i)=>Math.sqrt(Math.max(0,invH[i][i]))/stds[i||0]):new Array(k+1).fill(NaN);
+  // SE for intercept
+  betaSE[0]=invH?Math.sqrt(Math.max(0,invH[0][0])):NaN;
+
+  const zStats=betaOrig.map((b,i)=>b/(betaSE[i]||1));
+  const pVals=zStats.map(z=>2*(1-normCDF(Math.abs(z))));
+
+  // Metrics
+  let TP=0,TN=0,FP=0,FN=0;
+  for(let i=0;i<n;i++){if(Y[i]===1&&preds[i]===1)TP++;else if(Y[i]===0&&preds[i]===0)TN++;else if(Y[i]===0&&preds[i]===1)FP++;else FN++;}
+  const acc=(TP+TN)/n,sens=TP/(TP+FN)||0,spec=TN/(TN+FP)||0;
+
+  // ROC / AUC
+  const sorted=[...probs.map((p,i)=>({p,y:Y[i]}))].sort((a,b)=>b.p-a.p);
+  const thresholds=[1,...sorted.map(s=>s.p),0];
+  const roc=thresholds.map(t=>{
+    let tp=0,fp=0,fn=0,tn=0;
+    for(const s of sorted){const pred=s.p>=t?1:0;if(s.y===1&&pred===1)tp++;else if(s.y===0&&pred===1)fp++;else if(s.y===1&&pred===0)fn++;else tn++;}
+    return{fpr:fp/(fp+tn)||0,tpr:tp/(tp+fn)||0};
+  });
+  let auc=0;
+  for(let i=1;i<roc.length;i++) auc+=Math.abs(roc[i].fpr-roc[i-1].fpr)*(roc[i].tpr+roc[i-1].tpr)/2;
+
+  // KPIs
+  const aucNote=auc>=0.9?'Excelente':auc>=0.8?'Bom':auc>=0.7?'Aceitável':'Fraco';
+  document.getElementById('lrAUC').textContent=fmt(auc,3);
+  document.getElementById('lrAUCnote').textContent=aucNote;
+  document.getElementById('lrAcc').textContent=(acc*100).toFixed(1)+'%';
+  document.getElementById('lrSens').textContent=(sens*100).toFixed(1)+'%';
+  document.getElementById('lrSpec').textContent=(spec*100).toFixed(1)+'%';
+  document.getElementById('lrN').textContent=n;
+  document.getElementById('lrNnote').textContent=`${sum(Y)} eventos · ${n-sum(Y)} não-eventos`;
+
+  // Coefficient table
+  const allNames=['(Intercept)',...xNames];
+  document.getElementById('lrCoefBody').innerHTML=betaOrig.map((b,i)=>{
+    const OR=Math.exp(b);
+    const OR_lo=Math.exp(b-1.96*(betaSE[i]||0));
+    const OR_hi=Math.exp(b+1.96*(betaSE[i]||0));
+    const sig=pVals[i]<0.05;
+    return`<tr>
+      <td>${allNames[i]}</td>
+      <td>${fmt(b,4)}</td>
+      <td>${fmt(betaSE[i],4)}</td>
+      <td>${fmt(zStats[i],3)}</td>
+      <td class="${sig?'sig':'ns'}">${pVals[i]<0.001?'< 0,001':fmt(pVals[i],4)}</td>
+      <td><span class="or-chip">${fmt(OR,3)}</span></td>
+      <td>[${fmt(OR_lo,3)}, ${fmt(OR_hi,3)}]</td>
+      <td class="${sig?'sig':'ns'}">${sigStar(pVals[i])}</td>
+    </tr>`;
+  }).join('');
+
+  // ROC chart
+  if(lrROCInst){lrROCInst.destroy();lrROCInst=null;}
+  lrROCInst=new Chart(document.getElementById('lrROCChart'),{
+    type:'scatter',
+    data:{datasets:[
+      {label:`ROC (AUC=${fmt(auc,3)})`,data:roc.map(r=>({x:r.fpr,y:r.tpr})),borderColor:'#c0392b',backgroundColor:'rgba(192,57,43,0.15)',showLine:true,borderWidth:2.5,pointRadius:0,fill:true},
+      {label:'Aleatório',data:[{x:0,y:0},{x:1,y:1}],borderColor:'rgba(0,0,0,0.25)',borderWidth:1.5,borderDash:[5,5],pointRadius:0,showLine:true}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:12},usePointStyle:true}}},
+    scales:{x:{min:0,max:1,title:{display:true,text:'1 − Especificidade (FPR)'},grid:{color:'rgba(0,0,0,0.04)'}},
+    y:{min:0,max:1,title:{display:true,text:'Sensibilidade (TPR)'},grid:{color:'rgba(0,0,0,0.04)'}}}}
+  });
+  document.getElementById('lrROCExplain').innerHTML=`AUC = ${fmt(auc,3)} — ${aucNote}`;
+
+  // Prob distribution chart
+  if(lrProbInst){lrProbInst.destroy();lrProbInst=null;}
+  const p0=probs.filter((_,i)=>Y[i]===0),p1=probs.filter((_,i)=>Y[i]===1);
+  lrProbInst=new Chart(document.getElementById('lrProbChart'),{
+    type:'scatter',
+    data:{datasets:[
+      {label:'Y = 0',data:p0.map((p,i)=>({x:p,y:(Math.random()-0.5)*0.4})),backgroundColor:'rgba(26,58,92,0.5)',borderColor:'#1a3a5c',pointRadius:6},
+      {label:'Y = 1',data:p1.map((p,i)=>({x:p,y:(Math.random()-0.5)*0.4+0.8})),backgroundColor:'rgba(192,57,43,0.5)',borderColor:'#c0392b',pointRadius:6}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:12},usePointStyle:true}}},
+    scales:{x:{min:0,max:1,title:{display:true,text:'Probabilidade predita'},grid:{color:'rgba(0,0,0,0.04)'}},
+    y:{display:false}}}
+  });
+  document.getElementById('lrProbExplain').innerHTML=`Ponto de corte padrão: 0,5 · Vermelho = eventos (Y=1) · Azul = não-eventos (Y=0)`;
+
+  // Output text
+  const sep='─'.repeat(52);
+  let txt=`${sep}\nREGRESSÃO LOGÍSTICA\nVariável resposta: ${headers[0]} (0/1)\nPreditores: ${xNames.join(', ')}\nN = ${n} · Eventos = ${sum(Y)} · Não-eventos = ${n-sum(Y)}\n${sep}\n\nCOEFICIENTES\n${sep}\n`;
+  allNames.forEach((nm,i)=>{txt+=`  ${nm.padEnd(20)} β=${fmt(betaOrig[i],4).padStart(8)}  OR=${fmt(Math.exp(betaOrig[i]),4).padStart(8)}  z=${fmt(zStats[i],3).padStart(7)}  p=${pVals[i]<0.001?'< 0,001   ':fmt(pVals[i],4)+' '}${sigStar(pVals[i])}\n`;});
+  txt+=`\nMÉTRICAS DE CLASSIFICAÇÃO\n  AUC-ROC        = ${fmt(auc,4)} (${aucNote})\n  Acurácia       = ${(acc*100).toFixed(2)}%\n  Sensibilidade  = ${(sens*100).toFixed(2)}%\n  Especificidade = ${(spec*100).toFixed(2)}%\n  TP=${TP}  TN=${TN}  FP=${FP}  FN=${FN}\n${sep}\n`;
+  document.getElementById('lrResultBox').textContent=txt;
+  document.getElementById('lrResultsWrap').style.display='block';
+  window._lrRes={betaOrig,xNames,pVals,auc,acc,sens,spec,n,Y:sum(Y),headers};
+  showToast('Regressão logística ajustada','success');
+}
+
+function genLRInterp(){
+  if(!window._lrRes){showToast('Execute o modelo primeiro','error');return;}
+  const{betaOrig,xNames,pVals,auc,acc,n,Y}=window._lrRes;
+  const sigPreds=xNames.filter((_,i)=>pVals[i+1]<0.05);
+  const ORs=betaOrig.slice(1).map(b=>Math.exp(b));
+  let txt=`O modelo de regressão logística foi ajustado para prever a ocorrência do evento (Y = 1) em função de ${xNames.length} preditor(es) (N = ${n}, ${Y} eventos). `;
+  txt+=`O desempenho preditivo foi ${auc>=0.8?'bom':'aceitável'} (AUC-ROC = ${fmt(auc,3)}, acurácia = ${(acc*100).toFixed(1)}%). `;
+  if(sigPreds.length===0){txt+='Nenhum preditor foi estatisticamente significativo (p < 0,05).';}
+  else{txt+=`Os preditores significativos foram: ${sigPreds.map((nm,i)=>{const ORi=Math.exp(betaOrig[xNames.indexOf(nm)+1]);return`${nm} (OR = ${fmt(ORi,3)}, ${ORi>1?'fator de risco':'fator protetor'})`;}).join('; ')}.`;}
+  document.getElementById('lrInterpText').textContent=txt;
+  document.getElementById('lrInterp').classList.add('show');
+}
+
+// Matrix inversion (Gauss-Jordan)
+function matInv(A){
+  const n=A.length,M=A.map((r,i)=>[...r,...Array.from({length:n},(_,j)=>i===j?1:0)]);
+  for(let col=0;col<n;col++){
+    let maxRow=col;
+    for(let row=col+1;row<n;row++)if(Math.abs(M[row][col])>Math.abs(M[maxRow][col]))maxRow=row;
+    [M[col],M[maxRow]]=[M[maxRow],M[col]];
+    const piv=M[col][col];if(Math.abs(piv)<1e-12)return null;
+    for(let j=0;j<2*n;j++)M[col][j]/=piv;
+    for(let row=0;row<n;row++){if(row===col)continue;const f=M[row][col];for(let j=0;j<2*n;j++)M[row][j]-=f*M[col][j];}
+  }
+  return M.map(r=>r.slice(n));
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function sw(name){
+  document.querySelectorAll('.mv').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.snav').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.mtab').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.mbb').forEach(v=>v.classList.remove('active'));
+  const mv=document.getElementById('mv-'+name);if(mv)mv.classList.add('active');
+  const sn=document.getElementById('snav-'+name);if(sn)sn.classList.add('active');
+  const mb=document.getElementById('mbb-'+name);if(mb)mb.classList.add('active');
+  const tabMap={mk:0,poder:1,logreg:2};
+  const tabs=document.querySelectorAll('.mtab');
+  if(tabMap[name]!==undefined)tabs[tabMap[name]].classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// UTILS
+function sum(a){return a.reduce((s,v)=>s+v,0)}
+let toastT=null;
+function showToast(msg,type='info'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='t-'+type;
+  setTimeout(()=>t.classList.add('show'),10);
+  if(toastT)clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function copyEl(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>showToast('Copiado!','success'));}
+
+document.addEventListener('DOMContentLoaded',()=>updatePowerUI());
+</script>
+</body>
+</html>

@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estatística Bloco 3 — Dossiê v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Karla:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f8f7f4;--surface:#f0ede8;--surface2:#e8e4dd;--card:#fff;
+  --text:#1a1814;--text2:#5a554e;--muted:#9e9890;--line:#e2ddd7;--ink:#1a1814;
+  --rust:#c0392b;--rust-light:rgba(192,57,43,0.1);
+  --teal:#0a7c6e;--teal-light:rgba(10,124,110,0.1);
+  --navy:#1a3a5c;--navy-light:rgba(26,58,92,0.1);
+  --gold:#c47a00;--gold-light:rgba(196,122,0,0.1);
+  --plum:#6b2e7e;--plum-light:rgba(107,46,126,0.1);
+  --green:#1a7c3a;--green-light:rgba(26,124,58,0.1);
+  --font-display:'Syne',sans-serif;--font-body:'Karla',sans-serif;--font-mono:'Space Mono',monospace;
+  --radius-sm:8px;--radius:14px;--radius-lg:20px;
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.07);--shadow-md:0 6px 20px rgba(0,0,0,0.09);
+  --transition:0.2s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+
+.topbar{background:var(--ink);color:#fff;display:flex;align-items:center;padding:0 24px;gap:16px;height:54px;position:sticky;top:0;z-index:100}
+.tlogo{font-family:var(--font-display);font-size:16px;font-weight:800;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px}
+.tbadge{background:var(--rust);font-family:var(--font-mono);font-size:10px;padding:2px 7px;border-radius:4px}
+.tsep{width:1px;height:22px;background:rgba(255,255,255,0.15)}
+.tsub{color:rgba(255,255,255,0.45);font-size:13px}
+.tback{margin-left:auto;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.85);font-family:var(--font-display);font-size:12px;font-weight:700;padding:5px 13px;border-radius:6px;cursor:pointer;transition:var(--transition)}
+.tback:hover{background:rgba(255,255,255,0.2);color:#fff}
+
+.shell{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 54px)}
+.sidebar{background:var(--ink);padding:20px 0;position:sticky;top:54px;height:calc(100vh - 54px);overflow-y:auto}
+.slabel{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;color:rgba(255,255,255,0.3);text-transform:uppercase;padding:0 18px 6px;margin-top:14px}
+.slabel:first-child{margin-top:0}
+.snav{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;font-size:13px;font-weight:500;color:rgba(255,255,255,0.5);border-left:3px solid transparent;transition:var(--transition)}
+.snav:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.05)}
+.snav.active{color:#fff;background:rgba(255,255,255,0.08);border-left-color:var(--rust)}
+.sicon{font-size:14px;width:20px;text-align:center}
+.main{padding:30px 34px;max-width:940px}
+
+.mtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:28px;border-bottom:2px solid var(--ink);padding-bottom:16px}
+.mtab{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--radius-sm);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;background:var(--surface);border:1.5px solid var(--line);color:var(--text2);transition:var(--transition)}
+.mtab:hover{border-color:var(--ink);color:var(--ink)}
+.mtab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:18px}
+.card:hover{box-shadow:var(--shadow-sm)}
+.ctitle{font-family:var(--font-display);font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.cicon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.c-teal{background:var(--teal-light)}.c-rust{background:var(--rust-light)}.c-navy{background:var(--navy-light)}.c-gold{background:var(--gold-light)}.c-plum{background:var(--plum-light)}.c-green{background:var(--green-light)}
+
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.fgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+label{font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text2)}
+input[type="text"],input[type="number"],select,textarea{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:9px 12px;font-family:var(--font-body);font-size:14px;color:var(--text);outline:none;width:100%;transition:var(--transition)}
+input:focus,select:focus,textarea:focus{border-color:var(--teal);background:#fff;box-shadow:0 0 0 3px rgba(10,124,110,0.1)}
+textarea{resize:vertical;font-family:var(--font-mono);font-size:12.5px;line-height:1.55}
+.hint{font-size:12px;color:var(--muted);line-height:1.4;margin-top:3px}
+
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;transition:var(--transition);border:none;white-space:nowrap}
+.btn-primary{background:var(--teal);color:#fff}.btn-primary:hover{background:#086b5e;transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.btn-danger{background:var(--rust);color:#fff}.btn-danger:hover{background:#a93226}
+.btn-ghost{background:transparent;border:1.5px solid var(--line);color:var(--text2)}.btn-ghost:hover{border-color:var(--text2);color:var(--text);background:var(--surface)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px}
+
+.rbox{background:var(--ink);border-radius:var(--radius);padding:18px 20px;font-family:var(--font-mono);font-size:12px;line-height:1.85;color:rgba(255,255,255,0.9);white-space:pre-wrap;overflow-x:auto;min-height:60px;margin-bottom:14px}
+.cwrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+.cwrap.hidden{display:none}
+.ctit{font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--text2);margin-bottom:12px}
+.cexp{font-size:13px;color:var(--text2);margin-top:10px;padding:9px 13px;background:var(--surface);border-radius:var(--radius-sm);border-left:3px solid var(--teal)}
+
+.kstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.kstrip5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;text-align:center}
+.klabel{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.kval{font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--ink);line-height:1}
+.knote{font-size:11px;color:var(--muted);margin-top:3px}
+.hi-teal{border-color:var(--teal)}.hi-teal .kval{color:var(--teal)}
+.hi-rust{border-color:var(--rust)}.hi-rust .kval{color:var(--rust)}
+.hi-gold{border-color:var(--gold)}.hi-gold .kval{color:var(--gold)}
+.hi-navy{border-color:var(--navy)}.hi-navy .kval{color:var(--navy)}
+.hi-green{border-color:var(--green)}.hi-green .kval{color:var(--green)}
+
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:99px;font-family:var(--font-display);font-size:11px;font-weight:700}
+.badge-teal{background:var(--teal-light);color:var(--teal)}
+.badge-rust{background:var(--rust-light);color:var(--rust)}
+.badge-gold{background:var(--gold-light);color:var(--gold)}
+.badge-navy{background:var(--navy-light);color:var(--navy)}
+.badge-muted{background:var(--surface2);color:var(--muted)}
+
+.tbl{width:100%;border-collapse:collapse;font-size:13px;font-family:var(--font-mono)}
+.tbl th{background:var(--ink);color:rgba(255,255,255,0.8);font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:8px 12px;text-align:right}
+.tbl th:first-child{text-align:left}
+.tbl td{padding:8px 12px;border-bottom:1px solid var(--line);text-align:right;font-size:12.5px}
+.tbl td:first-child{text-align:left;font-family:var(--font-display);font-weight:700;font-size:12px}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--surface)}
+
+.dbox{background:var(--ink);border-radius:var(--radius-sm);padding:12px 16px;font-family:var(--font-mono);font-size:11.5px;color:rgba(255,255,255,0.75);line-height:1.6;margin-bottom:12px}
+.dbox .c{color:rgba(255,255,255,0.35)}
+
+.interp{background:#f9f7f4;border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:var(--radius);padding:14px 16px;font-size:14px;line-height:1.7;margin-top:12px;display:none}
+.interp.show{display:block}
+
+.mv{display:none}.mv.active{display:block}
+
+/* Div profiles para índices */
+.div-profile{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.div-card{background:var(--card);border:1.5px solid var(--line);border-radius:var(--radius);padding:16px;text-align:center;transition:var(--transition)}
+.div-card:hover{box-shadow:var(--shadow-sm)}
+.div-card.best{border-color:var(--teal);background:rgba(10,124,110,0.04)}
+.div-name{font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text2);margin-bottom:6px}
+.div-val{font-family:var(--font-mono);font-size:26px;font-weight:700;color:var(--ink);line-height:1;margin-bottom:4px}
+.div-interp{font-size:11.5px;color:var(--muted)}
+
+/* PCA */
+.pca-variance-bar{height:8px;background:var(--teal);border-radius:4px;margin-top:4px;transition:width 0.5s ease}
+.pca-loading-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:13px}
+.pca-loading-bar-wrap{flex:1;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.pca-loading-bar{height:100%;border-radius:3px;transition:width 0.4s ease}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:10px 22px;border-radius:99px;font-family:var(--font-display);font-size:13px;font-weight:600;z-index:9999;transition:0.35s cubic-bezier(0.22,1,0.36,1);pointer-events:none;box-shadow:var(--shadow-md)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.t-success{background:var(--teal)}
+#toast.t-error{background:var(--rust)}
+#toast.t-info{background:var(--navy)}
+
+.mob-bot{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--ink);border-top:1px solid rgba(255,255,255,0.1);z-index:200;padding:6px 0 env(safe-area-inset-bottom,6px)}
+.mob-items{display:flex;justify-content:space-around}
+.mbb{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.45);font-family:var(--font-display);font-size:9px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase}
+.mbb .mi{font-size:18px;line-height:1}
+.mbb.active{color:var(--rust)}
+
+@media(max-width:820px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .mob-bot{display:block}
+  .main{padding:18px 14px 90px;max-width:100%}
+  .fgrid,.fgrid3{grid-template-columns:1fr}
+  .kstrip,.kstrip5{grid-template-columns:1fr 1fr}
+  .div-profile{grid-template-columns:1fr 1fr}
+  .mtabs{gap:4px}
+  .mtab{padding:7px 11px;font-size:12px}
+  .tsub,.tsep{display:none}
+}
+@media(max-width:480px){
+  .kstrip,.kstrip5{grid-template-columns:1fr 1fr;gap:8px}
+  .div-profile{grid-template-columns:1fr}
+  .kval{font-size:17px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="tlogo"><span>Dossiê Estatístico</span><span class="tbadge">v2</span></div>
+  <div class="tsep"></div>
+  <span class="tsub">Bloco 3 — Diversidade · PCA</span>
+  <button class="tback" onclick="window.location.href='index.html'">← Painel principal</button>
+</header>
+
+<div class="shell">
+<nav class="sidebar">
+  <div class="slabel">Módulos</div>
+  <div class="snav active" id="snav-div" onclick="sw('div')"><span class="sicon">🌿</span>Índices de Diversidade</div>
+  <div class="snav" id="snav-pca" onclick="sw('pca')"><span class="sicon">🔭</span>PCA + Biplot</div>
+  <div class="slabel">Referência</div>
+  <div class="snav" id="snav-ajuda" onclick="sw('ajuda')"><span class="sicon">📖</span>Guia</div>
+  <div style="margin-top:auto;padding:16px 18px;border-top:1px solid rgba(255,255,255,0.08);margin-top:30px">
+    <div style="font-family:var(--font-mono);font-size:10px;color:rgba(255,255,255,0.22)">Dossiê v2 · Bloco 3<br>UNEMAT — Cáceres</div>
+  </div>
+</nav>
+
+<main class="main">
+
+<div class="mtabs">
+  <div class="mtab active" onclick="sw('div')">🌿 Índices de Diversidade</div>
+  <div class="mtab" onclick="sw('pca')">🔭 PCA + Biplot</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MÓDULO 1 — ÍNDICES DE DIVERSIDADE
+══════════════════════════════════════════ -->
+<div class="mv active" id="mv-div">
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">Módulo 01</div>
+    <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">Índices de Diversidade</div>
+    <div style="color:var(--text2);font-size:14px;margin-top:5px">Shannon, Simpson, Margalef, Pielou — por comunidade, com comparação e rarefação</div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-green">📥</span>Dados de abundância</div>
+    <div class="dbox">
+      <span class="c"># Primeira linha = cabeçalho com nomes das espécies</span><br>
+      <span class="c"># Cada linha seguinte = uma comunidade/parcela</span><br>
+      Comunidade, Sp_A, Sp_B, Sp_C, Sp_D, Sp_E<br>
+      Pantanal_Norte, 45, 12, 8, 30, 5<br>
+      Pantanal_Sul, 20, 20, 15, 18, 27<br>
+      Cerrado, 60, 3, 2, 1, 34
+    </div>
+    <div class="field">
+      <label>Matriz de abundância (comunidades × espécies)</label>
+      <textarea id="divData" rows="10" placeholder="Comunidade, Sp1, Sp2, Sp3&#10;Site_A, 45, 12, 8&#10;Site_B, 20, 20, 15&#10;..."></textarea>
+    </div>
+    <div class="btn-row" style="margin-bottom:12px">
+      <button class="btn btn-ghost btn-sm" onclick="divDemo('pantanal')">🌿 Pantanal</button>
+      <button class="btn btn-ghost btn-sm" onclick="divDemo('aquatico')">💧 Aquático</button>
+      <button class="btn btn-ghost btn-sm" onclick="divDemo('aves')">🐦 Aves</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('divData').value=''">🗑 Limpar</button>
+    </div>
+    <div class="fgrid">
+      <div class="field">
+        <label>Base logarítmica (Shannon)</label>
+        <select id="divBase">
+          <option value="e">Natural (ln) — nats</option>
+          <option value="2">Base 2 — bits</option>
+          <option value="10">Base 10 — decibans</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Calcular rarefação</label>
+        <select id="divRare">
+          <option value="yes">Sim (padronizar por N mínimo)</option>
+          <option value="no">Não</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-danger" onclick="runDiv()">▶ Calcular Índices</button>
+  </div>
+
+  <div id="divResultsWrap" style="display:none">
+
+    <!-- Tabela de índices por comunidade -->
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-teal">📊</span>Índices por comunidade</div>
+      <div style="overflow-x:auto">
+        <table class="tbl" id="divTable">
+          <thead><tr>
+            <th style="text-align:left">Comunidade</th>
+            <th>N total</th><th>S (riqueza)</th>
+            <th>H' (Shannon)</th><th>J' (Pielou)</th>
+            <th>D (Simpson)</th><th>1-D</th>
+            <th>d (Margalef)</th>
+          </tr></thead>
+          <tbody id="divTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Cards de perfil -->
+    <div class="div-profile" id="divProfile"></div>
+
+    <!-- Gráficos -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+      <div class="cwrap">
+        <div class="ctit">Shannon H' por comunidade</div>
+        <canvas id="divShannonChart" height="220"></canvas>
+      </div>
+      <div class="cwrap">
+        <div class="ctit">Perfil de abundância (rank-abundância)</div>
+        <canvas id="divRankChart" height="220"></canvas>
+      </div>
+    </div>
+
+    <div class="cwrap">
+      <div class="ctit">Composição de espécies por comunidade</div>
+      <canvas id="divCompChart" height="200"></canvas>
+      <div class="cexp" id="divCompExplain"></div>
+    </div>
+
+    <!-- Rarefação -->
+    <div class="cwrap" id="divRareWrap" style="display:none">
+      <div class="ctit">Curva de rarefação</div>
+      <canvas id="divRareChart" height="220"></canvas>
+      <div class="cexp" id="divRareExplain"></div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-teal">📄</span>Saída completa</div>
+      <div class="rbox" id="divResultBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="copyEl('divResultBox')">📋 Copiar</button>
+        <button class="btn btn-ghost btn-sm" onclick="genDivInterp()">💬 Interpretação</button>
+      </div>
+    </div>
+    <div class="interp" id="divInterp"><strong style="font-family:var(--font-display)">Interpretação:</strong> <span id="divInterpText"></span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MÓDULO 2 — PCA + BIPLOT
+══════════════════════════════════════════ -->
+<div class="mv" id="mv-pca">
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">Módulo 02</div>
+    <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">PCA + Biplot</div>
+    <div style="color:var(--text2);font-size:14px;margin-top:5px">Análise de Componentes Principais — scree plot, variância explicada, biplot com loadings</div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-navy">📥</span>Dados</div>
+    <div class="dbox">
+      <span class="c"># Primeira linha = cabeçalho. Primeira coluna = rótulo da amostra (opcional).</span><br>
+      <span class="c"># Demais colunas = variáveis numéricas</span><br>
+      Amostra, Temperatura, pH, Condutividade, OD, Turbidez<br>
+      Rio_A, 28.3, 6.8, 180, 7.2, 12.4<br>
+      Rio_B, 25.1, 7.1, 210, 8.1, 8.3
+    </div>
+    <div class="field">
+      <label>Dados (com cabeçalho)</label>
+      <textarea id="pcaData" rows="12" placeholder="Amostra, Var1, Var2, Var3&#10;Site_A, 28.3, 6.8, 180&#10;..."></textarea>
+    </div>
+    <div class="btn-row" style="margin-bottom:12px">
+      <button class="btn btn-ghost btn-sm" onclick="pcaDemo('hidro')">💧 Limnologia</button>
+      <button class="btn btn-ghost btn-sm" onclick="pcaDemo('solo')">🌱 Solo</button>
+      <button class="btn btn-ghost btn-sm" onclick="pcaDemo('clima')">🌡 Clima</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('pcaData').value=''">🗑 Limpar</button>
+    </div>
+    <div class="fgrid">
+      <div class="field">
+        <label>Padronizar variáveis (Z-score)</label>
+        <select id="pcaScale">
+          <option value="yes">Sim (recomendado — unidades diferentes)</option>
+          <option value="no">Não (variáveis já na mesma escala)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Primeira coluna é rótulo?</label>
+        <select id="pcaLabel">
+          <option value="yes">Sim</option>
+          <option value="no">Não (todas numéricas)</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-danger" onclick="runPCA()">▶ Executar PCA</button>
+  </div>
+
+  <div id="pcaResultsWrap" style="display:none">
+
+    <div class="kstrip5">
+      <div class="kpi hi-teal"><div class="klabel">PC1</div><div class="kval" id="pcaPC1">—</div><div class="knote">variância</div></div>
+      <div class="kpi hi-navy"><div class="klabel">PC2</div><div class="kval" id="pcaPC2">—</div><div class="knote">variância</div></div>
+      <div class="kpi"><div class="klabel">PC1+PC2</div><div class="kval" id="pcaPC12">—</div><div class="knote">acumulado</div></div>
+      <div class="kpi"><div class="klabel">N variáveis</div><div class="kval" id="pcaKvars">—</div></div>
+      <div class="kpi"><div class="klabel">N amostras</div><div class="kval" id="pcaKn">—</div></div>
+    </div>
+
+    <!-- Scree plot + Biplot lado a lado -->
+    <div style="display:grid;grid-template-columns:1fr 1.6fr;gap:14px;margin-bottom:16px">
+      <div class="cwrap">
+        <div class="ctit">Scree plot — variância por PC</div>
+        <canvas id="pcaScreeChart" height="240"></canvas>
+      </div>
+      <div class="cwrap">
+        <div class="ctit">Biplot — PC1 vs PC2</div>
+        <canvas id="pcaBiplotChart" height="240"></canvas>
+        <div class="cexp" id="pcaBiplotExplain"></div>
+      </div>
+    </div>
+
+    <!-- Loadings -->
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-rust">📊</span>Loadings — contribuição de cada variável</div>
+      <div style="overflow-x:auto">
+        <table class="tbl" id="pcaLoadTable">
+          <thead><tr>
+            <th style="text-align:left">Variável</th>
+            <th>PC1</th><th>PC2</th><th>PC3</th>
+            <th>Comunalidade</th>
+          </tr></thead>
+          <tbody id="pcaLoadBody"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:14px" id="pcaLoadBars"></div>
+    </div>
+
+    <!-- Scores -->
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-navy">📋</span>Scores das amostras</div>
+      <div style="overflow-x:auto">
+        <table class="tbl" id="pcaScoreTable">
+          <thead><tr>
+            <th style="text-align:left">Amostra</th>
+            <th>PC1</th><th>PC2</th><th>PC3</th>
+          </tr></thead>
+          <tbody id="pcaScoreBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-teal">📄</span>Saída completa</div>
+      <div class="rbox" id="pcaResultBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="copyEl('pcaResultBox')">📋 Copiar</button>
+        <button class="btn btn-ghost btn-sm" onclick="genPCAInterp()">💬 Interpretação</button>
+      </div>
+    </div>
+    <div class="interp" id="pcaInterp"><strong style="font-family:var(--font-display)">Interpretação:</strong> <span id="pcaInterpText"></span></div>
+  </div>
+</div>
+
+<!-- AJUDA -->
+<div class="mv" id="mv-ajuda">
+  <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;margin-bottom:20px">Guia — Bloco 3</div>
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-green">🌿</span>Índices de Diversidade</div>
+    <div style="font-size:13.5px;color:var(--text2);line-height:1.9">
+      <strong>Shannon H'</strong> — mede diversidade considerando riqueza e equitabilidade. Quanto maior, mais diversa. Típico: 1,5–3,5 para comunidades naturais.<br>
+      <strong>Pielou J'</strong> — equitabilidade: 0 = uma espécie domina tudo, 1 = todas as espécies com igual abundância.<br>
+      <strong>Simpson D</strong> — probabilidade de dois indivíduos escolhidos aleatoriamente serem da mesma espécie. Use 1−D (diversidade de Simpson).<br>
+      <strong>Margalef d</strong> — riqueza relativa ao tamanho amostral: d = (S−1)/ln(N). Comparável entre amostras de tamanhos diferentes.<br>
+      <strong>Rarefação</strong> — padroniza o tamanho amostral ao menor N do conjunto. Essencial para comparar comunidades com N muito diferentes.
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-navy">🔭</span>PCA — interpretação</div>
+    <div style="font-size:13.5px;color:var(--text2);line-height:1.9">
+      <strong>PC1+PC2 ≥ 70%</strong> — biplot confiável para interpretação.<br>
+      <strong>Loadings</strong> — correlação entre variável e componente. |loading| > 0,6 = contribuição forte.<br>
+      <strong>Biplot</strong> — setas = variáveis (loadings), pontos = amostras (scores). Setas longas = variável importante. Ângulo entre setas ≈ correlação entre variáveis (0° = r≈+1, 90° = r≈0, 180° = r≈−1).<br>
+      <strong>Scree plot</strong> — escolha o número de PCs pelo "cotovelo" — onde a variância para de cair abruptamente.<br>
+      <strong>Padronização</strong> — sempre padronize quando as variáveis estão em unidades diferentes (pH, temperatura, condutividade). Sem padronização, variáveis de maior magnitude dominam.
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<div class="mob-bot">
+  <div class="mob-items">
+    <button class="mbb active" id="mbb-div" onclick="sw('div')"><span class="mi">🌿</span>Diversidade</button>
+    <button class="mbb" id="mbb-pca" onclick="sw('pca')"><span class="mi">🔭</span>PCA</button>
+    <button class="mbb" onclick="window.location.href='index.html'"><span class="mi">⌂</span>Hub</button>
+    <button class="mbb" onclick="window.location.href='estatistica-avancada.html'"><span class="mi">🔬</span>Bloco 1</button>
+    <button class="mbb" onclick="window.location.href='estatistica-bloco2.html'"><span class="mi">📊</span>Bloco 2</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// MATH
+// ============================================================
+function sum(a){return a.reduce((s,v)=>s+v,0)}
+function mean(a){return sum(a)/a.length}
+function fmt(v,d=4){if(!isFinite(v))return'—';return v.toFixed(d)}
+
+// ============================================================
+// MÓDULO 1 — DIVERSIDADE
+// ============================================================
+const DIV_DEMOS={
+  pantanal:`Comunidade, Capivara, Jacare, Lontra, Ariranha, Cachorro-do-mato, Tamanduá, Cervo, Cateto, Queixada, Anta
+Pantanal_Norte, 45, 32, 8, 3, 12, 7, 18, 25, 20, 6
+Pantanal_Sul, 28, 41, 12, 5, 8, 4, 22, 18, 15, 9
+Cerrado_MT, 12, 8, 3, 1, 18, 14, 6, 30, 28, 5
+Transicao, 22, 18, 6, 2, 14, 9, 12, 22, 18, 7`,
+  aquatico:`Comunidade, Cyprinus, Prochilodus, Colossoma, Piaractus, Leporinus, Schizodon, Hoplias, Serrasalmus, Pygocentrus, Cichla
+Planicie_Inundavel, 85, 120, 45, 38, 62, 55, 28, 12, 8, 35
+Calha_Principal, 42, 180, 28, 15, 48, 72, 35, 18, 14, 20
+Lagos_Sazonais, 120, 60, 80, 65, 25, 18, 42, 8, 5, 15
+Corixo, 18, 45, 12, 8, 35, 28, 55, 22, 18, 8`,
+  aves:`Comunidade, Tuiuiu, Garça-branca, Socó, Maçarico, Colhereiro, Carão, Pato-do-mato, Biguá, Martim-pescador, Jaçanã
+Beira_Rio, 12, 48, 35, 22, 8, 15, 28, 42, 18, 65
+Interior_Pantanal, 28, 35, 18, 8, 18, 32, 12, 15, 8, 22
+Campo_Aberto, 5, 12, 8, 45, 3, 8, 35, 5, 12, 18
+Mata_Ciliar, 8, 22, 28, 12, 12, 45, 8, 28, 35, 12`
+};
+
+let divCharts=[];
+
+function divDemo(type){document.getElementById('divData').value=DIV_DEMOS[type]||DIV_DEMOS.pantanal;}
+
+function parseDivMatrix(raw){
+  const lines=raw.trim().split(/\n/).filter(l=>l.trim()&&!l.startsWith('#'));
+  if(lines.length<2)return null;
+  const headers=lines[0].split(/[,;\t]+/).map(s=>s.trim());
+  const sppNames=headers.slice(1);
+  const communities=[];
+  for(const l of lines.slice(1)){
+    const p=l.split(/[,;\t]+/).map(s=>s.trim());
+    if(p.length<2)continue;
+    const name=p[0];
+    const abund=p.slice(1).map(v=>Math.max(0,+v||0));
+    if(abund.some(isNaN))continue;
+    communities.push({name,abund});
+  }
+  return{sppNames,communities};
+}
+
+function shannonH(abund,base='e'){
+  const n=sum(abund);if(n===0)return 0;
+  const logFn=base==='2'?Math.log2:base==='10'?Math.log10:Math.log;
+  return -abund.filter(v=>v>0).reduce((s,v)=>{const p=v/n;return s+p*logFn(p);},0);
+}
+function simpsonD(abund){const n=sum(abund);if(n<2)return 0;return abund.reduce((s,v)=>s+v*(v-1),0)/(n*(n-1));}
+function margalef(abund){const s=abund.filter(v=>v>0).length,n=sum(abund);return n<2?0:(s-1)/Math.log(n);}
+function pielou(H,S,base='e'){const logFn=base==='2'?Math.log2:base==='10'?Math.log10:Math.log;return S<=1?0:H/logFn(S);}
+
+// Rarefaction: expected S at n individuals (Hurlbert 1971)
+function rareExpS(abund,n){
+  const N=sum(abund),S=abund.filter(v=>v>0).length;
+  if(n>=N)return S;
+  // E[S(n)] = sum_i (1 - C(N-Ni, n)/C(N, n))
+  function logBinom(a,b){
+    if(b<0||b>a)return-Infinity;
+    let r=0;for(let i=0;i<b;i++)r+=Math.log(a-i)-Math.log(i+1);
+    return r;
+  }
+  const logCNn=logBinom(N,n);
+  let es=0;
+  for(const Ni of abund){
+    if(Ni===0)continue;
+    const logNum=logBinom(N-Ni,n);
+    es+=1-Math.exp(logNum-logCNn);
+  }
+  return es;
+}
+
+function runDiv(){
+  const raw=document.getElementById('divData').value;
+  const parsed=parseDivMatrix(raw);
+  if(!parsed||parsed.communities.length===0){showToast('Dados inválidos','error');return;}
+  const{sppNames,communities}=parsed;
+  const base=document.getElementById('divBase').value;
+  const doRare=document.getElementById('divRare').value==='yes';
+
+  // Calculate indices
+  const results=communities.map(({name,abund})=>{
+    const n=sum(abund),S=abund.filter(v=>v>0).length;
+    const H=shannonH(abund,base),D=simpsonD(abund);
+    const J=pielou(H,S,base),d=margalef(abund);
+    return{name,n,S,H,D,J,d,abund};
+  });
+
+  // Table
+  const tbody=document.getElementById('divTableBody');
+  tbody.innerHTML=results.map(r=>`<tr>
+    <td>${r.name}</td>
+    <td>${r.n}</td><td>${r.S}</td>
+    <td>${fmt(r.H,3)}</td><td>${fmt(r.J,3)}</td>
+    <td>${fmt(r.D,3)}</td><td>${fmt(1-r.D,3)}</td>
+    <td>${fmt(r.d,3)}</td>
+  </tr>`).join('');
+
+  // Profile cards
+  const bestH=results.reduce((a,b)=>a.H>b.H?a:b);
+  const bestJ=results.reduce((a,b)=>a.J>b.J?a:b);
+  const colors=['#1a3a5c','#c0392b','#0a7c6e','#c47a00','#6b2e7e','#374151'];
+  document.getElementById('divProfile').innerHTML=results.map((r,i)=>`
+    <div class="div-card ${r.name===bestH.name?'best':''}">
+      <div class="div-name" style="color:${colors[i%colors.length]}">${r.name}</div>
+      <div class="div-val">${fmt(r.H,3)}</div>
+      <div style="font-size:10px;font-family:var(--font-display);font-weight:700;letter-spacing:0.06em;color:var(--muted);margin-bottom:8px">Shannon H'</div>
+      <div style="font-size:12px;color:var(--text2)">S = ${r.S} · J' = ${fmt(r.J,3)}<br>1-D = ${fmt(1-r.D,3)} · d = ${fmt(r.d,3)}</div>
+      ${r.name===bestH.name?'<span class="badge badge-teal" style="margin-top:8px">Mais diversa</span>':''}
+    </div>`).join('');
+
+  // Shannon chart
+  divCharts.forEach(c=>c&&c.destroy());divCharts=[];
+  divCharts.push(new Chart(document.getElementById('divShannonChart'),{
+    type:'bar',
+    data:{labels:results.map(r=>r.name),datasets:[{
+      label:"Shannon H'",data:results.map(r=>r.H),
+      backgroundColor:results.map((_,i)=>colors[i%colors.length]+'aa'),
+      borderColor:results.map((_,i)=>colors[i%colors.length]),
+      borderWidth:2,borderRadius:5
+    },{
+      label:"Pielou J'",data:results.map(r=>r.J),
+      backgroundColor:results.map((_,i)=>colors[i%colors.length]+'33'),
+      borderColor:results.map((_,i)=>colors[i%colors.length]),
+      borderWidth:2,borderRadius:5,borderDash:[4,4]
+    }]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:12},usePointStyle:true}}},
+    scales:{y:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.04)'}},x:{grid:{display:false}}}}
+  }));
+
+  // Rank-abundance (dominance) for all communities
+  const rankDatasets=results.map((r,i)=>{
+    const sorted=[...r.abund].filter(v=>v>0).sort((a,b)=>b-a);
+    const n=sum(sorted);
+    return{label:r.name,data:sorted.map(v=>v/n*100),borderColor:colors[i%colors.length],backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:0.2};
+  });
+  divCharts.push(new Chart(document.getElementById('divRankChart'),{
+    type:'line',
+    data:{labels:Array.from({length:Math.max(...results.map(r=>r.abund.filter(v=>v>0).length))},(_,i)=>`Rank ${i+1}`),datasets:rankDatasets},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:11},usePointStyle:true}}},
+    scales:{x:{ticks:{font:{family:'Karla',size:10},maxRotation:45}},
+    y:{title:{display:true,text:'Abundância relativa (%)'},grid:{color:'rgba(0,0,0,0.04)'}}}}
+  }));
+
+  // Composition stacked bar
+  const topN=Math.min(sppNames.length,8);
+  const sppDatasets=sppNames.slice(0,topN).map((sp,si)=>({
+    label:sp,
+    data:results.map(r=>{const n=sum(r.abund);return n>0?r.abund[si]/n*100:0;}),
+    backgroundColor:`hsl(${si*42},60%,${45+si*5}%)`,
+    borderWidth:0
+  }));
+  divCharts.push(new Chart(document.getElementById('divCompChart'),{
+    type:'bar',
+    data:{labels:results.map(r=>r.name),datasets:sppDatasets},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:11},usePointStyle:true,boxWidth:10}}},
+    scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,title:{display:true,text:'Abundância relativa (%)'},grid:{color:'rgba(0,0,0,0.04)'}}}
+  }}));
+  document.getElementById('divCompExplain').textContent=`Composição relativa das ${topN} espécies. Comunidades mais equitativas mostram barras mais fragmentadas.`;
+
+  // Rarefaction
+  if(doRare){
+    const minN=Math.min(...results.map(r=>r.n));
+    const rareNs=Array.from({length:20},(_,i)=>Math.max(1,Math.round((i+1)*minN/20)));
+    const rareDatasets=results.map((r,i)=>({
+      label:r.name,
+      data:rareNs.map(n=>rareExpS(r.abund,n)),
+      borderColor:colors[i%colors.length],backgroundColor:'transparent',borderWidth:2,pointRadius:2,tension:0.3
+    }));
+    divCharts.push(new Chart(document.getElementById('divRareChart'),{
+      type:'line',
+      data:{labels:rareNs,datasets:rareDatasets},
+      options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:11},usePointStyle:true}}},
+      scales:{x:{title:{display:true,text:'N indivíduos'},ticks:{font:{family:'Space Mono',size:10}}},
+      y:{title:{display:true,text:'S esperado'},grid:{color:'rgba(0,0,0,0.04)'}}}}
+    }));
+    document.getElementById('divRareWrap').style.display='block';
+    document.getElementById('divRareExplain').textContent=`Rarefação ao N mínimo = ${minN}. Curvas planas indicam inventário adequado. Curvas ainda ascendentes sugerem subamostragem.`;
+  }
+
+  // Output text
+  const sep='─'.repeat(56);
+  const baseLabel=base==='e'?'natural (ln)':base==='2'?'base 2':'base 10';
+  let txt=`${sep}\nÍNDICES DE DIVERSIDADE\nEspécies: ${sppNames.join(', ')}\nBase logarítmica: ${baseLabel}\n${sep}\n\n`;
+  results.forEach(r=>{
+    txt+=`${r.name}\n  N (total indivíduos) = ${r.n}\n  S (riqueza)          = ${r.S}\n  H' (Shannon)         = ${fmt(r.H,4)}\n  J' (Pielou)          = ${fmt(r.J,4)}\n  D (Simpson)          = ${fmt(r.D,4)}\n  1-D                  = ${fmt(1-r.D,4)}\n  d (Margalef)         = ${fmt(r.d,4)}\n\n`;
+  });
+  txt+=`${sep}\n`;
+  document.getElementById('divResultBox').textContent=txt;
+  document.getElementById('divResultsWrap').style.display='block';
+  window._divRes={results,sppNames,bestH};
+  showToast('Índices calculados','success');
+}
+
+function genDivInterp(){
+  if(!window._divRes){showToast('Execute o cálculo primeiro','error');return;}
+  const{results,bestH}=window._divRes;
+  const worstH=results.reduce((a,b)=>a.H<b.H?a:b);
+  const highJ=results.filter(r=>r.J>0.7).map(r=>r.name);
+  let txt=`Foram analisadas ${results.length} comunidades. `;
+  txt+=`A comunidade com maior diversidade de Shannon foi ${bestH.name} (H' = ${fmt(bestH.H,3)}), enquanto ${worstH.name} apresentou a menor diversidade (H' = ${fmt(worstH.H,3)}). `;
+  if(highJ.length)txt+=`Alta equitabilidade (J' > 0,7) foi observada em: ${highJ.join(', ')}, indicando distribuição mais uniforme de abundâncias entre espécies. `;
+  txt+=`A comparação dos índices de Margalef permite avaliar a riqueza relativa ao esforço amostral, sendo ${results.reduce((a,b)=>a.d>b.d?a:b).name} o local com maior riqueza relativa.`;
+  document.getElementById('divInterpText').textContent=txt;
+  document.getElementById('divInterp').classList.add('show');
+}
+
+// ============================================================
+// MÓDULO 2 — PCA
+// ============================================================
+const PCA_DEMOS={
+  hidro:`Amostra, Temperatura, pH, Condutividade, OD, Turbidez, DBO, Nitrato, Fosforo
+Rio_Cuiaba_1, 28.3, 6.8, 180, 7.2, 12.4, 2.1, 0.45, 0.08
+Rio_Cuiaba_2, 27.1, 7.0, 165, 7.8, 8.3, 1.8, 0.38, 0.06
+Rio_Paraguai_1, 30.2, 6.5, 210, 6.5, 18.2, 3.2, 0.62, 0.12
+Rio_Paraguai_2, 29.8, 6.7, 195, 6.9, 15.4, 2.8, 0.55, 0.10
+Corixo_A, 25.4, 7.2, 145, 8.4, 5.2, 1.2, 0.28, 0.04
+Corixo_B, 26.1, 7.1, 138, 8.1, 6.8, 1.5, 0.32, 0.05
+Lagoa_1, 32.5, 6.2, 280, 5.2, 28.4, 5.8, 0.88, 0.22
+Lagoa_2, 31.8, 6.4, 260, 5.8, 24.1, 4.9, 0.78, 0.18
+Baía_1, 29.1, 6.9, 220, 6.8, 16.8, 3.5, 0.58, 0.11
+Baía_2, 28.6, 7.0, 208, 7.1, 14.2, 3.0, 0.51, 0.09
+Canal_1, 33.2, 6.1, 295, 4.8, 32.5, 6.5, 0.95, 0.28
+Canal_2, 32.8, 6.3, 275, 5.1, 29.8, 6.0, 0.90, 0.24`,
+  solo:`Amostra, pH, MO, P, K, Ca, Mg, Al, Argila, Areia, Silte
+Pastagem_1, 5.2, 28.4, 8.2, 0.18, 2.1, 0.8, 1.2, 42, 35, 23
+Pastagem_2, 5.0, 25.1, 6.8, 0.15, 1.8, 0.7, 1.5, 38, 42, 20
+Cerrado_1, 5.8, 35.2, 12.4, 0.22, 3.2, 1.2, 0.8, 55, 28, 17
+Cerrado_2, 5.6, 32.8, 11.1, 0.20, 2.9, 1.1, 0.9, 52, 30, 18
+Plantio_1, 6.2, 22.3, 18.5, 0.35, 4.8, 1.8, 0.3, 45, 38, 17
+Plantio_2, 6.4, 20.8, 20.2, 0.38, 5.1, 2.0, 0.2, 48, 35, 17
+Mata_1, 6.0, 48.2, 14.8, 0.28, 3.8, 1.5, 0.5, 60, 22, 18
+Mata_2, 5.9, 45.5, 13.2, 0.25, 3.5, 1.4, 0.6, 58, 24, 18
+Varzea_1, 5.4, 55.8, 10.2, 0.20, 2.8, 1.0, 1.1, 65, 15, 20
+Varzea_2, 5.3, 52.4, 9.8, 0.18, 2.5, 0.9, 1.2, 62, 18, 20`,
+  clima:`Amostra, T_max, T_min, Precip, Umidade, Insolacao, Evapotransp, Vento
+Jan, 34.2, 22.8, 215, 82, 5.8, 145, 2.1
+Fev, 33.8, 22.5, 198, 84, 5.5, 138, 1.9
+Mar, 33.1, 22.1, 172, 82, 6.1, 130, 2.0
+Abr, 32.4, 21.2, 85, 75, 7.2, 115, 2.3
+Mai, 30.8, 18.5, 42, 68, 8.1, 98, 2.5
+Jun, 29.5, 16.2, 18, 62, 8.8, 88, 2.8
+Jul, 30.2, 16.8, 12, 58, 9.2, 92, 3.1
+Ago, 32.8, 18.4, 22, 55, 9.1, 108, 3.2
+Set, 34.5, 21.2, 58, 62, 8.4, 125, 2.8
+Out, 35.2, 22.8, 128, 72, 7.8, 140, 2.4
+Nov, 34.8, 23.1, 182, 78, 6.8, 145, 2.2
+Dez, 34.5, 23.0, 205, 81, 6.2, 148, 2.1`
+};
+
+let pcaCharts=[];
+
+function pcaDemo(type){document.getElementById('pcaData').value=PCA_DEMOS[type]||PCA_DEMOS.hidro;}
+
+function parsePCAData(raw,hasLabel){
+  const lines=raw.trim().split(/\n/).filter(l=>l.trim()&&!l.startsWith('#'));
+  if(lines.length<3)return null;
+  const headers=lines[0].split(/[,;\t]+/).map(s=>s.trim());
+  const varNames=hasLabel?headers.slice(1):headers;
+  const labels=[],rows=[];
+  for(const l of lines.slice(1)){
+    const p=l.split(/[,;\t]+/).map(s=>s.trim());
+    if(hasLabel){labels.push(p[0]);rows.push(p.slice(1).map(Number));}
+    else{labels.push(`S${rows.length+1}`);rows.push(p.map(Number));}
+    if(rows[rows.length-1].some(isNaN)){rows.pop();if(hasLabel)labels.pop();}
+  }
+  if(rows.length<3)return null;
+  return{varNames,labels,rows};
+}
+
+// PCA via covariance/correlation matrix + power iteration for eigenvectors
+function pcaCompute(data,scale){
+  const n=data.length,p=data[0].length;
+  // Center (and scale)
+  const means=Array.from({length:p},(_,j)=>data.reduce((s,r)=>s+r[j],0)/n);
+  const stds=scale?Array.from({length:p},(_,j)=>{const m=means[j];return Math.sqrt(data.reduce((s,r)=>s+(r[j]-m)**2,0)/(n-1))||1;}):new Array(p).fill(1);
+  const X=data.map(row=>row.map((v,j)=>(v-means[j])/stds[j]));
+
+  // Covariance matrix (already standardized if scale=true → correlation matrix)
+  const C=Array.from({length:p},(_,i)=>Array.from({length:p},(_,j)=>
+    X.reduce((s,r)=>s+r[i]*r[j],0)/(n-1)));
+
+  // Power iteration for top min(p,n-1) eigenvectors
+  const numPCs=Math.min(p,n-1,8);
+  const eigenvalues=[],eigenvectors=[];
+  const Cdef=C.map(r=>[...r]);
+
+  for(let pc=0;pc<numPCs;pc++){
+    // Random init
+    let v=Array.from({length:p},()=>Math.random()-0.5);
+    let norm=Math.sqrt(v.reduce((s,x)=>s+x*x,0));
+    v=v.map(x=>x/norm);
+    // Deflation: subtract previous components
+    for(let iter=0;iter<300;iter++){
+      let w=Cdef.map(row=>row.reduce((s,c,j)=>s+c*v[j],0));
+      // Deflate
+      for(let prev=0;prev<eigenvectors.length;prev++){
+        const dot=w.reduce((s,x,i)=>s+x*eigenvectors[prev][i],0);
+        w=w.map((x,i)=>x-dot*eigenvectors[prev][i]);
+      }
+      norm=Math.sqrt(w.reduce((s,x)=>s+x*x,0));
+      if(norm<1e-12)break;
+      const vNew=w.map(x=>x/norm);
+      const change=vNew.reduce((s,x,i)=>s+Math.abs(x-v[i]),0);
+      v=vNew;
+      if(change<1e-8)break;
+    }
+    const lambda=v.reduce((s,x,i)=>s+x*Cdef[i].reduce((ss,c,j)=>ss+c*v[j],0),0);
+    eigenvalues.push(Math.max(0,lambda));
+    eigenvectors.push(v);
+  }
+
+  // Scores: X * eigenvectors
+  const scores=X.map(row=>eigenvectors.map(ev=>row.reduce((s,x,j)=>s+x*ev[j],0)));
+  const totalVar=eigenvalues.reduce((s,v)=>s+v,0);
+  const varExp=eigenvalues.map(v=>v/totalVar*100);
+  const cumVar=varExp.map((_,i)=>varExp.slice(0,i+1).reduce((s,v)=>s+v,0));
+
+  return{eigenvalues,eigenvectors,scores,varExp,cumVar,numPCs};
+}
+
+function runPCA(){
+  const raw=document.getElementById('pcaData').value;
+  const hasLabel=document.getElementById('pcaLabel').value==='yes';
+  const scale=document.getElementById('pcaScale').value==='yes';
+  const parsed=parsePCAData(raw,hasLabel);
+  if(!parsed){showToast('Dados inválidos — verifique o formato','error');return;}
+  const{varNames,labels,rows}=parsed;
+  const n=rows.length,p=varNames.length;
+  if(p<2){showToast('Mínimo 2 variáveis numéricas','error');return;}
+
+  const res=pcaCompute(rows,scale);
+  const{eigenvalues,eigenvectors,scores,varExp,cumVar,numPCs}=res;
+
+  // KPIs
+  document.getElementById('pcaPC1').textContent=fmt(varExp[0],1)+'%';
+  document.getElementById('pcaPC2').textContent=fmt(varExp[1]||0,1)+'%';
+  document.getElementById('pcaPC12').textContent=fmt(cumVar[1]||varExp[0],1)+'%';
+  document.getElementById('pcaKvars').textContent=p;
+  document.getElementById('pcaKn').textContent=n;
+
+  // Scree chart
+  pcaCharts.forEach(c=>c&&c.destroy());pcaCharts=[];
+  pcaCharts.push(new Chart(document.getElementById('pcaScreeChart'),{
+    type:'bar',
+    data:{labels:eigenvalues.map((_,i)=>`PC${i+1}`),datasets:[
+      {label:'Variância (%)',data:varExp.map(v=>+v.toFixed(2)),backgroundColor:varExp.map((_,i)=>i<2?'#1a3a5c':'rgba(26,58,92,0.35)'),borderColor:'#1a3a5c',borderWidth:2,borderRadius:4,yAxisID:'y'},
+      {label:'Acumulado (%)',data:cumVar.map(v=>+v.toFixed(2)),borderColor:'#c0392b',borderWidth:2.5,pointRadius:4,type:'line',yAxisID:'y'}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:12},usePointStyle:true}}},
+    scales:{y:{min:0,max:100,title:{display:true,text:'Variância (%)'},grid:{color:'rgba(0,0,0,0.04)'}},x:{grid:{display:false}}}}
+  }));
+
+  // Biplot
+  const colors=['#1a3a5c','#c0392b','#0a7c6e','#c47a00','#6b2e7e','#374151','#8b5cf6','#059669','#dc2626','#2563eb','#d97706','#7c3aed'];
+  const scorePts=labels.map((lbl,i)=>({x:scores[i][0],y:scores[i][1],label:lbl}));
+  // Scale loadings to fit score range
+  const scoreRange=Math.max(...scorePts.map(p=>Math.sqrt(p.x**2+p.y**2)))||1;
+  const loadScale=scoreRange*0.75;
+  const loadPts=varNames.map((nm,j)=>({x:eigenvectors[0][j]*loadScale,y:eigenvectors[1]?.[j]*loadScale||0,name:nm}));
+
+  const biplotDatasets=[{
+    label:'Amostras',
+    data:scorePts,
+    backgroundColor:labels.map((_,i)=>colors[i%colors.length]+'cc'),
+    borderColor:labels.map((_,i)=>colors[i%colors.length]),
+    pointRadius:7,pointStyle:'circle',type:'scatter'
+  }];
+
+  const ctxBiplot=document.getElementById('pcaBiplotChart');
+  pcaCharts.push(new Chart(ctxBiplot,{
+    type:'scatter',
+    data:{datasets:biplotDatasets},
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>{
+          const d=ctx.raw;return d.label?`${d.label}: (${d.x.toFixed(2)}, ${d.y.toFixed(2)})`:`(${d.x.toFixed(2)}, ${d.y.toFixed(2)})`;
+        }}}
+      },
+      scales:{
+        x:{title:{display:true,text:`PC1 (${fmt(varExp[0],1)}%)`},grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'Space Mono',size:10}}},
+        y:{title:{display:true,text:`PC2 (${fmt(varExp[1]||0,1)}%)`},grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'Space Mono',size:10}}}
+      },
+      animation:{onComplete:function(){
+        // Draw arrows for loadings
+        const chart=this;const ctx2=chart.ctx;
+        const xAxis=chart.scales.x,yAxis=chart.scales.y;
+        ctx2.save();
+        loadPts.forEach((lp,li)=>{
+          const x=xAxis.getPixelForValue(0),y=yAxis.getPixelForValue(0);
+          const x2=xAxis.getPixelForValue(lp.x),y2=yAxis.getPixelForValue(lp.y);
+          const angle=Math.atan2(y2-y,x2-x);
+          ctx2.strokeStyle='rgba(192,57,43,0.75)';ctx2.lineWidth=1.8;
+          ctx2.beginPath();ctx2.moveTo(x,y);ctx2.lineTo(x2,y2);ctx2.stroke();
+          // Arrowhead
+          ctx2.fillStyle='rgba(192,57,43,0.75)';
+          ctx2.beginPath();ctx2.moveTo(x2,y2);
+          ctx2.lineTo(x2-10*Math.cos(angle-0.4),y2-10*Math.sin(angle-0.4));
+          ctx2.lineTo(x2-10*Math.cos(angle+0.4),y2-10*Math.sin(angle+0.4));
+          ctx2.closePath();ctx2.fill();
+          // Label
+          ctx2.fillStyle='#c0392b';ctx2.font='bold 11px Syne,sans-serif';
+          ctx2.fillText(lp.name,x2+5,y2-5);
+        });
+        // Sample labels
+        ctx2.fillStyle='#1a1814';ctx2.font='10px Karla,sans-serif';
+        scorePts.forEach((sp,i)=>{
+          const x=xAxis.getPixelForValue(sp.x),y=yAxis.getPixelForValue(sp.y);
+          ctx2.fillText(sp.label,x+8,y-5);
+        });
+        ctx2.restore();
+      }}
+    }
+  }));
+  document.getElementById('pcaBiplotExplain').innerHTML=
+    `PC1+PC2 = ${fmt(cumVar[1]||varExp[0],1)}% da variância. Setas vermelhas = variáveis. Pontos = amostras. ${cumVar[1]>=70?'✅ Biplot confiável (≥ 70%)':'⚠️ Considere mais PCs — variância acumulada < 70%'}`;
+
+  // Loadings table
+  const showPCs=Math.min(3,numPCs);
+  document.getElementById('pcaLoadBody').innerHTML=varNames.map((nm,j)=>{
+    const comun=eigenvectors.slice(0,showPCs).reduce((s,ev)=>s+ev[j]**2,0);
+    const loads=Array.from({length:showPCs},(_,k)=>eigenvectors[k]?.[j]||0);
+    const maxLoad=loads.reduce((a,b)=>Math.abs(a)>Math.abs(b)?a:b,0);
+    return`<tr>
+      <td>${nm}</td>
+      ${loads.map(l=>`<td style="color:${Math.abs(l)>0.6?(l>0?'var(--teal)':'var(--rust)'):'inherit'};font-weight:${Math.abs(l)>0.6?'700':'400'}">${fmt(l,3)}</td>`).join('')}
+      <td>${fmt(comun,3)}</td>
+    </tr>`;
+  }).join('');
+
+  // Loading bars for PC1
+  const barsHtml=varNames.map((nm,j)=>{
+    const l=eigenvectors[0][j];const pct=Math.abs(l)*100;
+    return`<div class="pca-loading-row">
+      <span style="width:120px;font-size:12px;font-family:var(--font-display);font-weight:700;color:var(--text2);text-align:right;flex-shrink:0">${nm}</span>
+      <div class="pca-loading-bar-wrap">
+        <div class="pca-loading-bar" style="width:${pct}%;background:${l>0?'var(--teal)':'var(--rust)'}"></div>
+      </div>
+      <span style="width:42px;font-family:var(--font-mono);font-size:11px;color:var(--text2)">${fmt(l,3)}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('pcaLoadBars').innerHTML=`<div style="font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Loadings no PC1 (verde = positivo · vermelho = negativo)</div>${barsHtml}`;
+
+  // Scores table
+  document.getElementById('pcaScoreBody').innerHTML=labels.map((lbl,i)=>
+    `<tr><td>${lbl}</td>${Array.from({length:showPCs},(_,k)=>`<td>${fmt(scores[i][k],4)}</td>`).join('')}</tr>`
+  ).join('');
+
+  // Output text
+  const sep='─'.repeat(56);
+  let txt=`${sep}\nPCA — ANÁLISE DE COMPONENTES PRINCIPAIS\nVariáveis: ${varNames.join(', ')}\nN = ${n} amostras   p = ${p} variáveis\nPadronização: ${scale?'Sim (Z-score)':'Não'}\n${sep}\n\nVARIÂNCIA EXPLICADA\n`;
+  eigenvalues.forEach((ev,i)=>txt+=`  PC${i+1}: eigenvalue=${fmt(ev,4)}  var=${fmt(varExp[i],2)}%  acum=${fmt(cumVar[i],2)}%\n`);
+  txt+=`\nLOADINGS (correlação variável-componente)\n${''.padEnd(22)}${Array.from({length:showPCs},(_,k)=>`PC${k+1}`.padStart(9)).join('')}\n`;
+  varNames.forEach((nm,j)=>{txt+=`  ${nm.substring(0,20).padEnd(22)}${Array.from({length:showPCs},(_,k)=>fmt(eigenvectors[k]?.[j]||0,4).padStart(9)).join('')}\n`;});
+  txt+=`\nSCORES DAS AMOSTRAS\n`;
+  labels.forEach((lbl,i)=>{txt+=`  ${lbl.substring(0,20).padEnd(22)}${Array.from({length:showPCs},(_,k)=>fmt(scores[i][k],4).padStart(9)).join('')}\n`;});
+  txt+=`${sep}\n`;
+  document.getElementById('pcaResultBox').textContent=txt;
+  document.getElementById('pcaResultsWrap').style.display='block';
+  window._pcaRes={varNames,labels,scores,eigenvectors,varExp,cumVar,p};
+  showToast('PCA concluída','success');
+}
+
+function genPCAInterp(){
+  if(!window._pcaRes){showToast('Execute a PCA primeiro','error');return;}
+  const{varNames,eigenvectors,varExp,cumVar}=window._pcaRes;
+  const pc1=eigenvectors[0],pc2=eigenvectors[1]||[];
+  const strongPC1=varNames.filter((_,j)=>Math.abs(pc1[j])>0.6);
+  const strongPC2=varNames.filter((_,j)=>Math.abs(pc2[j])>0.6);
+  const biplotOk=cumVar[1]>=70;
+  let txt=`A PCA extraiu componentes que juntos explicam ${fmt(cumVar[cumVar.length-1],1)}% da variância total. `;
+  txt+=`O PC1 explicou ${fmt(varExp[0],1)}% da variância${strongPC1.length?` e foi dominado por: ${strongPC1.join(', ')}`:''}. `;
+  if(varExp[1]!==undefined)txt+=`O PC2 explicou ${fmt(varExp[1],1)}%${strongPC2.length?` (variáveis: ${strongPC2.join(', ')})`:''}. `;
+  txt+=biplotOk?'O biplot PC1×PC2 é confiável para interpretação (≥ 70% de variância acumulada).':'O biplot PC1×PC2 captura menos de 70% da variância — interprete com cautela e considere incluir o PC3.';
+  document.getElementById('pcaInterpText').textContent=txt;
+  document.getElementById('pcaInterp').classList.add('show');
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function sw(name){
+  document.querySelectorAll('.mv').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.snav').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.mtab').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.mbb').forEach(v=>v.classList.remove('active'));
+  const mv=document.getElementById('mv-'+name);if(mv)mv.classList.add('active');
+  const sn=document.getElementById('snav-'+name);if(sn)sn.classList.add('active');
+  const mb=document.getElementById('mbb-'+name);if(mb)mb.classList.add('active');
+  const tabMap={div:0,pca:1};
+  const tabs=document.querySelectorAll('.mtab');
+  if(tabMap[name]!==undefined)tabs[tabMap[name]].classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// UTILS
+let toastT=null;
+function showToast(msg,type='info'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='t-'+type;
+  setTimeout(()=>t.classList.add('show'),10);
+  if(toastT)clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function copyEl(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>showToast('Copiado!','success'));}
+</script>
+</body>
+</html>

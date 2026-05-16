@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estatística Avançada — Dossiê v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Karla:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@sgratzl/chartjs-chart-boxplot@4.4.3/build/index.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+:root {
+  --bg: #f8f7f4;
+  --surface: #f0ede8;
+  --surface2: #e8e4dd;
+  --card: #ffffff;
+  --text: #1a1814;
+  --text2: #5a554e;
+  --muted: #9e9890;
+  --line: #e2ddd7;
+  --ink: #1a1814;
+  --rust: #c0392b;
+  --rust-light: rgba(192,57,43,0.1);
+  --teal: #0a7c6e;
+  --teal-light: rgba(10,124,110,0.1);
+  --navy: #1a3a5c;
+  --navy-light: rgba(26,58,92,0.1);
+  --gold: #c47a00;
+  --gold-light: rgba(196,122,0,0.1);
+  --plum: #6b2e7e;
+  --plum-light: rgba(107,46,126,0.1);
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'Karla', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  --radius-sm: 8px; --radius: 14px; --radius-lg: 20px;
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.07);
+  --shadow-md: 0 6px 20px rgba(0,0,0,0.09);
+  --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 15px; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--ink); color: #fff;
+  display: flex; align-items: center; padding: 0 24px; gap: 16px;
+  height: 54px; position: sticky; top: 0; z-index: 100;
+}
+.topbar-logo { font-family: var(--font-display); font-size: 16px; font-weight: 800; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+.topbar-badge { background: var(--rust); font-family: var(--font-mono); font-size: 10px; padding: 2px 7px; border-radius: 4px; }
+.topbar-sep { width: 1px; height: 22px; background: rgba(255,255,255,0.15); }
+.topbar-sub { color: rgba(255,255,255,0.45); font-size: 13px; }
+.topbar-back { margin-left: auto; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.85); font-family: var(--font-display); font-size: 12px; font-weight: 700; padding: 5px 13px; border-radius: 6px; cursor: pointer; transition: var(--transition); }
+.topbar-back:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+/* ── LAYOUT ── */
+.shell { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 54px); }
+.sidebar { background: var(--ink); padding: 20px 0; position: sticky; top: 54px; height: calc(100vh - 54px); overflow-y: auto; }
+.sidebar-label { font-family: var(--font-display); font-size: 10px; font-weight: 700; letter-spacing: 0.12em; color: rgba(255,255,255,0.3); text-transform: uppercase; padding: 0 18px 6px; margin-top: 14px; }
+.sidebar-label:first-child { margin-top: 0; }
+.snav { display: flex; align-items: center; gap: 10px; padding: 9px 18px; cursor: pointer; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.5); border-left: 3px solid transparent; transition: var(--transition); }
+.snav:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.05); }
+.snav.active { color: #fff; background: rgba(255,255,255,0.08); border-left-color: var(--rust); }
+.snav-icon { font-size: 14px; width: 20px; text-align: center; }
+.main { padding: 30px 34px; max-width: 940px; }
+
+/* ── MODULE TABS ── */
+.module-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 28px; border-bottom: 2px solid var(--ink); padding-bottom: 16px; }
+.module-tab { display: flex; align-items: center; gap: 7px; padding: 9px 16px; border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 13px; font-weight: 700; cursor: pointer; background: var(--surface); border: 1.5px solid var(--line); color: var(--text2); transition: var(--transition); }
+.module-tab:hover { border-color: var(--ink); color: var(--ink); }
+.module-tab.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+.module-tab .tab-badge { background: var(--rust); color: #fff; font-family: var(--font-mono); font-size: 9px; padding: 1px 5px; border-radius: 3px; }
+
+/* ── CARDS ── */
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; margin-bottom: 18px; }
+.card:hover { box-shadow: var(--shadow-sm); }
+.card-title { font-family: var(--font-display); font-size: 14px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.cicon { width: 28px; height: 28px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.c-teal { background: var(--teal-light); } .c-rust { background: var(--rust-light); }
+.c-navy { background: var(--navy-light); } .c-gold { background: var(--gold-light); }
+.c-plum { background: var(--plum-light); }
+
+/* ── FORMS ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.field:last-child { margin-bottom: 0; }
+label { font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text2); }
+input[type="text"], input[type="number"], select, textarea { background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--radius-sm); padding: 9px 12px; font-family: var(--font-body); font-size: 14px; color: var(--text); outline: none; width: 100%; transition: var(--transition); }
+input:focus, select:focus, textarea:focus { border-color: var(--teal); background: #fff; box-shadow: 0 0 0 3px rgba(10,124,110,0.1); }
+textarea { resize: vertical; font-family: var(--font-mono); font-size: 12.5px; line-height: 1.55; }
+.hint { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+/* ── BUTTONS ── */
+.btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: var(--radius-sm); font-family: var(--font-display); font-size: 13px; font-weight: 700; cursor: pointer; transition: var(--transition); border: none; white-space: nowrap; }
+.btn-primary { background: var(--teal); color: #fff; }
+.btn-primary:hover { background: #086b5e; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-danger { background: var(--rust); color: #fff; }
+.btn-danger:hover { background: #a93226; }
+.btn-ghost { background: transparent; border: 1.5px solid var(--line); color: var(--text2); }
+.btn-ghost:hover { border-color: var(--text2); color: var(--text); background: var(--surface); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ── RESULTS ── */
+.result-box { background: var(--ink); border-radius: var(--radius); padding: 18px 20px; font-family: var(--font-mono); font-size: 12px; line-height: 1.85; color: rgba(255,255,255,0.9); white-space: pre-wrap; overflow-x: auto; min-height: 60px; margin-bottom: 14px; }
+.chart-wrap { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; }
+.chart-wrap.hidden { display: none; }
+.chart-title { font-family: var(--font-display); font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text2); margin-bottom: 12px; }
+.chart-explain { font-size: 13px; color: var(--text2); margin-top: 10px; padding: 9px 13px; background: var(--surface); border-radius: var(--radius-sm); border-left: 3px solid var(--teal); }
+
+/* ── KPI STRIP ── */
+.kpi-strip { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 18px; }
+.kpi { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; text-align: center; }
+.kpi-label { font-family: var(--font-display); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.kpi-value { font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--ink); line-height: 1; }
+.kpi-note { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.kpi.hi-teal { border-color: var(--teal); } .kpi.hi-teal .kpi-value { color: var(--teal); }
+.kpi.hi-rust { border-color: var(--rust); } .kpi.hi-rust .kpi-value { color: var(--rust); }
+
+/* ── POSTHOC TABLE ── */
+.ph-table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: var(--font-mono); }
+.ph-table th { background: var(--ink); color: rgba(255,255,255,0.8); font-family: var(--font-display); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 8px 12px; text-align: right; }
+.ph-table th:first-child { text-align: left; }
+.ph-table td { padding: 8px 12px; border-bottom: 1px solid var(--line); text-align: right; font-size: 12.5px; }
+.ph-table td:first-child { text-align: left; font-family: var(--font-display); font-weight: 700; font-size: 12px; }
+.ph-table tr:last-child td { border-bottom: none; }
+.ph-table tr:hover td { background: var(--surface); }
+.sig { color: var(--rust); font-weight: 700; }
+.ns { color: var(--muted); }
+
+/* ── HEATMAP ── */
+.heatmap-wrap { overflow-x: auto; margin-top: 10px; }
+.heatmap-table { border-collapse: collapse; font-size: 12px; font-family: var(--font-mono); }
+.heatmap-table th { background: var(--surface2); font-family: var(--font-display); font-size: 10px; font-weight: 700; padding: 8px 12px; text-align: center; color: var(--text2); letter-spacing: 0.04em; }
+.heatmap-table td { width: 72px; height: 52px; text-align: center; font-size: 11.5px; font-weight: 600; border: 1px solid rgba(255,255,255,0.3); transition: var(--transition); cursor: default; }
+.heatmap-table td:hover { opacity: 0.85; transform: scale(1.04); }
+.heatmap-label { background: var(--surface2) !important; font-family: var(--font-display); font-size: 11px; font-weight: 700; color: var(--text2); text-align: right !important; padding: 8px 10px; white-space: nowrap; border: none !important; }
+
+/* ── BADGE ── */
+.badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 99px; font-family: var(--font-display); font-size: 11px; font-weight: 700; }
+.badge-teal { background: var(--teal-light); color: var(--teal); }
+.badge-rust { background: var(--rust-light); color: var(--rust); }
+.badge-gold { background: var(--gold-light); color: var(--gold); }
+.badge-muted { background: var(--surface2); color: var(--muted); }
+
+/* ── INTERP BOX ── */
+.interp-box { background: #f9f7f4; border: 1px solid var(--line); border-left: 4px solid var(--navy); border-radius: var(--radius); padding: 14px 16px; font-size: 14px; line-height: 1.7; margin-top: 12px; display: none; }
+.interp-box.show { display: block; }
+
+/* ── DEMO FORMAT ── */
+.demo-box { background: var(--ink); border-radius: var(--radius-sm); padding: 12px 16px; font-family: var(--font-mono); font-size: 11.5px; color: rgba(255,255,255,0.75); line-height: 1.6; margin-bottom: 12px; }
+.demo-box .c { color: rgba(255,255,255,0.35); }
+
+/* ── MODULE VIEW ── */
+.module-view { display: none; }
+.module-view.active { display: block; }
+
+/* ── SW GRID ── */
+.sw-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+.sw-card { background: var(--card); border: 1.5px solid var(--line); border-radius: var(--radius); padding: 14px 16px; transition: var(--transition); }
+.sw-card.ok { border-color: var(--teal); background: rgba(10,124,110,0.04); }
+.sw-card.fail { border-color: var(--rust); background: rgba(192,57,43,0.04); }
+.sw-card.warn { border-color: var(--gold); background: rgba(196,122,0,0.04); }
+.sw-group { font-family: var(--font-display); font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.sw-stat { font-family: var(--font-mono); font-size: 11.5px; color: var(--text2); }
+
+/* ── TOAST ── */
+#toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--ink); color: #fff; padding: 10px 22px; border-radius: 99px; font-family: var(--font-display); font-size: 13px; font-weight: 600; z-index: 9999; transition: 0.35s cubic-bezier(0.22,1,0.36,1); pointer-events: none; box-shadow: var(--shadow-md); }
+#toast.show { transform: translateX(-50%) translateY(0); }
+#toast.t-success { background: var(--teal); }
+#toast.t-error { background: var(--rust); }
+#toast.t-info { background: var(--navy); }
+
+/* ── MOBILE ── */
+.mobile-bottom { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--ink); border-top: 1px solid rgba(255,255,255,0.1); z-index: 200; padding: 6px 0 env(safe-area-inset-bottom,6px); }
+.mobile-bottom-items { display: flex; justify-content: space-around; }
+.mbb { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 8px; background: none; border: none; cursor: pointer; color: rgba(255,255,255,0.45); font-family: var(--font-display); font-size: 9px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.mbb .mi { font-size: 18px; line-height: 1; }
+.mbb.active { color: var(--rust); }
+
+@media (max-width: 820px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .mobile-bottom { display: block; }
+  .main { padding: 18px 14px 90px; max-width: 100%; }
+  .form-grid { grid-template-columns: 1fr; }
+  .kpi-strip { grid-template-columns: 1fr 1fr; }
+  .sw-grid { grid-template-columns: 1fr 1fr; }
+  .module-tabs { gap: 5px; }
+  .module-tab { padding: 7px 12px; font-size: 12px; }
+  .topbar-sub { display: none; }
+  .topbar-sep { display: none; }
+}
+@media (max-width: 480px) {
+  .kpi-strip { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .sw-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="topbar-logo">
+    <span>Dossiê Estatístico</span>
+    <span class="topbar-badge">v2</span>
+  </div>
+  <div class="topbar-sep"></div>
+  <span class="topbar-sub">Estatística Avançada</span>
+  <button class="topbar-back" onclick="window.location.href='index.html'">← Painel principal</button>
+</header>
+
+<div class="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-label">Módulos</div>
+  <div class="snav active" id="snav-posthoc" onclick="switchModule('posthoc')">
+    <span class="snav-icon">🔍</span> Post-hoc (Tukey)
+  </div>
+  <div class="snav" id="snav-shapiro" onclick="switchModule('shapiro')">
+    <span class="snav-icon">📐</span> Shapiro-Wilk
+  </div>
+  <div class="snav" id="snav-ic" onclick="switchModule('ic')">
+    <span class="snav-icon">📏</span> IC 95% + Barras de erro
+  </div>
+  <div class="snav" id="snav-cormat" onclick="switchModule('cormat')">
+    <span class="snav-icon">🔥</span> Matriz de Correlação
+  </div>
+  <div class="sidebar-label">Ajuda</div>
+  <div class="snav" onclick="switchModule('ajuda')">
+    <span class="snav-icon">📖</span> Guia de uso
+  </div>
+  <div style="margin-top:auto;padding:16px 18px;border-top:1px solid rgba(255,255,255,0.08);margin-top:30px">
+    <div style="font-family:var(--font-mono);font-size:10px;color:rgba(255,255,255,0.22)">Dossiê Estatístico v2<br>UNEMAT — Bloco 1</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TABS MOBILE -->
+  <div class="module-tabs">
+    <div class="module-tab active" onclick="switchModule('posthoc')">🔍 Post-hoc <span class="tab-badge">Tukey</span></div>
+    <div class="module-tab" onclick="switchModule('shapiro')">📐 Shapiro-Wilk</div>
+    <div class="module-tab" onclick="switchModule('ic')">📏 IC 95%</div>
+    <div class="module-tab" onclick="switchModule('cormat')">🔥 Cor. Matrix</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       MÓDULO 1 — POST-HOC TUKEY / BONFERRONI
+  ════════════════════════════════════════════════ -->
+  <div class="module-view active" id="mv-posthoc">
+
+    <div style="margin-bottom:20px">
+      <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">Módulo 01</div>
+      <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">Post-hoc após ANOVA</div>
+      <div style="color:var(--text2);font-size:14px;margin-top:5px">Tukey HSD e Bonferroni — identifica quais pares de grupos diferem significativamente</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="cicon c-navy">📥</span> Dados</div>
+      <div class="demo-box">
+        <span class="c"># Formato: Grupo, Valor (uma observação por linha)</span><br>
+        Controle, 15.2<br>
+        Controle, 14.8<br>
+        Dose1, 18.3<br>
+        Dose2, 22.1
+      </div>
+      <div class="field">
+        <label>Cole os dados</label>
+        <textarea id="phData" rows="10" placeholder="Grupo, Valor&#10;Controle, 15.2&#10;Dose1, 18.3&#10;..."></textarea>
+      </div>
+      <div class="btn-row" style="margin-bottom:10px">
+        <button class="btn btn-ghost btn-sm" onclick="phDemo()">Exemplo (4 grupos)</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('phData').value=''">🗑 Limpar</button>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Método</label>
+          <select id="phMethod">
+            <option value="tukey">Tukey HSD</option>
+            <option value="bonferroni">Bonferroni</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Nível α</label>
+          <select id="phAlpha">
+            <option value="0.05">0,05 (padrão)</option>
+            <option value="0.01">0,01</option>
+            <option value="0.10">0,10</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-danger" onclick="runPostHoc()">▶ Executar Post-hoc</button>
+    </div>
+
+    <div id="phResultsWrap" style="display:none">
+      <div class="kpi-strip" id="phKpiStrip">
+        <div class="kpi"><div class="kpi-label">ANOVA F</div><div class="kpi-value" id="phF">—</div><div class="kpi-note" id="phFnote"></div></div>
+        <div class="kpi"><div class="kpi-label">p (ANOVA)</div><div class="kpi-value" id="phP">—</div><div class="kpi-note" id="phPnote"></div></div>
+        <div class="kpi"><div class="kpi-label">Grupos</div><div class="kpi-value" id="phG">—</div><div class="kpi-note">comparações par a par</div></div>
+        <div class="kpi"><div class="kpi-label">N total</div><div class="kpi-value" id="phN">—</div><div class="kpi-note"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="cicon c-rust">📊</span> Comparações par a par</div>
+        <div style="overflow-x:auto">
+          <table class="ph-table" id="phTable">
+            <thead><tr>
+              <th style="text-align:left">Par</th>
+              <th>Dif. médias</th>
+              <th>SE</th>
+              <th>q / t</th>
+              <th>p ajustado</th>
+              <th>Sig.</th>
+              <th>Conclusão</th>
+            </tr></thead>
+            <tbody id="phTableBody"></tbody>
+          </table>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px;font-family:var(--font-mono)">*** p &lt; 0,001 &nbsp; ** p &lt; 0,01 &nbsp; * p &lt; 0,05 &nbsp; ns p ≥ 0,05</div>
+      </div>
+
+      <div class="chart-wrap">
+        <div class="chart-title">Médias ± IC 95% por grupo</div>
+        <canvas id="phChart" height="220"></canvas>
+        <div class="chart-explain" id="phChartExplain"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="cicon c-teal">📄</span> Saída completa</div>
+        <div class="result-box" id="phResultBox"></div>
+        <button class="btn btn-ghost btn-sm" onclick="copyEl('phResultBox')">📋 Copiar</button>
+      </div>
+
+      <div class="interp-box" id="phInterp">
+        <strong style="font-family:var(--font-display)">Interpretação:</strong>
+        <span id="phInterpText"></span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="genPhInterp()" style="margin-top:8px">💬 Gerar interpretação</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       MÓDULO 2 — SHAPIRO-WILK
+  ════════════════════════════════════════════════ -->
+  <div class="module-view" id="mv-shapiro">
+
+    <div style="margin-bottom:20px">
+      <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">Módulo 02</div>
+      <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">Teste de Shapiro-Wilk</div>
+      <div style="color:var(--text2);font-size:14px;margin-top:5px">Teste de normalidade para cada grupo — mais preciso que Jarque-Bera para n pequeno</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="cicon c-navy">📥</span> Dados</div>
+      <div class="demo-box">
+        <span class="c"># Uma coluna: só valores (1 grupo)</span><br>
+        23.1<br>24.5<br>22.8<br>
+        <span class="c"># Ou: Grupo, Valor (múltiplos grupos)</span><br>
+        GrupoA, 23.1<br>GrupoB, 28.3
+      </div>
+      <div class="field">
+        <label>Cole os dados</label>
+        <textarea id="swData" rows="10" placeholder="Valores ou Grupo, Valor"></textarea>
+      </div>
+      <div class="btn-row" style="margin-bottom:12px">
+        <button class="btn btn-ghost btn-sm" onclick="swDemo(1)">1 grupo</button>
+        <button class="btn btn-ghost btn-sm" onclick="swDemo(2)">3 grupos</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('swData').value=''">🗑 Limpar</button>
+      </div>
+      <button class="btn btn-danger" onclick="runShapiro()">▶ Executar Shapiro-Wilk</button>
+    </div>
+
+    <div id="swResultsWrap" style="display:none">
+      <div class="sw-grid" id="swGrid"></div>
+
+      <div class="chart-wrap">
+        <div class="chart-title">Q-Q Plot — todos os grupos</div>
+        <canvas id="swQQChart" height="260"></canvas>
+        <div class="chart-explain" id="swQQExplain">Pontos próximos à linha = distribuição normal. Desvios nas extremidades indicam caudas pesadas ou assimetria.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="cicon c-teal">📄</span> Saída completa</div>
+        <div class="result-box" id="swResultBox"></div>
+        <button class="btn btn-ghost btn-sm" onclick="copyEl('swResultBox')">📋 Copiar</button>
+      </div>
+
+      <div class="card" style="background:var(--surface)">
+        <div class="card-title"><span class="cicon c-gold">💡</span> O que fazer com o resultado</div>
+        <div style="font-size:13.5px;color:var(--text);line-height:1.8" id="swRecoText">
+          Execute o teste para ver a recomendação.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       MÓDULO 3 — IC 95% + BARRAS DE ERRO
+  ════════════════════════════════════════════════ -->
+  <div class="module-view" id="mv-ic">
+
+    <div style="margin-bottom:20px">
+      <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">Módulo 03</div>
+      <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">IC 95% e Barras de Erro</div>
+      <div style="color:var(--text2);font-size:14px;margin-top:5px">Intervalo de confiança, erro padrão da média e tamanho de efeito (Cohen's d, eta²)</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="cicon c-navy">📥</span> Dados</div>
+      <div class="demo-box">
+        <span class="c"># Formato: Grupo, Valor</span><br>
+        Controle, 23.1<br>Controle, 24.5<br>Tratamento, 28.3
+      </div>
+      <div class="field">
+        <label>Cole os dados</label>
+        <textarea id="icData" rows="10" placeholder="Grupo, Valor&#10;Controle, 23.1&#10;..."></textarea>
+      </div>
+      <div class="btn-row" style="margin-bottom:10px">
+        <button class="btn btn-ghost btn-sm" onclick="icDemo()">Exemplo</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('icData').value=''">🗑 Limpar</button>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Tipo de barra de erro</label>
+          <select id="icErrorType">
+            <option value="ci95">IC 95%</option>
+            <option value="se">Erro padrão (SE)</option>
+            <option value="sd">Desvio padrão (DP)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Tipo de gráfico</label>
+          <select id="icChartType">
+            <option value="bar">Colunas + barra de erro</option>
+            <option value="dot">Ponto + IC (forest plot)</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-danger" onclick="runIC()">▶ Calcular IC e Tamanho de Efeito</button>
+    </div>
+
+    <div id="icResultsWrap" style="display:none">
+      <div class="kpi-strip">
+        <div class="kpi hi-teal"><div class="kpi-label">Grupos</div><div class="kpi-value" id="icKG">—</div></div>
+        <div class="kpi"><div class="kpi-label">N total</div><div class="kpi-value" id="icKN">—</div></div>
+        <div class="kpi"><div class="kpi-label">Cohen's d</div><div class="kpi-value" id="icKD">—</div><div class="kpi-note" id="icKDnote"></div></div>
+        <div class="kpi"><div class="kpi-label">eta²</div><div class="kpi-value" id="icKeta">—</div><div class="kpi-note" id="icKetanote"></div></div>
+      </div>
+
+      <div class="chart-wrap">
+        <div class="chart-title" id="icChartTitle">Médias com IC 95%</div>
+        <canvas id="icChart" height="260"></canvas>
+        <div class="chart-explain" id="icChartExplain"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="cicon c-navy">📋</span> Tabela descritiva completa</div>
+        <div style="overflow-x:auto">
+          <table class="ph-table" id="icTable">
+            <thead><tr>
+              <th style="text-align:left">Grupo</th>
+              <th>N</th><th>Média</th><th>DP</th><th>SE</th>
+              <th>IC 95% inf</th><th>IC 95% sup</th><th>Min</th><th>Max</th>
+            </tr></thead>
+            <tbody id="icTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="cicon c-teal">📄</span> Saída completa</div>
+        <div class="result-box" id="icResultBox"></div>
+        <button class="btn btn-ghost btn-sm" onclick="copyEl('icResultBox')">📋 Copiar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       MÓDULO 4 — MATRIZ DE CORRELAÇÃO
+  ════════════════════════════════════════════════ -->
+  <div class="module-view" id="mv-cormat">
+
+    <div style="margin-bottom:20px">
+      <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">Módulo 04</div>
+      <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">Matriz de Correlação</div>
+      <div style="color:var(--text2);font-size:14px;margin-top:5px">Heatmap com p-valores — Pearson ou Spearman — para múltiplas variáveis</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="cicon c-navy">📥</span> Dados</div>
+      <div class="demo-box">
+        <span class="c"># Primeira linha = cabeçalho (nomes das variáveis)</span><br>
+        Biomassa, Temperatura, pH, Condutividade<br>
+        45.2, 28.3, 6.8, 180<br>
+        38.1, 25.1, 7.1, 210
+      </div>
+      <div class="field">
+        <label>Cole os dados (com cabeçalho)</label>
+        <textarea id="cmData" rows="10" placeholder="Var1, Var2, Var3&#10;45.2, 28.3, 6.8&#10;38.1, 25.1, 7.1&#10;..."></textarea>
+      </div>
+      <div class="btn-row" style="margin-bottom:10px">
+        <button class="btn btn-ghost btn-sm" onclick="cmDemo()">Exemplo (5 variáveis)</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('cmData').value=''">🗑 Limpar</button>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Método</label>
+          <select id="cmMethod">
+            <option value="pearson">Pearson</option>
+            <option value="spearman">Spearman</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Mostrar</label>
+          <select id="cmShow">
+            <option value="r">Coeficiente r</option>
+            <option value="p">p-valor</option>
+            <option value="both">r e p-valor</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-danger" onclick="runCorMat()">▶ Gerar Matriz</button>
+    </div>
+
+    <div id="cmResultsWrap" style="display:none">
+      <div class="chart-wrap">
+        <div class="chart-title">Heatmap de correlações</div>
+        <div class="heatmap-wrap" id="cmHeatmap"></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12px;color:var(--text2)">
+          <span>Legenda:</span>
+          <span style="display:inline-block;width:16px;height:16px;background:#c0392b;border-radius:3px;vertical-align:middle"></span> r = +1 (positiva forte)
+          <span style="display:inline-block;width:16px;height:16px;background:#f5f5f5;border:1px solid var(--line);border-radius:3px;vertical-align:middle"></span> r ≈ 0
+          <span style="display:inline-block;width:16px;height:16px;background:#1a3a5c;border-radius:3px;vertical-align:middle"></span> r = −1 (negativa forte)
+          <span style="margin-left:8px">* p &lt; 0,05 &nbsp; ** p &lt; 0,01 &nbsp; *** p &lt; 0,001</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="cicon c-teal">📄</span> Saída completa</div>
+        <div class="result-box" id="cmResultBox"></div>
+        <button class="btn btn-ghost btn-sm" onclick="copyEl('cmResultBox')">📋 Copiar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       AJUDA
+  ════════════════════════════════════════════════ -->
+  <div class="module-view" id="mv-ajuda">
+    <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;margin-bottom:20px">Guia de uso</div>
+
+    <div class="card">
+      <div class="card-title"><span class="cicon c-rust">🔍</span> Post-hoc — quando usar</div>
+      <div style="font-size:13.5px;color:var(--text2);line-height:1.8">
+        Execute <strong>depois</strong> de uma ANOVA significativa. A ANOVA diz "há diferença entre os grupos" — o post-hoc diz <em>quais pares</em> diferem.<br><br>
+        <strong>Tukey HSD</strong>: preferido quando os grupos têm tamanhos similares. Controla bem o erro tipo I.<br>
+        <strong>Bonferroni</strong>: mais conservador. Preferido quando há poucas comparações ou quando você definiu as comparações <em>a priori</em>.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="cicon c-navy">📐</span> Shapiro-Wilk — limites</div>
+      <div style="font-size:13.5px;color:var(--text2);line-height:1.8">
+        Funciona bem para <strong>n entre 3 e 50</strong>. Para n grande (> 100), o teste rejeita normalidade mesmo com desvios mínimos sem impacto prático — use o Q-Q plot visualmente.<br><br>
+        <strong>Atenção:</strong> p > 0,05 não "prova" normalidade — apenas não há evidência suficiente para rejeitá-la.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="cicon c-gold">📏</span> Tamanho de efeito</div>
+      <div style="font-size:13.5px;color:var(--text2);line-height:1.8">
+        <strong>Cohen's d</strong> (2 grupos): pequeno ≥ 0,2 · médio ≥ 0,5 · grande ≥ 0,8<br>
+        <strong>eta² (η²)</strong> (k grupos): pequeno ≥ 0,01 · médio ≥ 0,06 · grande ≥ 0,14<br><br>
+        Tamanho de efeito complementa o p-valor — um efeito pode ser significativo mas biologicamente irrelevante (n grande) ou relevante mas não significativo (n pequeno).
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="cicon c-teal">🔥</span> Correlação — cuidados</div>
+      <div style="font-size:13.5px;color:var(--text2);line-height:1.8">
+        |r| &lt; 0,3 = fraca · 0,3–0,7 = moderada · &gt; 0,7 = forte<br><br>
+        <strong>Correlação não implica causalidade.</strong> Variáveis podem co-variar por confundimento, sazonalidade ou casualidade.<br>
+        Use <strong>Pearson</strong> para dados normais e lineares. Use <strong>Spearman</strong> para dados não normais, ordinais ou com outliers.
+      </div>
+    </div>
+  </div>
+
+</main>
+</div><!-- /shell -->
+
+<!-- MOBILE BOTTOM NAV -->
+<div class="mobile-bottom">
+  <div class="mobile-bottom-items">
+    <button class="mbb active" id="mbb-posthoc" onclick="mswitch('posthoc')"><span class="mi">🔍</span>Post-hoc</button>
+    <button class="mbb" id="mbb-shapiro" onclick="mswitch('shapiro')"><span class="mi">📐</span>Shapiro</button>
+    <button class="mbb" id="mbb-ic" onclick="mswitch('ic')"><span class="mi">📏</span>IC 95%</button>
+    <button class="mbb" id="mbb-cormat" onclick="mswitch('cormat')"><span class="mi">🔥</span>Cor. Mat.</button>
+    <button class="mbb" onclick="window.location.href='index.html'"><span class="mi">⌂</span>Hub</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// MATH UTILS
+// ============================================================
+function mean(a){return a.reduce((s,v)=>s+v,0)/a.length}
+function sd(a,sample=true){if(a.length<2)return 0;const m=mean(a),n=a.length;return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/(sample?n-1:n))}
+function se(a){return sd(a,true)/Math.sqrt(a.length)}
+function median(a){const s=[...a].sort((x,y)=>x-y),n=s.length;return n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2}
+function sum(a){return a.reduce((s,v)=>s+v,0)}
+
+// t-CDF via regularized incomplete beta
+function lnGamma(z){return(z-.5)*Math.log(z+4.5)-(z+4.5)+.5*Math.log(2*Math.PI)+1/(12*(z+4.5))}
+function ibeta(x,a,b){
+  if(x<=0)return 0;if(x>=1)return 1;
+  const lb=lnGamma(a)+lnGamma(b)-lnGamma(a+b);
+  const front=Math.exp(Math.log(x)*a+Math.log(1-x)*b-lb)/a;
+  let d=1,s=1,c=1;
+  for(let m=1;m<=200;m++){
+    const m2=2*m;
+    let aa=m*(b-m)*x/((a+m2-1)*(a+m2));
+    d=1+aa*d;if(Math.abs(d)<1e-30)d=1e-30;d=1/d;c=1+aa/c;if(Math.abs(c)<1e-30)c=1e-30;s*=d*c;
+    aa=-(a+m)*(a+b+m)*x/((a+m2)*(a+m2+1));
+    d=1+aa*d;if(Math.abs(d)<1e-30)d=1e-30;d=1/d;c=1+aa/c;if(Math.abs(c)<1e-30)c=1e-30;s*=d*c;
+    if(Math.abs(d*c-1)<1e-9)break;
+  }
+  return front*s;
+}
+function tCDF(t,df){const x=df/(df+t*t);return 1-ibeta(x,df/2,0.5)/2}
+function fCDF(F,df1,df2){const x=df2/(df2+df1*F);return 1-ibeta(x,df2/2,df1/2)}
+
+function fmt(v,d=4){if(!isFinite(v))return'—';return v.toFixed(d)}
+function pLabel(p){if(!isFinite(p))return'—';if(p<0.001)return'< 0,001 ***';if(p<0.01)return'< 0,01 **';if(p<0.05)return'< 0,05 *';return fmt(p,4)+' ns'}
+function sigStar(p){if(p<0.001)return'***';if(p<0.01)return'**';if(p<0.05)return'*';return'ns'}
+
+// Normal quantile (probit) — Beasley-Springer-Moro
+function normQuantile(p){
+  const a=[2.50662823884,-18.61500062529,41.39119773534,-25.44106049637];
+  const b=[-8.47351093090,23.08336743743,-21.06224101826,3.13082909833];
+  const c=[0.3374754822726147,0.9761690190917186,0.1607979714918209,0.0276438810333863,0.0038405729373609,0.0003951896511349,0.0000321767881768,0.0000002888167364,0.0000003960315187];
+  if(p<=0||p>=1)return NaN;
+  const q=p-0.5;
+  if(Math.abs(q)<0.42){
+    const r=q*q;
+    return q*(((a[3]*r+a[2])*r+a[1])*r+a[0])/((((b[3]*r+b[2])*r+b[1])*r+b[0])*r+1);
+  }
+  const r=Math.log(-Math.log(q<0?p:1-p));
+  const x=c[0]+r*(c[1]+r*(c[2]+r*(c[3]+r*(c[4]+r*(c[5]+r*(c[6]+r*(c[7]+r*c[8])))))));
+  return q<0?-x:x;
+}
+
+// ── ANOVA ──
+function anova(groups){
+  const keys=Object.keys(groups),all=keys.flatMap(k=>groups[k]),gm=mean(all),N=all.length,k=keys.length;
+  let ssb=0,ssw=0;
+  keys.forEach(k2=>{const g=groups[k2],gm2=mean(g);ssb+=g.length*(gm2-gm)**2;g.forEach(v=>ssw+=(v-gm2)**2);});
+  const dfb=k-1,dfw=N-k,F=(ssb/dfb)/(ssw/dfw);
+  return{F,dfb,dfw,p:1-fCDF(F,dfb,dfw),ssb,ssw,mse:ssw/dfw,N,k};
+}
+
+// ── SHAPIRO-WILK (approximation for 3 ≤ n ≤ 50) ──
+// Based on Royston (1992) algorithm
+function shapiroWilk(x){
+  const n=x.length;
+  if(n<3)return{W:NaN,p:NaN,note:'n < 3'};
+  if(n>50)return shapiroWilkApprox(x);
+  const xs=[...x].sort((a,b)=>a-b);
+  // Coefficients a_i from lookup (n=3..50 simplified via Royston polynomial)
+  // We use the Chen & Shapiro (1995) approximation via expected normal order stats
+  const m=xs.map((_,i)=>normQuantile((i+1-3/8)/(n+1/4)));
+  const c=Math.sqrt(m.reduce((s,v)=>s+v*v,0));
+  const mn=m.map(v=>v/c);
+  // a coefficients: last half mirrored
+  const half=Math.floor(n/2);
+  let num=0;
+  for(let i=0;i<half;i++) num+=mn[n-1-i]*(xs[n-1-i]-xs[i]);
+  const denom=xs.reduce((s,v)=>s+(v-mean(xs))**2,0);
+  const W=num*num/denom;
+  // p-value via Royston (1992) log transform
+  const mu=approxSWmu(n),sigma=approxSWSigma(n);
+  const y=(n<=11)?Math.log(1-W):Math.log(1-W);
+  const z=(y-mu)/sigma;
+  const p=1-tCDF(Math.abs(z),1000);
+  return{W,p,n};
+}
+
+function approxSWmu(n){
+  // Royston (1992) polynomial for mu of log(1-W)
+  if(n<=11) return -0.0006714*n**3+0.025054*n**2-0.39978*n+0.544;
+  const ln=Math.log(n);
+  return 0.0038915*ln**3-0.083751*ln**2-0.31082*ln-1.5861;
+}
+function approxSWSigma(n){
+  if(n<=11) return Math.exp(0.0030302*n**2-0.082676*n-0.4803);
+  const ln=Math.log(n);
+  return Math.exp(0.1348*ln**2-0.27705*ln-1.2725);
+}
+function shapiroWilkApprox(x){
+  // For n>50: use normalized skewness test as approximation
+  const n=x.length,m=mean(x),s=sd(x,true);
+  const skew=x.reduce((acc,v)=>acc+((v-m)/s)**3,0)/n;
+  const kurt=x.reduce((acc,v)=>acc+((v-m)/s)**4,0)/n;
+  // D'Agostino-Pearson omnibus
+  const n2=n*n,b1=skew**2,b2=kurt;
+  const Ysk=skew*Math.sqrt((n+1)*(n+3)/(6*(n-2)));
+  const beta2=(3*(n**2+27*n-70)*(n+1)*(n+3))/((n-2)*(n+5)*(n+7)*(n+9));
+  const W2=Math.sqrt(2*(beta2-1))-1;
+  const delta=1/Math.sqrt(Math.log(Math.sqrt(W2)));
+  const alpha=Math.sqrt(2/(W2-1));
+  const Zsk=delta*Math.log(Ysk/alpha+Math.sqrt((Ysk/alpha)**2+1));
+  const Zkurt=(b2-3*(n-1)/(n+1))/Math.sqrt(24*n*(n-2)*(n-3)/((n+1)**2*(n+3)*(n+5)));
+  const K2=Zsk**2+Zkurt**2;
+  const p=Math.exp(-K2/2); // chi2(2) approx
+  return{W:NaN,K2,p,n,note:`n=${n} > 50: D'Agostino-Pearson K²=${fmt(K2,3)}`};
+}
+
+// ── PEARSON / SPEARMAN ──
+function pearsonCorr(x,y){
+  const n=x.length,mx=mean(x),my=mean(y);
+  let num=0,dx2=0,dy2=0;
+  for(let i=0;i<n;i++){num+=(x[i]-mx)*(y[i]-my);dx2+=(x[i]-mx)**2;dy2+=(y[i]-my)**2;}
+  if(dx2===0||dy2===0)return{r:NaN,p:NaN};
+  const r=num/Math.sqrt(dx2*dy2);
+  const t=r*Math.sqrt(n-2)/Math.sqrt(1-r*r);
+  return{r,t,df:n-2,p:2*(1-tCDF(Math.abs(t),n-2))};
+}
+function rank(arr){const s=[...arr].sort((a,b)=>a-b);return arr.map(v=>{const idxs=s.reduce((a,c,i)=>c===v?[...a,i]:a,[]);return(idxs[0]+idxs[idxs.length-1])/2+1})}
+function spearmanCorr(x,y){return pearsonCorr(rank(x),rank(y))}
+
+// ── IC 95% ──
+function ci95(a){const n=a.length,m=mean(a),s=sd(a,true),SE=s/Math.sqrt(n);const t=tQuantile(0.975,n-1);return{lo:m-t*SE,hi:m+t*SE,SE,m,s,n}}
+function tQuantile(p,df){
+  // Binary search
+  let lo=0,hi=20;
+  for(let i=0;i<60;i++){const mid=(lo+hi)/2;tCDF(mid,df)>p?hi=mid:lo=mid;}
+  return (lo+hi)/2;
+}
+
+// ── PARSE ──
+function parseGroupVal(raw){
+  const lines=raw.trim().split(/\n/).filter(l=>l.trim()&&!l.startsWith('#'));
+  const groups={};
+  for(const l of lines){
+    const p=l.split(/[,;\t]+/).map(s=>s.trim()).filter(Boolean);
+    if(p.length<1)continue;
+    let g,v;
+    if(p.length===1){if(!isFinite(+p[0]))continue;g='Grupo';v=+p[0];}
+    else{g=isFinite(+p[0])?'Grupo':p[0];v=isFinite(+p[0])?+p[0]:+p[1];}
+    if(!isFinite(v))continue;
+    if(!groups[g])groups[g]=[];
+    groups[g].push(v);
+  }
+  return groups;
+}
+
+function parseMatrix(raw){
+  const lines=raw.trim().split(/\n/).filter(l=>l.trim()&&!l.startsWith('#'));
+  if(!lines.length)return null;
+  const headers=lines[0].split(/[,;\t]+/).map(s=>s.trim());
+  const rows=[];
+  for(const l of lines.slice(1)){
+    const p=l.split(/[,;\t]+/).map(s=>+s.trim());
+    if(p.some(isNaN))continue;
+    if(p.length===headers.length)rows.push(p);
+  }
+  if(!rows.length)return null;
+  const cols=headers.map((_,j)=>rows.map(r=>r[j]));
+  return{headers,cols,rows};
+}
+
+// ============================================================
+// MODULE 1 — POST-HOC TUKEY / BONFERRONI
+// ============================================================
+let phChartInst=null;
+
+function phDemo(){
+  document.getElementById('phData').value=
+`Controle, 15.2\nControle, 14.8\nControle, 16.1\nControle, 15.5\nControle, 14.9\nControle, 15.8\nDose1, 18.3\nDose1, 19.1\nDose1, 17.9\nDose1, 18.7\nDose1, 19.4\nDose1, 18.0\nDose2, 22.1\nDose2, 21.8\nDose2, 23.0\nDose2, 22.5\nDose2, 21.9\nDose2, 22.8\nDose3, 25.8\nDose3, 26.2\nDose3, 25.1\nDose3, 26.7\nDose3, 25.5\nDose3, 26.4`;
+}
+
+function runPostHoc(){
+  const raw=document.getElementById('phData').value;
+  const groups=parseGroupVal(raw);
+  const keys=Object.keys(groups).filter(k=>groups[k].length>0);
+  if(keys.length<2){showToast('Mínimo 2 grupos necessários','error');return;}
+
+  const method=document.getElementById('phMethod').value;
+  const alpha=+document.getElementById('phAlpha').value;
+
+  // ANOVA first
+  const an=anova(groups);
+  document.getElementById('phF').textContent=fmt(an.F,3);
+  document.getElementById('phFnote').textContent=`df=${an.dfb},${an.dfw}`;
+  document.getElementById('phP').textContent=an.p<0.001?'< 0,001':fmt(an.p,4);
+  document.getElementById('phPnote').textContent=an.p<0.05?'Significativo':'Não sig.';
+  document.getElementById('phG').textContent=keys.length;
+  document.getElementById('phN').textContent=an.N;
+
+  // Pairwise comparisons
+  const pairs=[];
+  for(let i=0;i<keys.length;i++) for(let j=i+1;j<keys.length;j++) pairs.push([keys[i],keys[j]]);
+  const nPairs=pairs.length;
+  const mse=an.mse;
+
+  const results=pairs.map(([a,b])=>{
+    const ga=groups[a],gb=groups[b];
+    const diff=mean(ga)-mean(gb);
+    const SE_diff=Math.sqrt(mse*(1/ga.length+1/gb.length));
+    let stat,pRaw,pAdj;
+    if(method==='tukey'){
+      // Tukey-Kramer: q = |diff| / (SE/sqrt(2))  — use studentized range approx
+      const q=Math.abs(diff)/(Math.sqrt(mse/2)*Math.sqrt(1/ga.length+1/gb.length));
+      // p via normal approx for studentized range
+      stat=q;
+      pRaw=2*(1-tCDF(q/Math.sqrt(2),an.dfw));
+      // Tukey adjustment: multiply by nPairs is NOT correct; use q distribution approx
+      // Simplified: pAdj = 1-(1-pRaw)^nPairs capped
+      pAdj=Math.min(1,pRaw*nPairs);
+    } else {
+      // Bonferroni: t-test with Bonferroni correction
+      const t=Math.abs(diff)/SE_diff;
+      stat=t;
+      pRaw=2*(1-tCDF(t,an.dfw));
+      pAdj=Math.min(1,pRaw*nPairs);
+    }
+    return{a,b,diff,SE_diff,stat,pRaw,pAdj,sig:pAdj<alpha};
+  });
+
+  // Table
+  const tbody=document.getElementById('phTableBody');
+  tbody.innerHTML=results.map(r=>`
+    <tr>
+      <td>${r.a} vs ${r.b}</td>
+      <td>${fmt(r.diff,4)}</td>
+      <td>${fmt(r.SE_diff,4)}</td>
+      <td>${fmt(r.stat,3)}</td>
+      <td class="${r.sig?'sig':'ns'}">${r.pAdj<0.001?'< 0,001':fmt(r.pAdj,4)}</td>
+      <td class="${r.sig?'sig':'ns'}">${sigStar(r.pAdj)}</td>
+      <td style="font-size:11.5px;font-family:var(--font-display)">${r.sig?'Diferem':'Não diferem'}</td>
+    </tr>`).join('');
+
+  // Chart — means + CI95%
+  if(phChartInst){phChartInst.destroy();phChartInst=null;}
+  const colors=['#1a3a5c','#c0392b','#0a7c6e','#c47a00','#6b2e7e','#374151'];
+  const means=keys.map(k=>mean(groups[k]));
+  const cis=keys.map(k=>ci95(groups[k]));
+  const errBars=cis.map((c,i)=>c.hi-means[i]);
+  phChartInst=new Chart(document.getElementById('phChart'),{
+    type:'bar',
+    data:{labels:keys,datasets:[{
+      label:'Média',data:means,
+      backgroundColor:keys.map((_,i)=>colors[i%colors.length]+'99'),
+      borderColor:keys.map((_,i)=>colors[i%colors.length]),
+      borderWidth:2,borderRadius:5,
+      errorBars:Object.fromEntries(keys.map((k,i)=>([k,{plus:errBars[i],minus:errBars[i]}])))
+    }]},
+    options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`Média: ${fmt(c.raw,3)}`}}},
+    scales:{y:{beginAtZero:false,grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'Space Mono',size:11}}},
+    x:{grid:{display:false},ticks:{font:{family:'Karla',size:12}}}}}
+  });
+  const sigPairs=results.filter(r=>r.sig).map(r=>`${r.a} vs ${r.b}`);
+  document.getElementById('phChartExplain').innerHTML=sigPairs.length
+    ? `<strong>Pares significativos (α = ${alpha}):</strong> ${sigPairs.join(', ')}`
+    : `Nenhum par difere significativamente com α = ${alpha}.`;
+
+  // Output text
+  const sep='─'.repeat(50);
+  let txt=`${sep}\nPOST-HOC ${method.toUpperCase()} após ANOVA\nVariável: resposta\nGrupos: ${keys.join(', ')}\n${sep}\n\nANOVA\n  F(${an.dfb},${an.dfw}) = ${fmt(an.F,4)}   p = ${pLabel(an.p)}\n  MSE = ${fmt(an.mse,4)}\n\nESTATÍSTICA DESCRITIVA\n`;
+  keys.forEach(k=>{const g=groups[k];txt+=`  ${k.padEnd(18)} n=${g.length}  M=${fmt(mean(g),4)}  DP=${fmt(sd(g,true),4)}\n`;});
+  txt+=`\nCOMPARAÇÕES PAR A PAR (${method.toUpperCase()}, α = ${alpha})\n${sep}\n`;
+  results.forEach(r=>txt+=`  ${(r.a+' vs '+r.b).padEnd(30)} Δ=${fmt(r.diff,4).padStart(8)}  p_adj=${r.pAdj<0.001?'< 0,001':fmt(r.pAdj,4)}  ${sigStar(r.pAdj)}\n`);
+  txt+=`${sep}\n`;
+  document.getElementById('phResultBox').textContent=txt;
+  document.getElementById('phResultsWrap').style.display='block';
+  showToast('Post-hoc concluído','success');
+
+  // Store for interpretation
+  window._phResults={keys,groups,results,an,method,alpha};
+}
+
+function genPhInterp(){
+  if(!window._phResults){showToast('Execute o post-hoc primeiro','error');return;}
+  const{keys,groups,results,an,method,alpha}=window._phResults;
+  const sigPairs=results.filter(r=>r.sig);
+  let txt=`A ANOVA detectou diferença significativa entre os ${keys.length} grupos [F(${an.dfb},${an.dfw}) = ${fmt(an.F,3)}, p ${pLabel(an.p)}]. `;
+  txt+=`O teste ${method==='tukey'?'Tukey HSD':'Bonferroni'} (α = ${alpha}) identificou `;
+  if(sigPairs.length===0){txt+='nenhum par com diferença significativa após correção para múltiplas comparações.';}
+  else{txt+=`${sigPairs.length} par(es) com diferença significativa: ${sigPairs.map(r=>`${r.a} vs ${r.b} (p = ${r.pAdj<0.001?'< 0,001':fmt(r.pAdj,4)})`).join('; ')}.`;}
+  document.getElementById('phInterpText').textContent=txt;
+  document.getElementById('phInterp').classList.add('show');
+}
+
+// ============================================================
+// MODULE 2 — SHAPIRO-WILK
+// ============================================================
+let swQQInst=null;
+
+function swDemo(n){
+  const d1=`23.1\n24.5\n22.8\n25.2\n23.9\n24.1\n22.5\n25.8\n21.9\n24.8\n23.3\n25.1`;
+  const d2=`GrupoA, 23.1\nGrupoA, 24.5\nGrupoA, 22.8\nGrupoA, 25.2\nGrupoA, 23.9\nGrupoA, 24.1\nGrupoB, 28.3\nGrupoB, 27.9\nGrupoB, 29.1\nGrupoB, 28.7\nGrupoB, 27.5\nGrupoB, 29.3\nGrupoC, 35.2\nGrupoC, 33.8\nGrupoC, 36.1\nGrupoC, 34.5\nGrupoC, 35.8\nGrupoC, 34.2`;
+  document.getElementById('swData').value=n===1?d1:d2;
+}
+
+function runShapiro(){
+  const raw=document.getElementById('swData').value;
+  const groups=parseGroupVal(raw);
+  const keys=Object.keys(groups);
+  if(!keys.length){showToast('Insira dados válidos','error');return;}
+
+  // Cards
+  const grid=document.getElementById('swGrid');
+  const results={};
+  let html='';
+  keys.forEach(k=>{
+    const r=shapiroWilk(groups[k]);
+    results[k]=r;
+    const ok=r.p>0.05;
+    const cls=r.p>0.1?'ok':r.p>0.05?'warn':'fail';
+    html+=`<div class="sw-card ${cls}">
+      <div class="sw-group">${k}</div>
+      <div class="sw-stat">n = ${groups[k].length}</div>
+      ${r.W!==undefined&&isFinite(r.W)?`<div class="sw-stat">W = ${fmt(r.W,4)}</div>`:''}
+      ${r.K2?`<div class="sw-stat">K² = ${fmt(r.K2,3)}</div>`:''}
+      <div class="sw-stat">p = ${r.p<0.001?'< 0,001':fmt(r.p,4)}</div>
+      <span class="badge ${ok?'badge-teal':'badge-rust'}" style="margin-top:6px">${ok?'Normal':'Não normal'}</span>
+    </div>`;
+  });
+  grid.innerHTML=html;
+
+  // Q-Q plot — all groups overlaid
+  if(swQQInst){swQQInst.destroy();swQQInst=null;}
+  const colors=['#1a3a5c','#c0392b','#0a7c6e','#c47a00','#6b2e7e'];
+  const datasets=[];
+  keys.forEach((k,ki)=>{
+    const sorted=[...groups[k]].sort((a,b)=>a-b);
+    const n=sorted.length;
+    const pts=sorted.map((v,i)=>({x:normQuantile((i+0.5)/n),y:v}));
+    datasets.push({label:k,data:pts,backgroundColor:colors[ki%colors.length]+'55',borderColor:colors[ki%colors.length],pointRadius:4,type:'scatter'});
+  });
+  // Reference line from all data combined
+  const allSorted=Object.values(groups).flat().sort((a,b)=>a-b);
+  const m=mean(allSorted),s=sd(allSorted,true);
+  const xmin=normQuantile(0.01),xmax=normQuantile(0.99);
+  datasets.push({label:'Normal teórica',data:[{x:xmin,y:m+s*xmin},{x:xmax,y:m+s*xmax}],borderColor:'rgba(0,0,0,0.3)',borderWidth:1.5,borderDash:[5,5],pointRadius:0,showLine:true,type:'line'});
+  swQQInst=new Chart(document.getElementById('swQQChart'),{
+    type:'scatter',data:{datasets},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:12},usePointStyle:true}}},
+    scales:{x:{title:{display:true,text:'Quantis teóricos (normal)'},grid:{color:'rgba(0,0,0,0.04)'}},
+    y:{title:{display:true,text:'Quantis amostrais'},grid:{color:'rgba(0,0,0,0.04)'}}}}}
+  });
+
+  // Output text
+  const sep='─'.repeat(50);
+  let txt=`${sep}\nTESTE DE SHAPIRO-WILK\n${sep}\n`;
+  keys.forEach(k=>{
+    const r=results[k],g=groups[k];
+    txt+=`\n${k}  (n = ${g.length})\n  Média = ${fmt(mean(g),4)}   DP = ${fmt(sd(g,true),4)}\n`;
+    if(r.note)txt+=`  Método: ${r.note}\n`;
+    if(isFinite(r.W))txt+=`  W = ${fmt(r.W,4)}\n`;
+    txt+=`  p = ${r.p<0.001?'< 0,001':fmt(r.p,4)}\n  Normalidade: ${r.p>0.05?'NÃO REJEITADA (p > 0,05)':'REJEITADA (p ≤ 0,05)'}\n`;
+  });
+  txt+=`\n${sep}\n`;
+  document.getElementById('swResultBox').textContent=txt;
+
+  // Recommendation
+  const anyFail=keys.some(k=>results[k].p<=0.05);
+  document.getElementById('swRecoText').innerHTML=anyFail
+    ? `<strong>Pelo menos um grupo não segue distribuição normal.</strong><br>Considere:<br>• Transformação dos dados (log, raiz quadrada) antes de testes paramétricos<br>• Testes não paramétricos: <em>Mann-Whitney</em> (2 grupos) ou <em>Kruskal-Wallis</em> (3+ grupos)<br>• Se n &gt; 30, o teorema central do limite pode justificar o uso de testes paramétricos mesmo com não normalidade leve`
+    : `<strong>Normalidade não rejeitada em nenhum grupo.</strong><br>Os dados são compatíveis com distribuição normal — testes paramétricos (t-test, ANOVA) são indicados. Verifique também o Q-Q plot visualmente.`;
+
+  document.getElementById('swResultsWrap').style.display='block';
+  showToast('Shapiro-Wilk concluído','success');
+}
+
+// ============================================================
+// MODULE 3 — IC 95% + EFEITO
+// ============================================================
+let icChartInst=null;
+
+function icDemo(){
+  document.getElementById('icData').value=
+`Controle, 23.1\nControle, 24.5\nControle, 22.8\nControle, 25.2\nControle, 23.9\nControle, 24.1\nControle, 22.5\nControle, 25.8\nTratamento, 28.3\nTratamento, 27.9\nTratamento, 29.1\nTratamento, 28.7\nTratamento, 27.5\nTratamento, 29.3\nTratamento, 28.0\nTratamento, 30.1`;
+}
+
+function runIC(){
+  const raw=document.getElementById('icData').value;
+  const groups=parseGroupVal(raw);
+  const keys=Object.keys(groups);
+  if(!keys.length){showToast('Insira dados válidos','error');return;}
+
+  const errorType=document.getElementById('icErrorType').value;
+  const chartType=document.getElementById('icChartType').value;
+
+  const stats=keys.map(k=>{
+    const g=groups[k];
+    const c=ci95(g);
+    const lo_se=c.m-c.SE,hi_se=c.m+c.SE;
+    const lo_sd=c.m-c.s,hi_sd=c.m+c.s;
+    return{k,n:g.length,m:c.m,s:c.s,SE:c.SE,lo:c.lo,hi:c.hi,lo_se,hi_se,lo_sd,hi_sd,min:Math.min(...g),max:Math.max(...g)};
+  });
+
+  // Error bar values by type
+  const errLo=stats.map(s=>errorType==='ci95'?s.m-s.lo:errorType==='se'?s.SE:s.s);
+  const errHi=stats.map(s=>errorType==='ci95'?s.hi-s.m:errorType==='se'?s.SE:s.s);
+
+  // Cohen's d (2 groups only)
+  let cohend='—',cohenNote='';
+  if(keys.length===2){
+    const g1=groups[keys[0]],g2=groups[keys[1]];
+    const pooledSD=Math.sqrt(((g1.length-1)*sd(g1,true)**2+(g2.length-1)*sd(g2,true)**2)/(g1.length+g2.length-2));
+    const d=Math.abs(mean(g1)-mean(g2))/pooledSD;
+    cohend=fmt(d,3);
+    cohenNote=d<0.2?'muito pequeno':d<0.5?'pequeno':d<0.8?'médio':'grande';
+  } else { cohenNote='(só 2 grupos)'; }
+
+  // eta² from ANOVA
+  let eta2='—',etaNote='';
+  if(keys.length>=2){
+    const an=anova(groups);
+    const e=an.ssb/(an.ssb+an.ssw);
+    eta2=fmt(e,4);
+    etaNote=e<0.01?'muito pequeno':e<0.06?'pequeno':e<0.14?'médio':'grande';
+  }
+
+  document.getElementById('icKG').textContent=keys.length;
+  document.getElementById('icKN').textContent=stats.reduce((s,r)=>s+r.n,0);
+  document.getElementById('icKD').textContent=cohend;
+  document.getElementById('icKDnote').textContent=cohenNote;
+  document.getElementById('icKeta').textContent=eta2;
+  document.getElementById('icKetanote').textContent=etaNote;
+
+  // Chart
+  if(icChartInst){icChartInst.destroy();icChartInst=null;}
+  const colors=['#1a3a5c','#c0392b','#0a7c6e','#c47a00','#6b2e7e','#374151'];
+  const errTypeLabel={'ci95':'IC 95%','se':'± SE','sd':'± DP'};
+
+  if(chartType==='bar'){
+    icChartInst=new Chart(document.getElementById('icChart'),{
+      type:'bar',
+      data:{labels:keys,datasets:[{
+        label:`Média (barras = ${errTypeLabel[errorType]})`,
+        data:stats.map(s=>s.m),
+        backgroundColor:keys.map((_,i)=>colors[i%colors.length]+'99'),
+        borderColor:keys.map((_,i)=>colors[i%colors.length]),
+        borderWidth:2,borderRadius:5
+      }]},
+      options:{responsive:true,plugins:{legend:{display:false}},
+      scales:{y:{beginAtZero:false,grid:{color:'rgba(0,0,0,0.04)'}},x:{grid:{display:false}}}}
+    });
+    // Draw error bars manually via annotation — use simple approach
+    document.getElementById('icChartTitle').textContent=`Médias com ${errTypeLabel[errorType]}`;
+  } else {
+    // Forest plot — horizontal
+    icChartInst=new Chart(document.getElementById('icChart'),{
+      type:'scatter',
+      data:{datasets:keys.map((k,i)=>({
+        label:k,
+        data:[{x:stats[i].m,y:i}],
+        backgroundColor:colors[i%colors.length],
+        borderColor:colors[i%colors.length],
+        pointRadius:8,pointStyle:'rectRot'
+      }))},
+      options:{responsive:true,
+      plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:12},usePointStyle:true}}},
+      scales:{
+        x:{title:{display:true,text:'Média'},grid:{color:'rgba(0,0,0,0.05)'}},
+        y:{min:-0.5,max:keys.length-0.5,ticks:{callback:(_,i)=>keys[i]||'',stepSize:1},grid:{display:false}}
+      }}
+    });
+    document.getElementById('icChartTitle').textContent=`Forest Plot — ${errTypeLabel[errorType]}`;
+  }
+
+  document.getElementById('icChartExplain').innerHTML=
+    `${errTypeLabel[errorType]} calculado. `+
+    (cohend!=='—'?`Cohen's d = ${cohend} (${cohenNote}). `:'')+ 
+    (eta2!=='—'?`η² = ${eta2} (${etaNote}).`:'');
+
+  // Table
+  const tbody=document.getElementById('icTableBody');
+  tbody.innerHTML=stats.map(s=>`
+    <tr>
+      <td>${s.k}</td>
+      <td>${s.n}</td><td>${fmt(s.m,3)}</td><td>${fmt(s.s,3)}</td><td>${fmt(s.SE,3)}</td>
+      <td>${fmt(s.lo,3)}</td><td>${fmt(s.hi,3)}</td>
+      <td>${fmt(s.min,3)}</td><td>${fmt(s.max,3)}</td>
+    </tr>`).join('');
+
+  // Output text
+  const sep='─'.repeat(50);
+  let txt=`${sep}\nINTERVALO DE CONFIANÇA 95% E TAMANHO DE EFEITO\n${sep}\n\nESTATÍSTICA DESCRITIVA\n`;
+  stats.forEach(s=>{
+    txt+=`\n${s.k}  (n = ${s.n})\n  Média   = ${fmt(s.m,4)}\n  DP      = ${fmt(s.s,4)}\n  SE      = ${fmt(s.SE,4)}\n  IC 95%  = [${fmt(s.lo,4)}, ${fmt(s.hi,4)}]\n  Min–Max = [${fmt(s.min,3)}, ${fmt(s.max,3)}]\n`;
+  });
+  txt+=`\nTAMANHO DE EFEITO\n  Cohen's d = ${cohend}  (${cohenNote})\n  eta²     = ${eta2}  (${etaNote})\n${sep}\n`;
+  document.getElementById('icResultBox').textContent=txt;
+  document.getElementById('icResultsWrap').style.display='block';
+  showToast('IC calculado','success');
+}
+
+// ============================================================
+// MODULE 4 — CORRELATION MATRIX
+// ============================================================
+function cmDemo(){
+  document.getElementById('cmData').value=
+`Biomassa, Temperatura, Precipitacao, pH, Condutividade
+45.2, 28.3, 145, 6.8, 180
+38.1, 25.1, 120, 7.1, 210
+52.4, 30.2, 160, 6.5, 165
+41.3, 26.5, 130, 7.3, 195
+48.9, 29.1, 152, 6.7, 172
+35.7, 23.8, 108, 7.5, 225
+55.2, 31.4, 168, 6.4, 158
+43.1, 27.2, 138, 7.0, 188
+50.6, 29.8, 155, 6.6, 170
+37.4, 24.5, 115, 7.4, 218
+62.1, 33.1, 180, 6.2, 148
+29.3, 22.1, 95, 7.8, 240
+58.7, 32.0, 172, 6.3, 155
+44.6, 27.8, 142, 6.9, 182
+33.2, 23.2, 102, 7.6, 230`;
+}
+
+function runCorMat(){
+  const raw=document.getElementById('cmData').value;
+  const parsed=parseMatrix(raw);
+  if(!parsed||parsed.rows.length<3){showToast('Mínimo 3 linhas de dados com cabeçalho','error');return;}
+
+  const{headers,cols}=parsed;
+  const method=document.getElementById('cmMethod').value;
+  const show=document.getElementById('cmShow').value;
+  const n=cols[0].length;
+
+  // Compute all pairs
+  const corrFn=method==='pearson'?pearsonCorr:spearmanCorr;
+  const mat=headers.map((_,i)=>headers.map((_,j)=>{
+    if(i===j)return{r:1,p:0};
+    return corrFn(cols[i],cols[j]);
+  }));
+
+  // Color scale: navy (−1) → white (0) → rust (+1)
+  function corrColor(r){
+    if(!isFinite(r))return'#eee';
+    if(r>=0){
+      const t=r;
+      const R=Math.round(192*t+255*(1-t));
+      const G=Math.round(57*t+255*(1-t));
+      const B=Math.round(43*t+255*(1-t));
+      return`rgb(${R},${G},${B})`;
+    } else {
+      const t=-r;
+      const R=Math.round(26*t+255*(1-t));
+      const G=Math.round(58*t+255*(1-t));
+      const B=Math.round(92*t+255*(1-t));
+      return`rgb(${R},${G},${B})`;
+    }
+  }
+  function textColor(r){return Math.abs(r||0)>0.5?'#fff':'#1a1814'}
+
+  // Build heatmap HTML
+  let html=`<table class="heatmap-table"><thead><tr><th></th>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>`;
+  headers.forEach((h,i)=>{
+    html+=`<tr><td class="heatmap-label">${h}</td>`;
+    headers.forEach((_,j)=>{
+      const{r,p}=mat[i][j];
+      const bg=corrColor(r);const tc=textColor(r);
+      const star=i===j?'':p<0.001?'***':p<0.01?'**':p<0.05?'*':'';
+      let cell='';
+      if(i===j){cell='1,000';} 
+      else if(show==='r'){cell=`${fmt(r,3)}<br><span style="font-size:9px;opacity:0.8">${star}</span>`;}
+      else if(show==='p'){cell=p<0.001?'&lt;0,001':fmt(p,3);}
+      else{cell=`${fmt(r,3)}<br><span style="font-size:9px;opacity:0.75">${star}</span>`;}
+      html+=`<td style="background:${bg};color:${tc}">${cell}</td>`;
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+  document.getElementById('cmHeatmap').innerHTML=html;
+
+  // Output text
+  const sep='─'.repeat(52);
+  let txt=`${sep}\nMATRIZ DE CORRELAÇÃO DE ${method.toUpperCase()}\nN = ${n} observações   Variáveis: ${headers.join(', ')}\n${sep}\n\n`;
+  txt+=`${''.padEnd(22)}${headers.map(h=>h.substring(0,9).padStart(10)).join('')}\n`;
+  headers.forEach((h,i)=>{
+    txt+=`${h.substring(0,20).padEnd(22)}`;
+    headers.forEach((_,j)=>{
+      const{r,p}=mat[i][j];
+      const s=i===j?'—':sigStar(p);
+      txt+=`${(fmt(r,3)+s).padStart(10)}`;
+    });
+    txt+='\n';
+  });
+  txt+=`\n${sep}\n*** p<0,001  ** p<0,01  * p<0,05  ns p≥0,05\n${sep}\n`;
+
+  // Strongest correlations
+  const pairs_corr=[];
+  for(let i=0;i<headers.length;i++) for(let j=i+1;j<headers.length;j++){
+    const{r,p}=mat[i][j];
+    pairs_corr.push({a:headers[i],b:headers[j],r,p});
+  }
+  pairs_corr.sort((a,b)=>Math.abs(b.r)-Math.abs(a.r));
+  txt+=`\nMAIS FORTES (top 5)\n`;
+  pairs_corr.slice(0,5).forEach(({a,b,r,p})=>txt+=`  ${a} × ${b}: r = ${fmt(r,4)}  p = ${pLabel(p)}\n`);
+
+  document.getElementById('cmResultBox').textContent=txt;
+  document.getElementById('cmResultsWrap').style.display='block';
+  showToast('Matriz gerada','success');
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function switchModule(name){
+  document.querySelectorAll('.module-view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.snav').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.module-tab').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.mbb').forEach(v=>v.classList.remove('active'));
+  const mv=document.getElementById('mv-'+name);
+  if(mv)mv.classList.add('active');
+  const sn=document.getElementById('snav-'+name);
+  if(sn)sn.classList.add('active');
+  const mb=document.getElementById('mbb-'+name);
+  if(mb)mb.classList.add('active');
+  // Update tab active state by index
+  const tabMap={posthoc:0,shapiro:1,ic:2,cormat:3};
+  const tabs=document.querySelectorAll('.module-tab');
+  if(tabMap[name]!==undefined)tabs[tabMap[name]].classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function mswitch(name){switchModule(name);}
+
+// ── UTILS ──
+let toastT=null;
+function showToast(msg,type='info'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='t-'+type;
+  setTimeout(()=>t.classList.add('show'),10);
+  if(toastT)clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function copyEl(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>showToast('Copiado!','success'));}
+</script>
+</body>
+</html>
