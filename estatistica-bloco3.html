@@ -941,11 +941,11 @@ function genPCAInterp(){
 // NAVIGATION
 // ============================================================
 function sw(name){
-  document.querySelectorAll('.mv').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.mv').forEach(v=>{v.classList.remove('active');v.style.display='none';});
   document.querySelectorAll('.snav').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.mtab').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.mbb').forEach(v=>v.classList.remove('active'));
-  const mv=document.getElementById('mv-'+name);if(mv)mv.classList.add('active');
+  const mv=document.getElementById('mv-'+name);if(mv){mv.classList.add('active');mv.style.display='block';}
   const sn=document.getElementById('snav-'+name);if(sn)sn.classList.add('active');
   const mb=document.getElementById('mbb-'+name);if(mb)mb.classList.add('active');
   const tabMap={div:0,pca:1};
@@ -964,6 +964,7 @@ function showToast(msg,type='info'){
   toastT=setTimeout(()=>t.classList.remove('show'),2800);
 }
 function copyEl(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>showToast('Copiado!','success'));}
+  document.addEventListener('DOMContentLoaded', function(){ sw('div'); });
 </script>
 </body>
 </html>

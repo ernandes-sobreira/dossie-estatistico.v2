@@ -949,9 +949,11 @@ function runShapiro(){
   datasets.push({label:'Normal teórica',data:[{x:xmin,y:m+s*xmin},{x:xmax,y:m+s*xmax}],borderColor:'rgba(0,0,0,0.3)',borderWidth:1.5,borderDash:[5,5],pointRadius:0,showLine:true,type:'line'});
   swQQInst=new Chart(document.getElementById('swQQChart'),{
     type:'scatter',data:{datasets},
-    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:12},usePointStyle:true}}},
-    scales:{x:{title:{display:true,text:'Quantis teóricos (normal)'},grid:{color:'rgba(0,0,0,0.04)'}},
-    y:{title:{display:true,text:'Quantis amostrais'},grid:{color:'rgba(0,0,0,0.04)'}}}}}
+    options:{responsive:true,
+      plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:12},usePointStyle:true}}},
+      scales:{x:{title:{display:true,text:'Quantis teóricos (normal)'},grid:{color:'rgba(0,0,0,0.04)'}},
+              y:{title:{display:true,text:'Quantis amostrais'},grid:{color:'rgba(0,0,0,0.04)'}}}
+    }
   });
 
   // Output text
@@ -1215,17 +1217,22 @@ function runCorMat(){
 // NAVIGATION
 // ============================================================
 function switchModule(name){
-  document.querySelectorAll('.module-view').forEach(v=>v.classList.remove('active'));
+  // Esconder todas as views explicitamente
+  document.querySelectorAll('.module-view').forEach(v=>{
+    v.classList.remove('active');
+    v.style.display='none';
+  });
   document.querySelectorAll('.snav').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.module-tab').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.mbb').forEach(v=>v.classList.remove('active'));
+  // Mostrar view alvo
   const mv=document.getElementById('mv-'+name);
-  if(mv)mv.classList.add('active');
+  if(mv){mv.classList.add('active');mv.style.display='block';}
   const sn=document.getElementById('snav-'+name);
   if(sn)sn.classList.add('active');
   const mb=document.getElementById('mbb-'+name);
   if(mb)mb.classList.add('active');
-  // Update tab active state by index
+  // Tab ativo
   const tabMap={posthoc:0,shapiro:1,ic:2,cormat:3};
   const tabs=document.querySelectorAll('.module-tab');
   if(tabMap[name]!==undefined)tabs[tabMap[name]].classList.add('active');
@@ -1244,6 +1251,10 @@ function showToast(msg,type='info'){
   toastT=setTimeout(()=>t.classList.remove('show'),2800);
 }
 function copyEl(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>showToast('Copiado!','success'));}
+  // Garantir estado inicial correto
+  document.addEventListener('DOMContentLoaded', function(){
+    switchModule('posthoc');
+  });
 </script>
 </body>
 </html>
