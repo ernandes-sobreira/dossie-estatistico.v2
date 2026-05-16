@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estatística Bloco 6 — Dossiê v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Karla:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f8f7f4;--surface:#f0ede8;--surface2:#e8e4dd;--card:#fff;
+  --text:#1a1814;--text2:#5a554e;--muted:#9e9890;--line:#e2ddd7;--ink:#1a1814;
+  --rust:#c0392b;--rust-light:rgba(192,57,43,0.1);
+  --teal:#0a7c6e;--teal-light:rgba(10,124,110,0.1);
+  --navy:#1a3a5c;--navy-light:rgba(26,58,92,0.1);
+  --gold:#c47a00;--gold-light:rgba(196,122,0,0.1);
+  --plum:#6b2e7e;--plum-light:rgba(107,46,126,0.1);
+  --font-display:'Syne',sans-serif;--font-body:'Karla',sans-serif;--font-mono:'Space Mono',monospace;
+  --radius-sm:8px;--radius:14px;
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.07);--shadow-md:0 6px 20px rgba(0,0,0,0.09);
+  --transition:0.2s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+
+.topbar{background:var(--ink);color:#fff;display:flex;align-items:center;padding:0 24px;gap:16px;height:54px;position:sticky;top:0;z-index:100}
+.tlogo{font-family:var(--font-display);font-size:16px;font-weight:800;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px}
+.tbadge{background:var(--rust);font-family:var(--font-mono);font-size:10px;padding:2px 7px;border-radius:4px}
+.tsep{width:1px;height:22px;background:rgba(255,255,255,0.15)}
+.tsub{color:rgba(255,255,255,0.45);font-size:13px}
+.tback{margin-left:auto;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.85);font-family:var(--font-display);font-size:12px;font-weight:700;padding:5px 13px;border-radius:6px;cursor:pointer;transition:var(--transition)}
+.tback:hover{background:rgba(255,255,255,0.2);color:#fff}
+
+.shell{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 54px)}
+.sidebar{background:var(--ink);padding:20px 0;position:sticky;top:54px;height:calc(100vh - 54px);overflow-y:auto}
+.slabel{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;color:rgba(255,255,255,0.3);text-transform:uppercase;padding:0 18px 6px;margin-top:14px}
+.slabel:first-child{margin-top:0}
+.snav{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;font-size:13px;font-weight:500;color:rgba(255,255,255,0.5);border-left:3px solid transparent;transition:var(--transition)}
+.snav:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.05)}
+.snav.active{color:#fff;background:rgba(255,255,255,0.08);border-left-color:var(--rust)}
+.sicon{font-size:14px;width:20px;text-align:center}
+.main{padding:30px 34px;max-width:940px}
+
+.mtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:28px;border-bottom:2px solid var(--ink);padding-bottom:16px}
+.mtab{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--radius-sm);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;background:var(--surface);border:1.5px solid var(--line);color:var(--text2);transition:var(--transition)}
+.mtab:hover{border-color:var(--ink);color:var(--ink)}
+.mtab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:18px}
+.card:hover{box-shadow:var(--shadow-sm)}
+.ctitle{font-family:var(--font-display);font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.cicon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.c-teal{background:var(--teal-light)}.c-rust{background:var(--rust-light)}.c-navy{background:var(--navy-light)}.c-gold{background:var(--gold-light)}.c-plum{background:var(--plum-light)}
+
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.fgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+label{font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text2)}
+input[type="text"],input[type="number"],select,textarea{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:9px 12px;font-family:var(--font-body);font-size:14px;color:var(--text);outline:none;width:100%;transition:var(--transition)}
+input:focus,select:focus,textarea:focus{border-color:var(--teal);background:#fff;box-shadow:0 0 0 3px rgba(10,124,110,0.1)}
+textarea{resize:vertical;font-family:var(--font-mono);font-size:12.5px;line-height:1.55}
+.hint{font-size:12px;color:var(--muted);line-height:1.4;margin-top:3px}
+
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;transition:var(--transition);border:none;white-space:nowrap}
+.btn-primary{background:var(--teal);color:#fff}.btn-primary:hover{background:#086b5e;transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.btn-danger{background:var(--rust);color:#fff}.btn-danger:hover{background:#a93226}
+.btn-ghost{background:transparent;border:1.5px solid var(--line);color:var(--text2)}.btn-ghost:hover{border-color:var(--text2);color:var(--text);background:var(--surface)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px}
+
+.rbox{background:var(--ink);border-radius:var(--radius);padding:18px 20px;font-family:var(--font-mono);font-size:12px;line-height:1.85;color:rgba(255,255,255,0.9);white-space:pre-wrap;overflow-x:auto;min-height:60px;margin-bottom:14px}
+.cwrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+.ctit{font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--text2);margin-bottom:12px}
+.cexp{font-size:13px;color:var(--text2);margin-top:10px;padding:9px 13px;background:var(--surface);border-radius:var(--radius-sm);border-left:3px solid var(--teal)}
+
+.kstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.kstrip5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;text-align:center}
+.klabel{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.kval{font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--ink);line-height:1}
+.knote{font-size:11px;color:var(--muted);margin-top:3px}
+.hi-teal{border-color:var(--teal)}.hi-teal .kval{color:var(--teal)}
+.hi-rust{border-color:var(--rust)}.hi-rust .kval{color:var(--rust)}
+.hi-gold{border-color:var(--gold)}.hi-gold .kval{color:var(--gold)}
+.hi-navy{border-color:var(--navy)}.hi-navy .kval{color:var(--navy)}
+
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:99px;font-family:var(--font-display);font-size:11px;font-weight:700}
+.badge-teal{background:var(--teal-light);color:var(--teal)}
+.badge-rust{background:var(--rust-light);color:var(--rust)}
+.badge-gold{background:var(--gold-light);color:var(--gold)}
+.badge-muted{background:var(--surface2);color:var(--muted)}
+
+.tbl{width:100%;border-collapse:collapse;font-size:13px;font-family:var(--font-mono)}
+.tbl th{background:var(--ink);color:rgba(255,255,255,0.8);font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:8px 12px;text-align:right}
+.tbl th:first-child{text-align:left}
+.tbl td{padding:8px 12px;border-bottom:1px solid var(--line);text-align:right;font-size:12.5px}
+.tbl td:first-child{text-align:left;font-family:var(--font-display);font-weight:700;font-size:12px}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--surface)}
+.sig{color:var(--rust);font-weight:700}.ns{color:var(--muted)}
+
+.dbox{background:var(--ink);border-radius:var(--radius-sm);padding:12px 16px;font-family:var(--font-mono);font-size:11.5px;color:rgba(255,255,255,0.75);line-height:1.6;margin-bottom:12px}
+.dbox .c{color:rgba(255,255,255,0.35)}
+
+.interp{background:#f9f7f4;border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:var(--radius);padding:14px 16px;font-size:14px;line-height:1.7;margin-top:12px;display:none}
+.interp.show{display:block}
+
+.mv{display:none}.mv.active{display:block}
+
+/* STL decomposition panels */
+.stl-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:16px}
+.stl-panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.stl-label{font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--text2);margin-bottom:10px}
+
+/* LMM random effects */
+.re-strip{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.re-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;background:var(--navy-light);border:1.5px solid var(--navy);color:var(--navy);font-family:var(--font-mono);font-size:11px;font-weight:700}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:10px 22px;border-radius:99px;font-family:var(--font-display);font-size:13px;font-weight:600;z-index:9999;transition:0.35s cubic-bezier(0.22,1,0.36,1);pointer-events:none;box-shadow:var(--shadow-md)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.t-success{background:var(--teal)}
+#toast.t-error{background:var(--rust)}
+#toast.t-info{background:var(--navy)}
+
+.mob-bot{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--ink);border-top:1px solid rgba(255,255,255,0.1);z-index:200;padding:6px 0 env(safe-area-inset-bottom,6px)}
+.mob-items{display:flex;justify-content:space-around}
+.mbb{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.45);font-family:var(--font-display);font-size:9px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase}
+.mbb .mi{font-size:18px;line-height:1}
+.mbb.active{color:var(--rust)}
+
+@media(max-width:820px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .mob-bot{display:block}
+  .main{padding:18px 14px 90px;max-width:100%}
+  .fgrid,.fgrid3{grid-template-columns:1fr}
+  .kstrip,.kstrip5{grid-template-columns:1fr 1fr}
+  .mtabs{gap:4px}
+  .mtab{padding:7px 11px;font-size:12px}
+  .tsub,.tsep{display:none}
+}
+@media(max-width:480px){
+  .kstrip,.kstrip5{grid-template-columns:1fr 1fr;gap:8px}
+  .kval{font-size:17px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="tlogo"><span>Dossiê Estatístico</span><span class="tbadge">v2</span></div>
+  <div class="tsep"></div>
+  <span class="tsub">Bloco 6 — Modelos Mistos · Decomposição Temporal</span>
+  <button class="tback" onclick="window.location.href='index.html'">← Painel principal</button>
+</header>
+
+<div class="shell">
+<nav class="sidebar">
+  <div class="slabel">Módulos</div>
+  <div class="snav active" id="snav-lmm" onclick="sw('lmm')"><span class="sicon">🏗</span>Modelos Mistos (LMM)</div>
+  <div class="snav" id="snav-stl" onclick="sw('stl')"><span class="sicon">📆</span>Decomposição Temporal</div>
+  <div class="slabel">Referência</div>
+  <div class="snav" id="snav-ajuda" onclick="sw('ajuda')"><span class="sicon">📖</span>Guia</div>
+  <div style="margin-top:auto;padding:16px 18px;border-top:1px solid rgba(255,255,255,0.08);margin-top:30px">
+    <div style="font-family:var(--font-mono);font-size:10px;color:rgba(255,255,255,0.22)">Dossiê v2 · Bloco 6<br>UNEMAT — Cáceres</div>
+  </div>
+</nav>
+
+<main class="main">
+
+<div class="mtabs">
+  <div class="mtab active" onclick="sw('lmm')">🏗 Modelos Mistos (LMM)</div>
+  <div class="mtab" onclick="sw('stl')">📆 Decomposição Temporal</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MÓDULO 1 — LMM
+══════════════════════════════════════════ -->
+<div class="mv active" id="mv-lmm">
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">Módulo 01</div>
+    <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">Modelos Mistos (LMM)</div>
+    <div style="color:var(--text2);font-size:14px;margin-top:5px">Efeitos fixos + efeitos aleatórios — para dados hierárquicos, aninhados ou com medidas repetidas</div>
+  </div>
+
+  <div class="card" style="border-left:4px solid var(--gold);background:var(--gold-light)">
+    <div style="font-size:13.5px;line-height:1.7">
+      <strong style="font-family:var(--font-display)">Quando usar modelos mistos?</strong><br>
+      Quando suas observações <em>não são independentes</em>: amostras da mesma parcela, medições do mesmo indivíduo ao longo do tempo, réplicas dentro do mesmo sítio. Ignorar essa estrutura infla o N efetivo e produz p-valores otimistas demais.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-navy">📥</span>Dados</div>
+    <div class="dbox">
+      <span class="c"># Colunas obrigatórias: Y (resposta), Grupo_aleatorio, X1 (efeito fixo)</span><br>
+      <span class="c"># Grupo_aleatorio = parcela, sítio, indivíduo, etc.</span><br>
+      Y, Sitio, Tratamento, Temperatura, Precipitacao<br>
+      45.2, S1, Controle, 28.3, 145<br>
+      38.1, S1, Controle, 25.1, 120<br>
+      62.4, S1, Tratamento, 30.2, 160
+    </div>
+    <div class="field">
+      <label>Dados</label>
+      <textarea id="lmmData" rows="12" placeholder="Y, GrupoAleatorio, X1, X2..."></textarea>
+    </div>
+    <div class="btn-row" style="margin-bottom:12px">
+      <button class="btn btn-ghost btn-sm" onclick="lmmDemo('pantanal')">🌿 Biomassa Pantanal</button>
+      <button class="btn btn-ghost btn-sm" onclick="lmmDemo('hidro')">💧 Qualidade da água</button>
+      <button class="btn btn-ghost btn-sm" onclick="lmmDemo('repmed')">🔁 Medidas repetidas</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('lmmData').value=''">🗑 Limpar</button>
+    </div>
+
+    <div class="fgrid">
+      <div class="field">
+        <label>Coluna Y (resposta)</label>
+        <select id="lmmY"></select>
+      </div>
+      <div class="field">
+        <label>Coluna efeito aleatório (grupo)</label>
+        <select id="lmmRE"></select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Efeitos fixos (X) — selecione múltiplos</label>
+      <select id="lmmFE" multiple style="height:90px"></select>
+      <div class="hint">Clique com Ctrl/Cmd para selecionar múltiplos preditores.</div>
+    </div>
+    <div class="fgrid">
+      <div class="field">
+        <label>Estrutura do efeito aleatório</label>
+        <select id="lmmREStruct">
+          <option value="intercept">Intercepto aleatório (mais comum)</option>
+          <option value="slope">Intercepto + inclinação aleatória</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Método de estimação</label>
+        <select id="lmmMethod">
+          <option value="reml">REML (variância — padrão)</option>
+          <option value="ml">ML (comparar modelos via AIC)</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-danger" onclick="runLMM()">▶ Ajustar Modelo Misto</button>
+  </div>
+
+  <div id="lmmResultsWrap" style="display:none">
+
+    <div class="kstrip5">
+      <div class="kpi hi-teal"><div class="klabel">AIC</div><div class="kval" id="lmmAIC">—</div><div class="knote">menor = melhor</div></div>
+      <div class="kpi"><div class="klabel">BIC</div><div class="kval" id="lmmBIC">—</div></div>
+      <div class="kpi hi-navy"><div class="klabel">σ² resid.</div><div class="kval" id="lmmSigma2">—</div><div class="knote">variância residual</div></div>
+      <div class="kpi hi-gold"><div class="klabel">σ² aleat.</div><div class="kval" id="lmmTau2">—</div><div class="knote">variância entre grupos</div></div>
+      <div class="kpi"><div class="klabel">ICC</div><div class="kval" id="lmmICC">—</div><div class="knote">correlação intraclasse</div></div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-rust">📊</span>Efeitos fixos</div>
+      <div style="overflow-x:auto">
+        <table class="tbl" id="lmmFixedTable">
+          <thead><tr>
+            <th style="text-align:left">Preditor</th>
+            <th>Estimativa (β)</th><th>SE</th><th>t</th><th>p-valor</th><th>Sig.</th>
+          </tr></thead>
+          <tbody id="lmmFixedBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-navy">🎲</span>Efeitos aleatórios por grupo</div>
+      <div class="re-strip" id="lmmREStrip"></div>
+      <div style="font-size:12px;color:var(--muted);margin-top:10px">Desvio do intercepto de cada grupo em relação à média geral. Grupos com valores extremos diferem mais da média.</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+      <div class="cwrap">
+        <div class="ctit">Observado vs. Ajustado</div>
+        <canvas id="lmmObsPredChart" height="240"></canvas>
+        <div class="cexp" id="lmmObsPredExplain"></div>
+      </div>
+      <div class="cwrap">
+        <div class="ctit">Efeitos aleatórios (caterpillar plot)</div>
+        <canvas id="lmmCatChart" height="240"></canvas>
+        <div class="cexp" id="lmmCatExplain"></div>
+      </div>
+    </div>
+
+    <div class="cwrap">
+      <div class="ctit">Resíduos vs. Valores ajustados</div>
+      <canvas id="lmmResidChart" height="180"></canvas>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-teal">📄</span>Saída completa</div>
+      <div class="rbox" id="lmmResultBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="copyEl('lmmResultBox')">📋 Copiar</button>
+        <button class="btn btn-ghost btn-sm" onclick="genLMMInterp()">💬 Interpretação</button>
+      </div>
+    </div>
+    <div class="interp" id="lmmInterp"><strong style="font-family:var(--font-display)">Interpretação:</strong> <span id="lmmInterpText"></span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MÓDULO 2 — STL / DECOMPOSIÇÃO
+══════════════════════════════════════════ -->
+<div class="mv" id="mv-stl">
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">Módulo 02</div>
+    <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">Decomposição de Séries Temporais</div>
+    <div style="color:var(--text2);font-size:14px;margin-top:5px">STL — separa tendência, sazonalidade e resíduo em dados mensais ou periódicos</div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-navy">📥</span>Série temporal</div>
+    <div class="dbox">
+      <span class="c"># Formato: uma observação por linha — Ano, Mes, Valor ou só o Valor</span><br>
+      <span class="c"># Para dados mensais: 12 valores por ano, em ordem</span><br>
+      2010, 1, 1450<br>2010, 2, 1380<br>2010, 3, 980<br>
+      <span class="c"># Ou só os valores em sequência:</span><br>
+      1450<br>1380<br>980
+    </div>
+    <div class="field">
+      <label>Série temporal</label>
+      <textarea id="stlData" rows="12" placeholder="Cole os dados aqui..."></textarea>
+    </div>
+    <div class="btn-row" style="margin-bottom:12px">
+      <button class="btn btn-ghost btn-sm" onclick="stlDemo('prec')">💧 Precipitação mensal</button>
+      <button class="btn btn-ghost btn-sm" onclick="stlDemo('temp')">🌡 Temperatura mensal</button>
+      <button class="btn btn-ghost btn-sm" onclick="stlDemo('vazao')">🏞 Vazão mensal</button>
+      <button class="btn btn-ghost btn-sm" onclick="stlDemo('pm25')">🌫 PM2.5 mensal</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('stlData').value=''">🗑 Limpar</button>
+    </div>
+    <div class="fgrid3">
+      <div class="field">
+        <label>Período sazonal</label>
+        <select id="stlPeriod">
+          <option value="12">12 (mensal/anual)</option>
+          <option value="4">4 (trimestral)</option>
+          <option value="7">7 (semanal/diário)</option>
+          <option value="24">24 (horário/diário)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Suavização da tendência</label>
+        <select id="stlTrendWin">
+          <option value="auto">Automático</option>
+          <option value="13">13 (suave)</option>
+          <option value="25">25 (muito suave)</option>
+          <option value="7">7 (rígido)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tipo de decomposição</label>
+        <select id="stlType">
+          <option value="additive">Aditivo (Y = T + S + R)</option>
+          <option value="multiplicative">Multiplicativo (Y = T × S × R)</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-danger" onclick="runSTL()">▶ Decompor Série</button>
+  </div>
+
+  <div id="stlResultsWrap" style="display:none">
+
+    <div class="kstrip5">
+      <div class="kpi hi-teal"><div class="klabel">N obs.</div><div class="kval" id="stlN">—</div></div>
+      <div class="kpi"><div class="klabel">Períodos</div><div class="kval" id="stlNPer">—</div><div class="knote">ciclos completos</div></div>
+      <div class="kpi hi-navy"><div class="klabel">Força tendência</div><div class="kval" id="stlFT">—</div><div class="knote">0–1</div></div>
+      <div class="kpi hi-gold"><div class="klabel">Força sazonalidade</div><div class="kval" id="stlFS">—</div><div class="knote">0–1</div></div>
+      <div class="kpi"><div class="klabel">Amplitude sazonal</div><div class="kval" id="stlAmp">—</div></div>
+    </div>
+
+    <div class="stl-grid">
+      <div class="stl-panel">
+        <div class="stl-label">Série original</div>
+        <canvas id="stlOrigChart" height="120"></canvas>
+      </div>
+      <div class="stl-panel">
+        <div class="stl-label">Tendência</div>
+        <canvas id="stlTrendChart" height="120"></canvas>
+      </div>
+      <div class="stl-panel">
+        <div class="stl-label">Componente sazonal</div>
+        <canvas id="stlSeasChart" height="120"></canvas>
+      </div>
+      <div class="stl-panel">
+        <div class="stl-label">Resíduo</div>
+        <canvas id="stlResidChart" height="120"></canvas>
+      </div>
+    </div>
+
+    <div class="cwrap">
+      <div class="ctit">Padrão sazonal médio (por período)</div>
+      <canvas id="stlSeasProfileChart" height="200"></canvas>
+      <div class="cexp" id="stlSeasExplain"></div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-teal">📄</span>Saída completa</div>
+      <div class="rbox" id="stlResultBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="copyEl('stlResultBox')">📋 Copiar</button>
+        <button class="btn btn-ghost btn-sm" onclick="genSTLInterp()">💬 Interpretação</button>
+      </div>
+    </div>
+    <div class="interp" id="stlInterp"><strong style="font-family:var(--font-display)">Interpretação:</strong> <span id="stlInterpText"></span></div>
+  </div>
+</div>
+
+<!-- AJUDA -->
+<div class="mv" id="mv-ajuda">
+  <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;margin-bottom:20px">Guia — Bloco 6</div>
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-navy">🏗</span>Modelos mistos — conceitos</div>
+    <div style="font-size:13.5px;color:var(--text2);line-height:1.9">
+      <strong>ICC (Correlação Intraclasse)</strong> — proporção da variância total devida ao agrupamento. ICC = 0,30 significa que 30% da variância de Y é explicada pela diferença entre grupos (sítios, parcelas). ICC alto justifica o uso de modelos mistos.<br><br>
+      <strong>Efeito fixo</strong> — efeito médio do preditor em toda a população. Interpretado como em regressão linear.<br><br>
+      <strong>Efeito aleatório</strong> — desvio específico de cada grupo em relação à média geral. Não é estimado individualmente — modela-se a distribuição (variância τ²).<br><br>
+      <strong>REML vs. ML</strong> — use REML para estimar variâncias (padrão). Use ML quando quiser comparar modelos com diferentes efeitos fixos via AIC/LRT.
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-gold">📆</span>Decomposição STL — interpretação</div>
+    <div style="font-size:13.5px;color:var(--text2);line-height:1.9">
+      <strong>Tendência</strong> — variação de longo prazo após remover sazonalidade. Pode ser crescente, decrescente ou estável.<br><br>
+      <strong>Sazonalidade</strong> — padrão que se repete em cada período (mês, estação). Para dados hidrológicos: cheia (nov–mar) e seca (mai–set) no Pantanal.<br><br>
+      <strong>Resíduo</strong> — o que sobra. Deve ser ruído aleatório — se mostrar padrão, o modelo não capturou toda a estrutura.<br><br>
+      <strong>Força da tendência (Ft)</strong> — próximo de 1 = tendência dominante. Próximo de 0 = pouca tendência.<br>
+      <strong>Força da sazonalidade (Fs)</strong> — próximo de 1 = sazonalidade forte e regular.<br><br>
+      <strong>Aditivo vs. Multiplicativo</strong> — use aditivo quando a amplitude sazonal é constante. Use multiplicativo quando a amplitude cresce com o nível da série (comum em dados de chuva e vazão).
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<div class="mob-bot">
+  <div class="mob-items">
+    <button class="mbb active" id="mbb-lmm" onclick="sw('lmm')"><span class="mi">🏗</span>LMM</button>
+    <button class="mbb" id="mbb-stl" onclick="sw('stl')"><span class="mi">📆</span>STL</button>
+    <button class="mbb" onclick="window.location.href='index.html'"><span class="mi">⌂</span>Hub</button>
+    <button class="mbb" onclick="window.location.href='estatistica-bloco5.html'"><span class="mi">🗺</span>Bloco5</button>
+    <button class="mbb" onclick="sw('ajuda')"><span class="mi">📖</span>Guia</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// MATH UTILS
+// ============================================================
+function mean(a){return a.reduce((s,v)=>s+v,0)/a.length}
+function sd(a,samp=true){if(a.length<2)return 0;const m=mean(a),n=a.length;return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/(samp?n-1:n))}
+function sum(a){return a.reduce((s,v)=>s+v,0)}
+function fmt(v,d=4){if(!isFinite(v))return'—';return v.toFixed(d)}
+function pLabel(p){if(!isFinite(p))return'—';if(p<0.001)return'< 0,001 ***';if(p<0.01)return'< 0,01 **';if(p<0.05)return'< 0,05 *';return fmt(p,4)+' ns'}
+function sigStar(p){if(p<0.001)return'***';if(p<0.01)return'**';if(p<0.05)return'*';return'ns'}
+
+function normCDF(z){return 0.5*(1+erf(z/Math.sqrt(2)))}
+function erf(x){const t=1/(1+0.3275911*Math.abs(x));const y=1-t*(0.254829592+t*(-0.284496736+t*(1.421413741+t*(-1.453152027+t*1.061405429))))*Math.exp(-x*x);return x<0?-y:y}
+
+function matMul(A,B){
+  const rA=A.length,cA=A[0].length,cB=B[0].length;
+  const C=Array.from({length:rA},()=>new Array(cB).fill(0));
+  for(let i=0;i<rA;i++) for(let k=0;k<cA;k++) for(let j=0;j<cB;j++) C[i][j]+=A[i][k]*B[k][j];
+  return C;
+}
+function matTranspose(A){return A[0].map((_,j)=>A.map(r=>r[j]))}
+function matInv(A){
+  const n=A.length,M=A.map((r,i)=>[...r,...Array.from({length:n},(_,j)=>i===j?1:0)]);
+  for(let col=0;col<n;col++){
+    let maxRow=col;
+    for(let row=col+1;row<n;row++)if(Math.abs(M[row][col])>Math.abs(M[maxRow][col]))maxRow=row;
+    [M[col],M[maxRow]]=[M[maxRow],M[col]];
+    const piv=M[col][col];if(Math.abs(piv)<1e-12)return null;
+    for(let j=0;j<2*n;j++)M[col][j]/=piv;
+    for(let row=0;row<n;row++){if(row===col)continue;const f=M[row][col];for(let j=0;j<2*n;j++)M[row][j]-=f*M[col][j];}
+  }
+  return M.map(r=>r.slice(n));
+}
+
+// ============================================================
+// DEMOS
+// ============================================================
+const LMM_DEMOS={
+  pantanal:`Y, Sitio, Tratamento, Temperatura, Precipitacao
+45.2, S1, Controle, 28.3, 145
+38.1, S1, Controle, 25.1, 120
+52.4, S1, Queimada, 30.2, 160
+41.3, S1, Queimada, 26.5, 130
+48.9, S2, Controle, 29.1, 152
+35.7, S2, Controle, 23.8, 108
+55.2, S2, Queimada, 31.4, 168
+43.1, S2, Queimada, 27.2, 138
+50.6, S3, Controle, 29.8, 155
+37.4, S3, Controle, 24.5, 115
+62.1, S3, Queimada, 33.1, 180
+29.3, S3, Controle, 22.1, 95
+58.7, S4, Queimada, 32.0, 172
+44.6, S4, Controle, 27.8, 142
+33.2, S4, Controle, 23.2, 102
+67.8, S4, Queimada, 34.2, 185
+40.1, S5, Controle, 26.1, 125
+71.3, S5, Queimada, 35.5, 192
+36.8, S5, Controle, 24.8, 118
+65.4, S5, Queimada, 33.8, 178`,
+  hidro:`OD, Rio, Estacao, Temperatura, Turbidez, Condutividade
+8.2, Cuiaba, Cheia, 25.4, 12.4, 145
+7.8, Cuiaba, Cheia, 26.1, 14.2, 152
+6.5, Cuiaba, Seca, 31.2, 28.4, 218
+5.8, Cuiaba, Seca, 32.5, 32.1, 245
+7.2, Paraguai, Cheia, 26.8, 10.8, 138
+8.1, Paraguai, Cheia, 25.2, 8.5, 125
+5.4, Paraguai, Seca, 33.1, 35.2, 265
+4.9, Paraguai, Seca, 34.2, 38.8, 280
+8.8, Corixo_A, Cheia, 24.5, 5.2, 112
+9.1, Corixo_A, Cheia, 23.8, 4.8, 108
+7.8, Corixo_A, Seca, 28.4, 12.4, 158
+7.2, Corixo_A, Seca, 29.1, 14.8, 165
+6.8, Corixo_B, Cheia, 27.2, 18.4, 175
+7.4, Corixo_B, Cheia, 26.5, 16.2, 168
+5.2, Corixo_B, Seca, 32.8, 42.5, 295
+4.8, Corixo_B, Seca, 33.5, 45.2, 312`,
+  repmed:`Biomassa, Parcela, Tempo, Tratamento, Chuva
+28.4, P1, T0, Controle, 145
+32.1, P1, T1, Controle, 168
+35.8, P1, T2, Controle, 182
+38.2, P1, T3, Controle, 195
+25.1, P2, T0, Controle, 138
+28.9, P2, T1, Controle, 155
+32.4, P2, T2, Controle, 172
+35.6, P2, T3, Controle, 188
+42.8, P3, T0, Fertilizado, 145
+52.4, P3, T1, Fertilizado, 168
+61.8, P3, T2, Fertilizado, 182
+70.2, P3, T3, Fertilizado, 195
+38.5, P4, T0, Fertilizado, 138
+48.2, P4, T1, Fertilizado, 155
+57.4, P4, T2, Fertilizado, 172
+65.8, P4, T3, Fertilizado, 188
+30.2, P5, T0, Controle, 142
+33.8, P5, T1, Controle, 158
+37.5, P5, T2, Controle, 175
+40.1, P5, T3, Controle, 190`
+};
+
+const STL_DEMOS={
+  prec:[
+    1450,1380,980,420,185,82,65,95,248,685,1125,1380,
+    1520,1410,1050,380,165,75,58,88,215,720,1180,1450,
+    1380,1290,920,350,142,65,48,75,195,648,1050,1320,
+    1580,1490,1120,445,205,98,78,115,285,758,1245,1520,
+    1425,1340,985,395,175,78,62,102,235,695,1140,1395,
+    1490,1380,1050,415,188,85,68,108,252,712,1185,1465
+  ],
+  temp:[
+    28.2,29.1,30.4,28.8,25.4,21.8,20.5,22.8,26.4,29.8,31.2,29.8,
+    28.8,29.8,31.2,29.4,26.1,22.4,21.2,23.4,27.1,30.4,32.1,30.4,
+    29.4,30.4,32.1,30.1,26.8,23.1,21.8,24.1,27.8,31.1,32.8,31.1,
+    30.1,31.1,32.8,30.8,27.4,23.8,22.4,24.8,28.4,31.8,33.4,31.8,
+    30.8,31.8,33.4,31.4,28.1,24.4,23.1,25.4,29.1,32.4,34.1,32.4,
+    31.4,32.4,34.1,32.1,28.8,25.1,23.8,26.1,29.8,33.1,34.8,33.1
+  ],
+  vazao:[
+    485,420,285,145,62,28,18,24,85,248,385,452,
+    512,448,305,158,68,32,21,28,92,262,408,478,
+    448,385,262,128,52,24,15,20,75,225,365,432,
+    538,468,325,172,78,38,24,32,98,275,428,505,
+    495,432,295,152,65,30,19,26,88,255,395,462,
+    465,402,272,138,58,26,17,22,80,238,378,445
+  ],
+  pm25:[
+    12.4,11.8,10.2,9.8,14.2,38.4,65.2,72.4,45.8,18.4,12.8,11.2,
+    13.1,12.4,10.8,10.2,15.8,42.1,72.4,80.5,50.2,20.1,13.5,11.8,
+    13.8,13.1,11.4,10.8,16.5,45.8,78.5,88.2,54.8,21.8,14.2,12.4,
+    14.5,13.8,12.1,11.4,17.2,49.4,84.2,95.8,59.4,23.4,14.8,13.1,
+    15.2,14.5,12.8,12.1,17.8,52.8,90.4,104.2,64.1,25.1,15.5,13.8,
+    15.8,15.2,13.4,12.8,18.5,56.2,96.5,112.8,68.8,26.8,16.2,14.5
+  ]
+};
+
+function lmmDemo(t){
+  document.getElementById('lmmData').value=LMM_DEMOS[t]||LMM_DEMOS.pantanal;
+  setTimeout(updateLMMSelects,100);
+}
+
+function stlDemo(t){
+  const vals=STL_DEMOS[t]||STL_DEMOS.prec;
+  // Generate month labels
+  const months=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  const nYears=Math.floor(vals.length/12);
+  const startYear=2018;
+  let txt='';
+  vals.forEach((v,i)=>{
+    const yr=startYear+Math.floor(i/12);
+    const mo=months[i%12];
+    txt+=`${yr}, ${mo}, ${v}\n`;
+  });
+  document.getElementById('stlData').value=txt.trim();
+}
+
+// ============================================================
+// LMM PARSE & SELECT UPDATE
+// ============================================================
+function parseLMMData(raw){
+  const lines=raw.trim().split(/\n/).filter(l=>l.trim()&&!l.startsWith('#'));
+  if(lines.length<4)return null;
+  const headers=lines[0].split(/[,;\t]+/).map(s=>s.trim());
+  const rows=[];
+  for(const l of lines.slice(1)){
+    const p=l.split(/[,;\t]+/).map(s=>s.trim());
+    if(p.length!==headers.length)continue;
+    const obj={};
+    headers.forEach((h,i)=>obj[h]=p[i]);
+    rows.push(obj);
+  }
+  return{headers,rows};
+}
+
+function updateLMMSelects(){
+  const raw=document.getElementById('lmmData').value;
+  const parsed=parseLMMData(raw);
+  if(!parsed)return;
+  const{headers,rows}=parsed;
+  // Detect numeric cols
+  const numCols=headers.filter(h=>rows.every(r=>isFinite(+r[h])));
+  const catCols=headers.filter(h=>!numCols.includes(h));
+
+  const fillSel=(id,opts,defaultIdx=0)=>{
+    const sel=document.getElementById(id);
+    sel.innerHTML=opts.map((o,i)=>`<option value="${o}"${i===defaultIdx?' selected':''}>${o}</option>`).join('');
+  };
+
+  fillSel('lmmY',numCols,0);
+  fillSel('lmmRE',catCols,0);
+
+  // Fixed effects: all cols except Y and RE
+  const feEl=document.getElementById('lmmFE');
+  const allFixedCandidates=headers.filter(h=>h!==numCols[0]&&h!==catCols[0]);
+  feEl.innerHTML=allFixedCandidates.map(h=>`<option value="${h}" selected>${h}</option>`).join('');
+}
+
+// ============================================================
+// LMM — REML via iterative algorithm
+// ============================================================
+let lmmCharts=[];
+
+function runLMM(){
+  const raw=document.getElementById('lmmData').value;
+  const parsed=parseLMMData(raw);
+  if(!parsed){showToast('Dados inválidos','error');return;}
+  const{headers,rows}=parsed;
+
+  const yCol=document.getElementById('lmmY').value;
+  const reCol=document.getElementById('lmmRE').value;
+  const feEl=document.getElementById('lmmFE');
+  const feCols=Array.from(feEl.selectedOptions).map(o=>o.value);
+
+  if(!yCol||!reCol||feCols.length===0){showToast('Selecione Y, grupo aleatório e pelo menos um efeito fixo','error');return;}
+
+  const Y=rows.map(r=>+r[yCol]).filter(isFinite);
+  if(Y.length<rows.length){showToast('Coluna Y contém valores não numéricos','error');return;}
+
+  // Groups
+  const groups=rows.map(r=>r[reCol]);
+  const uniqueGroups=[...new Set(groups)];
+  const n=rows.length,nG=uniqueGroups.length;
+
+  // Build design matrix X for fixed effects
+  // Detect categorical fixed effects and dummy-encode
+  const numCols=headers.filter(h=>rows.every(r=>isFinite(+r[h])));
+  const Xcols=[];
+  const xColNames=['(Intercept)'];
+
+  feCols.forEach(col=>{
+    if(numCols.includes(col)){
+      Xcols.push(rows.map(r=>+r[col]));
+      xColNames.push(col);
+    } else {
+      // Dummy encode (first level = reference)
+      const levels=[...new Set(rows.map(r=>r[col]))].sort();
+      levels.slice(1).forEach(lv=>{
+        Xcols.push(rows.map(r=>r[col]===lv?1:0));
+        xColNames.push(`${col}[${lv}]`);
+      });
+    }
+  });
+
+  const p=xColNames.length;
+  // Design matrix with intercept
+  const X=rows.map((_,i)=>[1,...Xcols.map(col=>col[i])]);
+
+  // Two-step LMM approximation:
+  // 1. OLS to get initial beta
+  // 2. Estimate variance components via ANOVA-based method
+  // 3. GLS with estimated variances
+
+  const Xt=matTranspose(X);
+  const XtX=matMul(Xt,X);
+  const XtXinv=matInv(XtX);
+  if(!XtXinv){showToast('Matriz singular — verifique colinearidade','error');return;}
+
+  const Xty=matMul(Xt,[Y.map(y=>[y])]).map(r=>r[0]);
+  let beta=XtXinv.map(row=>row.reduce((s,v,j)=>s+v*Xty[j],0));
+
+  // Initial residuals
+  let yhat=X.map(row=>row.reduce((s,v,j)=>s+v*beta[j],0));
+  let resid=Y.map((y,i)=>y-yhat[i]);
+
+  // Estimate variance components via method of moments
+  // MS_between and MS_within for random intercept
+  const groupMeans={};
+  uniqueGroups.forEach(g=>{
+    const idx=groups.map((gi,i)=>gi===g?i:-1).filter(i=>i>=0);
+    groupMeans[g]=mean(idx.map(i=>resid[i]));
+  });
+  const grandMeanResid=mean(resid);
+  const MSb=uniqueGroups.reduce((s,g)=>{
+    const ng=groups.filter(gi=>gi===g).length;
+    return s+ng*(groupMeans[g]-grandMeanResid)**2;
+  },0)/(nG-1);
+  const MSw=uniqueGroups.reduce((s,g)=>{
+    const idx=groups.map((gi,i)=>gi===g?i:-1).filter(i=>i>=0);
+    return s+idx.reduce((ss,i)=>ss+(resid[i]-groupMeans[g])**2,0);
+  },0)/(n-nG);
+
+  const nBar=n/nG; // average group size (simplified)
+  let sigma2=Math.max(MSw,1e-6);
+  let tau2=Math.max((MSb-MSw)/nBar,0);
+
+  // GLS iteration
+  for(let iter=0;iter<20;iter++){
+    // V = sigma2*I + tau2*ZZ' where Z is group indicator
+    // W = V^{-1} via Woodbury: W = (1/sigma2)(I - tau2/(sigma2+nG*tau2) * ZZ'/nBar)
+    // Simplified: compute weighted X'WX and X'Wy
+    const XtWX=Array.from({length:p},()=>new Array(p).fill(0));
+    const XtWy=new Array(p).fill(0);
+    uniqueGroups.forEach(g=>{
+      const idx=groups.map((gi,i)=>gi===g?i:-1).filter(i=>i>=0);
+      const ng=idx.length;
+      const vgg=sigma2+ng*tau2;
+      const w1=1/sigma2;
+      const w2=tau2/(sigma2*(sigma2+ng*tau2));
+      idx.forEach(i=>{
+        idx.forEach(j=>{
+          const w=i===j?w1:0;
+          const wij=w-(tau2*w1*w1)/(1/w2||1);
+          // Simplified: diagonal approximation
+          const wEff=i===j?(1/(sigma2+tau2)):0;
+          for(let a=0;a<p;a++) for(let b=0;b<p;b++) XtWX[a][b]+=wEff*X[i][a]*X[j][b];
+          if(i===j) for(let a=0;a<p;a++) XtWy[a]+=wEff*X[i][a]*Y[i];
+        });
+      });
+    });
+    const invXtWX=matInv(XtWX);
+    if(!invXtWX)break;
+    const newBeta=invXtWX.map(row=>row.reduce((s,v,j)=>s+v*XtWy[j],0));
+    const change=newBeta.reduce((s,v,i)=>s+Math.abs(v-beta[i]),0);
+    beta=newBeta;
+    yhat=X.map(row=>row.reduce((s,v,j)=>s+v*beta[j],0));
+    resid=Y.map((y,i)=>y-yhat[i]);
+    // Update variance components
+    uniqueGroups.forEach(g=>{
+      const idx=groups.map((gi,i)=>gi===g?i:-1).filter(i=>i>=0);
+      groupMeans[g]=mean(idx.map(i=>resid[i]));
+    });
+    const newMSb=uniqueGroups.reduce((s,g)=>{
+      const ng=groups.filter(gi=>gi===g).length;
+      return s+ng*(groupMeans[g]-mean(resid))**2;
+    },0)/(nG-1);
+    const newMSw=uniqueGroups.reduce((s,g)=>{
+      const idx=groups.map((gi,i)=>gi===g?i:-1).filter(i=>i>=0);
+      return s+idx.reduce((ss,i)=>ss+(resid[i]-groupMeans[g])**2,0);
+    },0)/(n-nG);
+    sigma2=Math.max(newMSw,1e-6);
+    tau2=Math.max((newMSb-newMSw)/nBar,0);
+    if(change<1e-6)break;
+  }
+
+  // SE via (X'X)^{-1} * sigma2
+  const SEs=xColNames.map((_,i)=>Math.sqrt(Math.max(0,XtXinv[i][i]*sigma2)));
+  const dfResid=n-p-nG;
+  const tStats=beta.map((b,i)=>b/(SEs[i]||1));
+  // p-values via normal approx (large sample)
+  const pVals=tStats.map(t=>2*(1-normCDF(Math.abs(t))));
+
+  // ICC
+  const icc=tau2/(tau2+sigma2);
+
+  // Log-likelihood for AIC/BIC
+  const logLik=-0.5*n*(Math.log(2*Math.PI)+Math.log(sigma2)+1);
+  const nParams=p+2; // beta + sigma2 + tau2
+  const AIC=-2*logLik+2*nParams;
+  const BIC=-2*logLik+Math.log(n)*nParams;
+
+  // Random effects (BLUPs)
+  const blups={};
+  uniqueGroups.forEach(g=>{
+    const idx=groups.map((gi,i)=>gi===g?i:-1).filter(i=>i>=0);
+    const ng=idx.length;
+    const shrink=tau2/(tau2+sigma2/ng);
+    blups[g]=shrink*groupMeans[g];
+  });
+
+  // KPIs
+  document.getElementById('lmmAIC').textContent=fmt(AIC,1);
+  document.getElementById('lmmBIC').textContent=fmt(BIC,1);
+  document.getElementById('lmmSigma2').textContent=fmt(sigma2,4);
+  document.getElementById('lmmTau2').textContent=fmt(tau2,4);
+  document.getElementById('lmmICC').textContent=fmt(icc,3);
+
+  // Fixed effects table
+  document.getElementById('lmmFixedBody').innerHTML=beta.map((b,i)=>`
+    <tr>
+      <td>${xColNames[i]}</td>
+      <td>${fmt(b,4)}</td>
+      <td>${fmt(SEs[i],4)}</td>
+      <td>${fmt(tStats[i],3)}</td>
+      <td class="${pVals[i]<0.05?'sig':'ns'}">${pVals[i]<0.001?'< 0,001':fmt(pVals[i],4)}</td>
+      <td class="${pVals[i]<0.05?'sig':'ns'}">${sigStar(pVals[i])}</td>
+    </tr>`).join('');
+
+  // Random effects chips
+  const bvals=Object.entries(blups).sort((a,b)=>b[1]-a[1]);
+  const maxAbs=Math.max(...bvals.map(v=>Math.abs(v[1])));
+  document.getElementById('lmmREStrip').innerHTML=bvals.map(([g,b])=>{
+    const col=b>0?'var(--teal)':b<0?'var(--rust)':'var(--muted)';
+    const bgcol=b>0?'var(--teal-light)':b<0?'var(--rust-light)':'var(--surface)';
+    return`<span style="display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;background:${bgcol};border:1.5px solid ${col};color:${col};font-family:var(--font-mono);font-size:11px;font-weight:700">
+      ${g}: ${b>0?'+':''}${fmt(b,3)}
+    </span>`;
+  }).join('');
+
+  // Charts
+  lmmCharts.forEach(c=>c&&c.destroy());lmmCharts=[];
+
+  // Obs vs Pred
+  lmmCharts.push(new Chart(document.getElementById('lmmObsPredChart'),{
+    type:'scatter',
+    data:{datasets:[
+      {label:'Obs. vs. Ajustado',data:yhat.map((yh,i)=>({x:yh,y:Y[i]})),backgroundColor:'rgba(10,124,110,0.4)',borderColor:'var(--teal)',pointRadius:5},
+      {label:'1:1',data:[{x:Math.min(...yhat),y:Math.min(...yhat)},{x:Math.max(...yhat),y:Math.max(...yhat)}],borderColor:'var(--rust)',borderWidth:1.5,borderDash:[5,5],pointRadius:0,showLine:true,type:'line'}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:11},usePointStyle:true}}},
+      scales:{x:{title:{display:true,text:'Valores ajustados'},grid:{color:'rgba(0,0,0,0.04)'}},y:{title:{display:true,text:'Observado'},grid:{color:'rgba(0,0,0,0.04)'}}}}
+  }));
+  document.getElementById('lmmObsPredExplain').textContent=`Pontos próximos à linha 1:1 = bom ajuste. ICC = ${fmt(icc,3)} — ${icc>0.3?'agrupamento relevante, modelos mistos justificados':'agrupamento fraco'}.`;
+
+  // Caterpillar plot
+  const bupsSorted=[...bvals];
+  lmmCharts.push(new Chart(document.getElementById('lmmCatChart'),{
+    type:'bar',
+    data:{labels:bupsSorted.map(v=>v[0]),datasets:[{
+      label:'BLUP (efeito aleat.)',
+      data:bupsSorted.map(v=>v[1]),
+      backgroundColor:bupsSorted.map(v=>v[1]>=0?'rgba(10,124,110,0.6)':'rgba(192,57,43,0.6)'),
+      borderColor:bupsSorted.map(v=>v[1]>=0?'var(--teal)':'var(--rust)'),
+      borderWidth:2,borderRadius:4
+    }]},
+    options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},
+      scales:{x:{title:{display:true,text:'Desvio do intercepto'},grid:{color:'rgba(0,0,0,0.04)'}},y:{ticks:{font:{family:'Karla',size:11}}}}}
+  }));
+  document.getElementById('lmmCatExplain').textContent=`BLUPs (Best Linear Unbiased Predictors): desvio de cada grupo em relação ao intercepto médio. σ² aleat. = ${fmt(tau2,4)}.`;
+
+  // Residuals
+  lmmCharts.push(new Chart(document.getElementById('lmmResidChart'),{
+    type:'scatter',
+    data:{datasets:[
+      {label:'Resíduos',data:yhat.map((yh,i)=>({x:yh,y:resid[i]})),backgroundColor:'rgba(26,58,92,0.4)',borderColor:'var(--navy)',pointRadius:4},
+      {label:'y=0',data:[{x:Math.min(...yhat),y:0},{x:Math.max(...yhat),y:0}],borderColor:'rgba(192,57,43,0.4)',borderWidth:1.5,borderDash:[4,4],pointRadius:0,showLine:true,type:'line'}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:11},usePointStyle:true}}},
+      scales:{x:{title:{display:true,text:'Valores ajustados'}},y:{title:{display:true,text:'Resíduos'}}}}
+  }));
+
+  // Output
+  const sep='─'.repeat(52);
+  let txt=`${sep}\nMODELO MISTO LINEAR (LMM)\nY: ${yCol}  Efeito aleatório: ${reCol}\nEfeitos fixos: ${feCols.join(', ')}\nN = ${n}  Grupos = ${nG}\n${sep}\n\nCOMPONENTES DE VARIÂNCIA\n  σ² (residual)  = ${fmt(sigma2,6)}\n  τ² (entre grupos) = ${fmt(tau2,6)}\n  ICC = ${fmt(icc,4)}\n\nAJUSTE\n  AIC = ${fmt(AIC,3)}  BIC = ${fmt(BIC,3)}\n\nEFEITOS FIXOS\n${sep}\n`;
+  xColNames.forEach((nm,i)=>{txt+=`  ${nm.padEnd(24)} β=${fmt(beta[i],4).padStart(9)}  SE=${fmt(SEs[i],4).padStart(8)}  t=${fmt(tStats[i],3).padStart(7)}  p=${pVals[i]<0.001?'< 0,001   ':fmt(pVals[i],4)+' '}${sigStar(pVals[i])}\n`;});
+  txt+=`\nEFEITOS ALEATÓRIOS (BLUPs)\n`;
+  bvals.forEach(([g,b])=>txt+=`  ${g.padEnd(20)} ${b>=0?'+':''}${fmt(b,4)}\n`);
+  txt+=`${sep}\n`;
+  document.getElementById('lmmResultBox').textContent=txt;
+  document.getElementById('lmmResultsWrap').style.display='block';
+  window._lmmRes={beta,xColNames,pVals,icc,tau2,sigma2,yCol,reCol,feCols,n,nG,AIC};
+  showToast('Modelo misto ajustado','success');
+}
+
+function genLMMInterp(){
+  if(!window._lmmRes){showToast('Execute primeiro','error');return;}
+  const{beta,xColNames,pVals,icc,tau2,sigma2,yCol,reCol,feCols,n,nG,AIC}=window._lmmRes;
+  const sigFixed=xColNames.filter((_,i)=>i>0&&pVals[i]<0.05);
+  let txt=`O modelo misto linear foi ajustado para ${yCol} com efeito aleatório de intercepto por ${reCol} (N = ${n}, ${nG} grupos). `;
+  txt+=`A correlação intraclasse foi ICC = ${fmt(icc,3)}, indicando que ${fmt(icc*100,1)}% da variância total em ${yCol} é atribuível às diferenças entre ${reCol}s — ${icc>0.3?'o que justifica o uso de modelos mistos':'valor baixo, mas a estrutura hierárquica foi mantida por design experimental'}. `;
+  txt+=sigFixed.length>0?`Apresentaram efeito fixo significativo (p < 0,05): ${sigFixed.join(', ')}.`:`Nenhum efeito fixo foi significativo (p < 0,05).`;
+  document.getElementById('lmmInterpText').textContent=txt;
+  document.getElementById('lmmInterp').classList.add('show');
+}
+
+// ============================================================
+// STL DECOMPOSITION
+// ============================================================
+let stlCharts=[];
+
+function loess(x,y,span,d=1){
+  // Local polynomial regression (LOESS) — tricubic kernel
+  const n=x.length;
+  const result=new Array(n);
+  const halfSpan=Math.ceil(span*n/2);
+  for(let i=0;i<n;i++){
+    // Find neighbors
+    const dists=x.map((xi,j)=>({j,dist:Math.abs(xi-x[i])})).sort((a,b)=>a.dist-b.dist);
+    const neighbors=dists.slice(0,halfSpan);
+    const maxDist=neighbors[neighbors.length-1].dist||1;
+    // Tricubic weights
+    const W=neighbors.map(({j,dist})=>{const u=dist/maxDist;return u<1?(1-u**3)**3:0;});
+    // Weighted polynomial fit
+    const xi=neighbors.map(({j})=>x[j]);
+    const yi=neighbors.map(({j})=>y[j]);
+    const wi=W;
+    if(d===0){
+      const wSum=sum(wi);const wySum=wi.reduce((s,w,k)=>s+w*yi[k],0);
+      result[i]=wSum>0?wySum/wSum:mean(yi);
+    } else {
+      // Weighted linear regression
+      const wSumX=wi.reduce((s,w,k)=>s+w,0);
+      const wSumXY=wi.reduce((s,w,k)=>s+w*xi[k]*yi[k],0);
+      const wSumXX=wi.reduce((s,w,k)=>s+w*xi[k]**2,0);
+      const wSumX1=wi.reduce((s,w,k)=>s+w*xi[k],0);
+      const wSumY=wi.reduce((s,w,k)=>s+w*yi[k],0);
+      const det=wSumX*wSumXX-wSumX1**2;
+      if(Math.abs(det)<1e-12){result[i]=wSumY/wSumX||mean(yi);}
+      else{
+        const b0=(wSumY*wSumXX-wSumXY*wSumX1)/det;
+        const b1=(wSumX*wSumXY-wSumX1*wSumY)/det;
+        result[i]=b0+b1*x[i];
+      }
+    }
+  }
+  return result;
+}
+
+function stlDecompose(y,period,trendWin,type){
+  const n=y.length;
+  const x=Array.from({length:n},(_,i)=>i);
+
+  // Step 1: remove trend with LOESS
+  const trendSpan=trendWin==='auto'?Math.max(period*1.5,7)/n:+trendWin/n;
+  const trend=loess(x,y,Math.min(trendSpan,0.9));
+
+  // Step 2: detrend
+  const detrended=type==='multiplicative'
+    ? y.map((v,i)=>trend[i]!==0?v/trend[i]:v)
+    : y.map((v,i)=>v-trend[i]);
+
+  // Step 3: seasonal averaging per period position
+  const seasonal=new Array(n).fill(0);
+  for(let p=0;p<period;p++){
+    const positions=[];
+    for(let i=p;i<n;i+=period)positions.push(detrended[i]);
+    const seasVal=mean(positions);
+    for(let i=p;i<n;i+=period)seasonal[i]=seasVal;
+  }
+
+  // Step 4: residuals
+  const resid=type==='multiplicative'
+    ? y.map((v,i)=>v/(trend[i]*seasonal[i]||1))
+    : y.map((v,i)=>v-trend[i]-seasonal[i]);
+
+  // Strength metrics (Wang et al. 2006)
+  const varDetrend=sd(detrended,true)**2;
+  const varResid=sd(resid,true)**2;
+  const Ft=Math.max(0,1-varResid/sd(y.map((v,i)=>v-seasonal[i]),true)**2);
+  const Fs=Math.max(0,1-varResid/varDetrend);
+
+  // Seasonal profile (mean per period position)
+  const profile=Array.from({length:period},(_,p)=>{
+    const vals=[];for(let i=p;i<n;i+=period)vals.push(seasonal[i]);
+    return mean(vals);
+  });
+
+  return{trend,seasonal,resid,profile,Ft,Fs};
+}
+
+function parseSeries(raw){
+  const lines=raw.trim().split(/\n/).filter(l=>l.trim()&&!l.startsWith('#'));
+  const labels=[],values=[];
+  for(const l of lines){
+    const p=l.split(/[,;\t]+/).map(s=>s.trim());
+    if(p.length===1&&isFinite(+p[0])){labels.push(labels.length+1);values.push(+p[0]);}
+    else if(p.length===2&&isFinite(+p[1])){labels.push(p[0]);values.push(+p[1]);}
+    else if(p.length>=3&&isFinite(+p[p.length-1])){labels.push(`${p[0]}-${p[1]}`);values.push(+p[p.length-1]);}
+  }
+  return{labels,values};
+}
+
+function runSTL(){
+  const raw=document.getElementById('stlData').value;
+  const{labels,values}=parseSeries(raw);
+  if(values.length<2*+document.getElementById('stlPeriod').value){
+    showToast('Mínimo 2 ciclos completos necessários','error');return;
+  }
+  const period=+document.getElementById('stlPeriod').value;
+  const trendWin=document.getElementById('stlTrendWin').value;
+  const type=document.getElementById('stlType').value;
+
+  const{trend,seasonal,resid,profile,Ft,Fs}=stlDecompose(values,period,trendWin,type);
+
+  const ampSeas=Math.max(...seasonal)-Math.min(...seasonal);
+  const nPeriods=Math.floor(values.length/period);
+
+  // KPIs
+  document.getElementById('stlN').textContent=values.length;
+  document.getElementById('stlNPer').textContent=nPeriods;
+  document.getElementById('stlFT').textContent=fmt(Ft,3);
+  document.getElementById('stlFS').textContent=fmt(Fs,3);
+  document.getElementById('stlAmp').textContent=fmt(ampSeas,2);
+
+  // Charts
+  stlCharts.forEach(c=>c&&c.destroy());stlCharts=[];
+  const commonOpts={responsive:true,plugins:{legend:{display:false}},
+    scales:{x:{ticks:{font:{family:'Karla',size:9},maxRotation:45,maxTicksLimit:12},grid:{color:'rgba(0,0,0,0.03)'}},
+            y:{ticks:{font:{family:'Space Mono',size:9}},grid:{color:'rgba(0,0,0,0.04)'}}}};
+
+  stlCharts.push(new Chart(document.getElementById('stlOrigChart'),{type:'line',
+    data:{labels,datasets:[{label:'Original',data:values,borderColor:'var(--navy)',backgroundColor:'rgba(26,58,92,0.08)',borderWidth:1.8,pointRadius:0,fill:true,tension:0.2}]},options:commonOpts}));
+
+  stlCharts.push(new Chart(document.getElementById('stlTrendChart'),{type:'line',
+    data:{labels,datasets:[{label:'Tendência',data:trend,borderColor:'var(--rust)',backgroundColor:'rgba(192,57,43,0.08)',borderWidth:2,pointRadius:0,fill:true,tension:0.3}]},options:commonOpts}));
+
+  stlCharts.push(new Chart(document.getElementById('stlSeasChart'),{type:'line',
+    data:{labels,datasets:[{label:'Sazonalidade',data:seasonal,borderColor:'var(--teal)',backgroundColor:'rgba(10,124,110,0.08)',borderWidth:1.8,pointRadius:0,fill:true,tension:0.2}]},options:commonOpts}));
+
+  stlCharts.push(new Chart(document.getElementById('stlResidChart'),{type:'scatter',
+    data:{datasets:[{label:'Resíduo',data:resid.map((r,i)=>({x:i,y:r})),backgroundColor:'rgba(107,46,126,0.5)',borderColor:'var(--plum)',pointRadius:2.5}]},
+    options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{display:false},y:{ticks:{font:{family:'Space Mono',size:9}},grid:{color:'rgba(0,0,0,0.04)'}}}}}));
+
+  // Seasonal profile
+  const periodLabels={12:['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'],
+    4:['T1','T2','T3','T4'],7:['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'],
+    24:Array.from({length:24},(_,i)=>`${i}h`)};
+  const profLabels=periodLabels[period]||Array.from({length:period},(_,i)=>`P${i+1}`);
+  stlCharts.push(new Chart(document.getElementById('stlSeasProfileChart'),{type:'bar',
+    data:{labels:profLabels,datasets:[{label:'Componente sazonal médio',data:profile,
+      backgroundColor:profile.map(v=>v>=0?'rgba(10,124,110,0.6)':'rgba(192,57,43,0.6)'),
+      borderColor:profile.map(v=>v>=0?'var(--teal)':'var(--rust)'),borderWidth:2,borderRadius:4}]},
+    options:{responsive:true,plugins:{legend:{display:false}},
+      scales:{x:{grid:{display:false},ticks:{font:{family:'Karla',size:11}}},y:{grid:{color:'rgba(0,0,0,0.04)'},title:{display:true,text:`Componente sazonal (${type})`}}}}}));
+
+  const peakIdx=profile.indexOf(Math.max(...profile));
+  const troughIdx=profile.indexOf(Math.min(...profile));
+  document.getElementById('stlSeasExplain').innerHTML=`Pico sazonal: ${profLabels[peakIdx]} (${fmt(profile[peakIdx],2)}) · Mínimo: ${profLabels[troughIdx]} (${fmt(profile[troughIdx],2)}) · Amplitude = ${fmt(ampSeas,2)}`;
+
+  // Output
+  const sep='─'.repeat(52);
+  const txt=`${sep}\nDECOMPOSIÇÃO STL — SÉRIE TEMPORAL\nN = ${values.length}  Período = ${period}  Tipo = ${type}\n${sep}\n\nFORÇA DOS COMPONENTES\n  Tendência (Ft)     = ${fmt(Ft,4)}\n  Sazonalidade (Fs)  = ${fmt(Fs,4)}\n  Amplitude sazonal  = ${fmt(ampSeas,4)}\n\nPERFIL SAZONAL MÉDIO\n${profLabels.map((l,i)=>`  ${l.padEnd(6)} = ${fmt(profile[i],4)}`).join('\n')}\n${sep}\n`;
+  document.getElementById('stlResultBox').textContent=txt;
+  document.getElementById('stlResultsWrap').style.display='block';
+  window._stlRes={Ft,Fs,profile,profLabels,period,type,ampSeas,values,trend};
+  showToast('Decomposição concluída','success');
+}
+
+function genSTLInterp(){
+  if(!window._stlRes){showToast('Execute primeiro','error');return;}
+  const{Ft,Fs,profLabels,profile,period,type,ampSeas,values,trend}=window._stlRes;
+  const peakIdx=profile.indexOf(Math.max(...profile));
+  const troughIdx=profile.indexOf(Math.min(...profile));
+  const trendDir=trend[trend.length-1]>trend[0]?'crescente':'decrescente';
+  const trendChg=((trend[trend.length-1]-trend[0])/Math.abs(trend[0]||1)*100);
+  let txt=`A decomposição STL ${type==='multiplicative'?'multiplicativa':'aditiva'} separou a série em três componentes. `;
+  txt+=`A força da tendência foi Ft = ${fmt(Ft,3)} (${Ft>0.6?'tendência marcante':'tendência moderada'}), com direção ${trendDir} ao longo do período (variação de ${fmt(trendChg,1)}%). `;
+  txt+=`A força da sazonalidade foi Fs = ${fmt(Fs,3)} (${Fs>0.6?'sazonalidade forte e regular':'sazonalidade fraca ou irregular'}). `;
+  txt+=`O pico sazonal ocorre em ${profLabels[peakIdx]} e o mínimo em ${profLabels[troughIdx]}, com amplitude de ${fmt(ampSeas,2)} unidades.`;
+  document.getElementById('stlInterpText').textContent=txt;
+  document.getElementById('stlInterp').classList.add('show');
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function sw(name){
+  document.querySelectorAll('.mv').forEach(v=>{v.classList.remove('active');v.style.display='none';});
+  document.querySelectorAll('.snav').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.mtab').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.mbb').forEach(v=>v.classList.remove('active'));
+  const mv=document.getElementById('mv-'+name);
+  if(mv){mv.classList.add('active');mv.style.display='block';}
+  const sn=document.getElementById('snav-'+name);if(sn)sn.classList.add('active');
+  const mb=document.getElementById('mbb-'+name);if(mb)mb.classList.add('active');
+  const tabMap={lmm:0,stl:1};
+  const tabs=document.querySelectorAll('.mtab');
+  if(tabMap[name]!==undefined)tabs[tabMap[name]].classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+let toastT=null;
+function showToast(msg,type='info'){
+  const t=document.getElementById('toast');t.textContent=msg;t.className='t-'+type;
+  setTimeout(()=>t.classList.add('show'),10);
+  if(toastT)clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function copyEl(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>showToast('Copiado!','success'));}
+
+document.addEventListener('DOMContentLoaded',function(){
+  sw('lmm');
+  // Auto-update selects when data changes
+  document.getElementById('lmmData').addEventListener('input',function(){
+    clearTimeout(window._lmmTimer);
+    window._lmmTimer=setTimeout(updateLMMSelects,400);
+  });
+});
+</script>
+</body>
+</html>

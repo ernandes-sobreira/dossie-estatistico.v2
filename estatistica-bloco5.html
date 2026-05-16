@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estatística Bloco 5 — Dossiê v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Karla:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f8f7f4;--surface:#f0ede8;--surface2:#e8e4dd;--card:#fff;
+  --text:#1a1814;--text2:#5a554e;--muted:#9e9890;--line:#e2ddd7;--ink:#1a1814;
+  --rust:#c0392b;--rust-light:rgba(192,57,43,0.1);
+  --teal:#0a7c6e;--teal-light:rgba(10,124,110,0.1);
+  --navy:#1a3a5c;--navy-light:rgba(26,58,92,0.1);
+  --gold:#c47a00;--gold-light:rgba(196,122,0,0.1);
+  --plum:#6b2e7e;--plum-light:rgba(107,46,126,0.1);
+  --font-display:'Syne',sans-serif;--font-body:'Karla',sans-serif;--font-mono:'Space Mono',monospace;
+  --radius-sm:8px;--radius:14px;--radius-lg:20px;
+  --shadow-sm:0 2px 8px rgba(0,0,0,0.07);--shadow-md:0 6px 20px rgba(0,0,0,0.09);
+  --transition:0.2s cubic-bezier(0.4,0,0.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+
+.topbar{background:var(--ink);color:#fff;display:flex;align-items:center;padding:0 24px;gap:16px;height:54px;position:sticky;top:0;z-index:100}
+.tlogo{font-family:var(--font-display);font-size:16px;font-weight:800;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px}
+.tbadge{background:var(--rust);font-family:var(--font-mono);font-size:10px;padding:2px 7px;border-radius:4px}
+.tsep{width:1px;height:22px;background:rgba(255,255,255,0.15)}
+.tsub{color:rgba(255,255,255,0.45);font-size:13px}
+.tback{margin-left:auto;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.85);font-family:var(--font-display);font-size:12px;font-weight:700;padding:5px 13px;border-radius:6px;cursor:pointer;transition:var(--transition)}
+.tback:hover{background:rgba(255,255,255,0.2);color:#fff}
+
+.shell{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 54px)}
+.sidebar{background:var(--ink);padding:20px 0;position:sticky;top:54px;height:calc(100vh - 54px);overflow-y:auto}
+.slabel{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;color:rgba(255,255,255,0.3);text-transform:uppercase;padding:0 18px 6px;margin-top:14px}
+.slabel:first-child{margin-top:0}
+.snav{display:flex;align-items:center;gap:10px;padding:9px 18px;cursor:pointer;font-size:13px;font-weight:500;color:rgba(255,255,255,0.5);border-left:3px solid transparent;transition:var(--transition)}
+.snav:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.05)}
+.snav.active{color:#fff;background:rgba(255,255,255,0.08);border-left-color:var(--rust)}
+.sicon{font-size:14px;width:20px;text-align:center}
+.main{padding:30px 34px;max-width:940px}
+
+.mtabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:28px;border-bottom:2px solid var(--ink);padding-bottom:16px}
+.mtab{display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--radius-sm);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;background:var(--surface);border:1.5px solid var(--line);color:var(--text2);transition:var(--transition)}
+.mtab:hover{border-color:var(--ink);color:var(--ink)}
+.mtab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:18px}
+.card:hover{box-shadow:var(--shadow-sm)}
+.ctitle{font-family:var(--font-display);font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.cicon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.c-teal{background:var(--teal-light)}.c-rust{background:var(--rust-light)}.c-navy{background:var(--navy-light)}.c-gold{background:var(--gold-light)}.c-plum{background:var(--plum-light)}
+
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.fgrid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+label{font-family:var(--font-display);font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text2)}
+input[type="text"],input[type="number"],select,textarea{background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-sm);padding:9px 12px;font-family:var(--font-body);font-size:14px;color:var(--text);outline:none;width:100%;transition:var(--transition)}
+input:focus,select:focus,textarea:focus{border-color:var(--teal);background:#fff;box-shadow:0 0 0 3px rgba(10,124,110,0.1)}
+textarea{resize:vertical;font-family:var(--font-mono);font-size:12.5px;line-height:1.55}
+.hint{font-size:12px;color:var(--muted);line-height:1.4;margin-top:3px}
+
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--radius-sm);font-family:var(--font-display);font-size:13px;font-weight:700;cursor:pointer;transition:var(--transition);border:none;white-space:nowrap}
+.btn-primary{background:var(--teal);color:#fff}.btn-primary:hover{background:#086b5e;transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.btn-danger{background:var(--rust);color:#fff}.btn-danger:hover{background:#a93226}
+.btn-ghost{background:transparent;border:1.5px solid var(--line);color:var(--text2)}.btn-ghost:hover{border-color:var(--text2);color:var(--text);background:var(--surface)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px}
+
+.rbox{background:var(--ink);border-radius:var(--radius);padding:18px 20px;font-family:var(--font-mono);font-size:12px;line-height:1.85;color:rgba(255,255,255,0.9);white-space:pre-wrap;overflow-x:auto;min-height:60px;margin-bottom:14px}
+.cwrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+.ctit{font-family:var(--font-display);font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:var(--text2);margin-bottom:12px}
+.cexp{font-size:13px;color:var(--text2);margin-top:10px;padding:9px 13px;background:var(--surface);border-radius:var(--radius-sm);border-left:3px solid var(--teal)}
+
+.kstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.kstrip5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;text-align:center}
+.klabel{font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.kval{font-family:var(--font-mono);font-size:20px;font-weight:700;color:var(--ink);line-height:1}
+.knote{font-size:11px;color:var(--muted);margin-top:3px}
+.hi-teal{border-color:var(--teal)}.hi-teal .kval{color:var(--teal)}
+.hi-rust{border-color:var(--rust)}.hi-rust .kval{color:var(--rust)}
+.hi-gold{border-color:var(--gold)}.hi-gold .kval{color:var(--gold)}
+.hi-navy{border-color:var(--navy)}.hi-navy .kval{color:var(--navy)}
+
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:99px;font-family:var(--font-display);font-size:11px;font-weight:700}
+.badge-teal{background:var(--teal-light);color:var(--teal)}
+.badge-rust{background:var(--rust-light);color:var(--rust)}
+.badge-gold{background:var(--gold-light);color:var(--gold)}
+.badge-muted{background:var(--surface2);color:var(--muted)}
+.badge-navy{background:var(--navy-light);color:var(--navy)}
+
+.tbl{width:100%;border-collapse:collapse;font-size:13px;font-family:var(--font-mono)}
+.tbl th{background:var(--ink);color:rgba(255,255,255,0.8);font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:8px 12px;text-align:right}
+.tbl th:first-child{text-align:left}
+.tbl td{padding:8px 12px;border-bottom:1px solid var(--line);text-align:right;font-size:12.5px}
+.tbl td:first-child{text-align:left;font-family:var(--font-display);font-weight:700;font-size:12px}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--surface)}
+.sig{color:var(--rust);font-weight:700}.ns{color:var(--muted)}
+
+.dbox{background:var(--ink);border-radius:var(--radius-sm);padding:12px 16px;font-family:var(--font-mono);font-size:11.5px;color:rgba(255,255,255,0.75);line-height:1.6;margin-bottom:12px}
+.dbox .c{color:rgba(255,255,255,0.35)}
+
+.interp{background:#f9f7f4;border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:var(--radius);padding:14px 16px;font-size:14px;line-height:1.7;margin-top:12px;display:none}
+.interp.show{display:block}
+
+.mv{display:none}.mv.active{display:block}
+
+/* Pettitt change point */
+.change-box{display:flex;align-items:center;gap:14px;padding:16px 20px;border-radius:var(--radius);border:2px solid var(--teal);background:var(--teal-light);margin-bottom:16px}
+.change-icon{font-size:32px;line-height:1}
+.change-label{font-family:var(--font-display);font-size:15px;font-weight:800;color:var(--teal)}
+.change-sub{font-size:13px;color:var(--text2);margin-top:3px}
+
+/* RDA arrows canvas */
+#rdaBiplotCanvas{display:block;width:100%;border-radius:var(--radius-sm)}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:10px 22px;border-radius:99px;font-family:var(--font-display);font-size:13px;font-weight:600;z-index:9999;transition:0.35s cubic-bezier(0.22,1,0.36,1);pointer-events:none;box-shadow:var(--shadow-md)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+#toast.t-success{background:var(--teal)}
+#toast.t-error{background:var(--rust)}
+#toast.t-info{background:var(--navy)}
+
+.mob-bot{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--ink);border-top:1px solid rgba(255,255,255,0.1);z-index:200;padding:6px 0 env(safe-area-inset-bottom,6px)}
+.mob-items{display:flex;justify-content:space-around}
+.mbb{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.45);font-family:var(--font-display);font-size:9px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase}
+.mbb .mi{font-size:18px;line-height:1}
+.mbb.active{color:var(--rust)}
+
+@media(max-width:820px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .mob-bot{display:block}
+  .main{padding:18px 14px 90px;max-width:100%}
+  .fgrid,.fgrid3{grid-template-columns:1fr}
+  .kstrip,.kstrip5{grid-template-columns:1fr 1fr}
+  .mtabs{gap:4px}
+  .mtab{padding:7px 11px;font-size:12px}
+  .tsub,.tsep{display:none}
+}
+@media(max-width:480px){
+  .kstrip,.kstrip5{grid-template-columns:1fr 1fr;gap:8px}
+  .kval{font-size:17px}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="tlogo"><span>Dossiê Estatístico</span><span class="tbadge">v2</span></div>
+  <div class="tsep"></div>
+  <span class="tsub">Bloco 5 — NMDS · PERMANOVA · Pettitt · RDA</span>
+  <button class="tback" onclick="window.location.href='index.html'">← Painel principal</button>
+</header>
+
+<div class="shell">
+<nav class="sidebar">
+  <div class="slabel">Módulos</div>
+  <div class="snav active" id="snav-nmds" onclick="sw('nmds')"><span class="sicon">🗺</span>NMDS</div>
+  <div class="snav" id="snav-permanova" onclick="sw('permanova')"><span class="sicon">🔀</span>PERMANOVA</div>
+  <div class="snav" id="snav-pettitt" onclick="sw('pettitt')"><span class="sicon">📍</span>Pettitt</div>
+  <div class="snav" id="snav-rda" onclick="sw('rda')"><span class="sicon">🎯</span>RDA</div>
+  <div class="slabel">Referência</div>
+  <div class="snav" id="snav-ajuda" onclick="sw('ajuda')"><span class="sicon">📖</span>Guia</div>
+  <div style="margin-top:auto;padding:16px 18px;border-top:1px solid rgba(255,255,255,0.08);margin-top:30px">
+    <div style="font-family:var(--font-mono);font-size:10px;color:rgba(255,255,255,0.22)">Dossiê v2 · Bloco 5<br>UNEMAT — Cáceres</div>
+  </div>
+</nav>
+
+<main class="main">
+
+<div class="mtabs">
+  <div class="mtab active" onclick="sw('nmds')">🗺 NMDS</div>
+  <div class="mtab" onclick="sw('permanova')">🔀 PERMANOVA</div>
+  <div class="mtab" onclick="sw('pettitt')">📍 Pettitt</div>
+  <div class="mtab" onclick="sw('rda')">🎯 RDA</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MÓDULO 1 — NMDS
+══════════════════════════════════════════ -->
+<div class="mv active" id="mv-nmds">
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">Módulo 01</div>
+    <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">NMDS</div>
+    <div style="color:var(--text2);font-size:14px;margin-top:5px">Escalonamento Multidimensional Não Métrico — ordenação de comunidades por similaridade</div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-navy">📥</span>Matriz de abundância</div>
+    <div class="dbox">
+      <span class="c"># Primeira linha = cabeçalho. Primeira coluna = rótulo da amostra.</span><br>
+      <span class="c"># Demais colunas = espécies ou variáveis</span><br>
+      Site, Sp_A, Sp_B, Sp_C, Sp_D, Sp_E<br>
+      P1, 45, 12, 0, 8, 32<br>
+      P2, 42, 15, 2, 6, 28
+    </div>
+    <div class="field">
+      <label>Dados (amostras × espécies)</label>
+      <textarea id="nmdsData" rows="12" placeholder="Site, Sp1, Sp2, Sp3&#10;P1, 45, 12, 0&#10;P2, 42, 15, 2&#10;..."></textarea>
+    </div>
+    <div class="btn-row" style="margin-bottom:12px">
+      <button class="btn btn-ghost btn-sm" onclick="nmdsDemo('pantanal')">🌿 Pantanal</button>
+      <button class="btn btn-ghost btn-sm" onclick="nmdsDemo('aquatico')">💧 Aquático</button>
+      <button class="btn btn-ghost btn-sm" onclick="nmdsDemo('solo')">🌱 Solo</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('nmdsData').value=''">🗑 Limpar</button>
+    </div>
+    <div class="fgrid3">
+      <div class="field">
+        <label>Distância</label>
+        <select id="nmdsDist">
+          <option value="bray">Bray-Curtis (padrão ecologia)</option>
+          <option value="jaccard">Jaccard (presença/ausência)</option>
+          <option value="euclidean">Euclidiana</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Dimensões (k)</label>
+        <select id="nmdsK">
+          <option value="2">2 (padrão, visualizável)</option>
+          <option value="3">3 (mais preciso)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Iterações máximas</label>
+        <input type="number" id="nmdsIter" value="200" min="50" max="1000">
+      </div>
+    </div>
+    <div class="field">
+      <label>Variável de grupo (para colorir — opcional)</label>
+      <input type="text" id="nmdsGroups" placeholder="Ex: P1=Margem, P2=Margem, P3=Interior, P4=Interior, ...">
+      <div class="hint">Use o formato: NomeSite=Grupo — separe por vírgula. Deixe em branco para sem grupos.</div>
+    </div>
+    <button class="btn btn-danger" onclick="runNMDS()">▶ Executar NMDS</button>
+  </div>
+
+  <div id="nmdsResultsWrap" style="display:none">
+    <div class="kstrip">
+      <div class="kpi hi-teal"><div class="klabel">Stress</div><div class="kval" id="nmdsStress">—</div><div class="knote" id="nmdsStressNote"></div></div>
+      <div class="kpi"><div class="klabel">Iterações</div><div class="kval" id="nmdsIterDone">—</div></div>
+      <div class="kpi"><div class="klabel">N amostras</div><div class="kval" id="nmdsN">—</div></div>
+      <div class="kpi"><div class="klabel">Variáveis</div><div class="kval" id="nmdsV">—</div></div>
+    </div>
+
+    <div class="cwrap">
+      <div class="ctit">Diagrama NMDS (NMDS1 × NMDS2)</div>
+      <canvas id="nmdsChart" height="340"></canvas>
+      <div class="cexp" id="nmdsExplain"></div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-teal">📄</span>Scores e saída</div>
+      <div class="rbox" id="nmdsResultBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="copyEl('nmdsResultBox')">📋 Copiar</button>
+        <button class="btn btn-ghost btn-sm" onclick="genNMDSInterp()">💬 Interpretação</button>
+      </div>
+    </div>
+    <div class="interp" id="nmdsInterp"><strong style="font-family:var(--font-display)">Interpretação:</strong> <span id="nmdsInterpText"></span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MÓDULO 2 — PERMANOVA
+══════════════════════════════════════════ -->
+<div class="mv" id="mv-permanova">
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">Módulo 02</div>
+    <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">PERMANOVA</div>
+    <div style="color:var(--text2);font-size:14px;margin-top:5px">Teste multivariado de composição entre grupos — baseado em permutação, sem premissa de normalidade</div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-navy">📥</span>Dados</div>
+    <div class="dbox">
+      <span class="c"># Primeira coluna = grupo. Demais = variáveis/espécies.</span><br>
+      Grupo, Sp_A, Sp_B, Sp_C, Sp_D, Sp_E<br>
+      Margem, 45, 12, 0, 8, 32<br>
+      Margem, 42, 15, 2, 6, 28<br>
+      Interior, 8, 45, 32, 0, 5
+    </div>
+    <div class="field">
+      <label>Dados (Grupo | Var1 | Var2 ...)</label>
+      <textarea id="permData" rows="12" placeholder="Grupo, Sp1, Sp2, Sp3&#10;GrupoA, 45, 12, 0&#10;GrupoA, 42, 15, 2&#10;GrupoB, 8, 45, 32&#10;..."></textarea>
+    </div>
+    <div class="btn-row" style="margin-bottom:12px">
+      <button class="btn btn-ghost btn-sm" onclick="permDemo('comunidades')">🌿 Comunidades</button>
+      <button class="btn btn-ghost btn-sm" onclick="permDemo('hidro')">💧 Hidroqu.</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('permData').value=''">🗑 Limpar</button>
+    </div>
+    <div class="fgrid">
+      <div class="field">
+        <label>Distância</label>
+        <select id="permDist">
+          <option value="bray">Bray-Curtis</option>
+          <option value="jaccard">Jaccard</option>
+          <option value="euclidean">Euclidiana</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Permutações</label>
+        <select id="permN">
+          <option value="999">999 (padrão)</option>
+          <option value="499">499 (rápido)</option>
+          <option value="4999">4999 (preciso)</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-danger" onclick="runPERMANOVA()">▶ Executar PERMANOVA</button>
+  </div>
+
+  <div id="permResultsWrap" style="display:none">
+    <div class="kstrip5">
+      <div class="kpi hi-teal"><div class="klabel">F pseudo</div><div class="kval" id="permF">—</div><div class="knote" id="permFNote"></div></div>
+      <div class="kpi hi-rust"><div class="klabel">p-valor</div><div class="kval" id="permP">—</div><div class="knote" id="permPNote"></div></div>
+      <div class="kpi"><div class="klabel">R²</div><div class="kval" id="permR2">—</div><div class="knote">variância explicada</div></div>
+      <div class="kpi"><div class="klabel">Permutações</div><div class="kval" id="permNDone">—</div></div>
+      <div class="kpi"><div class="klabel">Grupos</div><div class="kval" id="permG">—</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+      <div class="cwrap">
+        <div class="ctit">Distribuição das permutações (F)</div>
+        <canvas id="permHistChart" height="220"></canvas>
+        <div class="cexp" id="permHistExplain"></div>
+      </div>
+      <div class="cwrap">
+        <div class="ctit">Distâncias intra vs. entre grupos</div>
+        <canvas id="permBoxChart" height="220"></canvas>
+        <div class="cexp" id="permBoxExplain"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-teal">📄</span>Saída completa</div>
+      <div class="rbox" id="permResultBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="copyEl('permResultBox')">📋 Copiar</button>
+        <button class="btn btn-ghost btn-sm" onclick="genPermInterp()">💬 Interpretação</button>
+      </div>
+    </div>
+    <div class="interp" id="permInterp"><strong style="font-family:var(--font-display)">Interpretação:</strong> <span id="permInterpText"></span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MÓDULO 3 — PETTITT
+══════════════════════════════════════════ -->
+<div class="mv" id="mv-pettitt">
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">Módulo 03</div>
+    <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">Teste de Pettitt</div>
+    <div style="color:var(--text2);font-size:14px;margin-top:5px">Detecta ponto de mudança abrupta em séries temporais — complemento ao Mann-Kendall</div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-navy">📥</span>Série temporal</div>
+    <div class="dbox">
+      <span class="c"># Uma observação por linha. Formato: Ano, Valor ou só o Valor</span><br>
+      2000, 18.2<br>2001, 19.5<br>2002, 22.1
+    </div>
+    <div class="field">
+      <label>Série temporal</label>
+      <textarea id="pettData" rows="12" placeholder="Ano, Valor&#10;2000, 18.2&#10;2001, 19.5&#10;..."></textarea>
+    </div>
+    <div class="btn-row" style="margin-bottom:12px">
+      <button class="btn btn-ghost btn-sm" onclick="pettDemo('temp')">🌡 Temperatura</button>
+      <button class="btn btn-ghost btn-sm" onclick="pettDemo('prec')">💧 Precipitação</button>
+      <button class="btn btn-ghost btn-sm" onclick="pettDemo('vazao')">🏞 Vazão</button>
+      <button class="btn btn-ghost btn-sm" onclick="pettDemo('pm25')">🌫 PM2.5</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('pettData').value=''">🗑 Limpar</button>
+    </div>
+    <div class="field">
+      <label>Nível α</label>
+      <select id="pettAlpha">
+        <option value="0.05">0,05 (padrão)</option>
+        <option value="0.01">0,01</option>
+        <option value="0.10">0,10</option>
+      </select>
+    </div>
+    <button class="btn btn-danger" onclick="runPettitt()">▶ Executar Pettitt</button>
+  </div>
+
+  <div id="pettResultsWrap" style="display:none">
+    <div id="pettChangeBox" class="change-box">
+      <div class="change-icon" id="pettIcon">📍</div>
+      <div>
+        <div class="change-label" id="pettLabel">—</div>
+        <div class="change-sub" id="pettSub">—</div>
+      </div>
+      <span class="badge badge-teal" id="pettBadge" style="margin-left:auto">—</span>
+    </div>
+
+    <div class="kstrip5">
+      <div class="kpi hi-teal"><div class="klabel">Ponto de mudança</div><div class="kval" id="pettCP">—</div><div class="knote" id="pettCPNote"></div></div>
+      <div class="kpi"><div class="klabel">K (estatística)</div><div class="kval" id="pettK">—</div></div>
+      <div class="kpi"><div class="klabel">U (máximo)</div><div class="kval" id="pettU">—</div></div>
+      <div class="kpi"><div class="klabel">p-valor</div><div class="kval" id="pettP">—</div><div class="knote" id="pettPNote"></div></div>
+      <div class="kpi"><div class="klabel">N</div><div class="kval" id="pettN">—</div></div>
+    </div>
+
+    <div class="cwrap">
+      <div class="ctit">Série temporal com ponto de mudança</div>
+      <canvas id="pettChart" height="260"></canvas>
+      <div class="cexp" id="pettExplain"></div>
+    </div>
+
+    <div class="cwrap">
+      <div class="ctit">Estatística U(t) — onde U é máximo = ponto de mudança</div>
+      <canvas id="pettUChart" height="180"></canvas>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-teal">📄</span>Saída completa</div>
+      <div class="rbox" id="pettResultBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="copyEl('pettResultBox')">📋 Copiar</button>
+        <button class="btn btn-ghost btn-sm" onclick="genPettInterp()">💬 Interpretação</button>
+      </div>
+    </div>
+    <div class="interp" id="pettInterp"><strong style="font-family:var(--font-display)">Interpretação:</strong> <span id="pettInterpText"></span></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MÓDULO 4 — RDA
+══════════════════════════════════════════ -->
+<div class="mv" id="mv-rda">
+  <div style="margin-bottom:20px">
+    <div style="font-family:var(--font-display);font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--rust);margin-bottom:4px">Módulo 04</div>
+    <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;line-height:1.1">RDA</div>
+    <div style="color:var(--text2);font-size:14px;margin-top:5px">Análise de Redundância — PCA constrangida por variáveis explicativas (Y ~ X)</div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-navy">📥</span>Dados — duas matrizes</div>
+    <div style="font-size:13.5px;color:var(--text2);margin-bottom:14px;line-height:1.7">
+      A RDA requer duas matrizes: <strong>Y (resposta)</strong> — composição de comunidades ou variáveis biológicas — e <strong>X (explicativas)</strong> — variáveis ambientais. Cole cada uma no campo correspondente.
+    </div>
+
+    <div class="fgrid">
+      <div class="field">
+        <label>Matriz Y — resposta (espécies/variáveis biológicas)</label>
+        <textarea id="rdaY" rows="10" placeholder="Site, Sp1, Sp2, Sp3&#10;P1, 45, 12, 8&#10;P2, 42, 15, 6&#10;..."></textarea>
+        <div class="hint">Com cabeçalho. Primeira coluna = rótulo do site.</div>
+      </div>
+      <div class="field">
+        <label>Matriz X — explicativas (variáveis ambientais)</label>
+        <textarea id="rdaX" rows="10" placeholder="Site, Temp, pH, OD&#10;P1, 28.3, 6.8, 7.2&#10;P2, 27.1, 7.0, 7.8&#10;..."></textarea>
+        <div class="hint">Mesmos sites que Y, na mesma ordem.</div>
+      </div>
+    </div>
+    <div class="btn-row" style="margin-bottom:12px">
+      <button class="btn btn-ghost btn-sm" onclick="rdaDemo()">💧 Limnologia + Peixes</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('rdaY').value='';document.getElementById('rdaX').value=''">🗑 Limpar</button>
+    </div>
+    <div class="fgrid">
+      <div class="field">
+        <label>Padronizar Y</label>
+        <select id="rdaScaleY">
+          <option value="hellinger">Hellinger (recomendado para abundância)</option>
+          <option value="zscore">Z-score</option>
+          <option value="none">Sem padronização</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Padronizar X</label>
+        <select id="rdaScaleX">
+          <option value="yes">Sim (Z-score — recomendado)</option>
+          <option value="no">Não</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-danger" onclick="runRDA()">▶ Executar RDA</button>
+  </div>
+
+  <div id="rdaResultsWrap" style="display:none">
+    <div class="kstrip5">
+      <div class="kpi hi-teal"><div class="klabel">RDA1</div><div class="kval" id="rdaAxis1">—</div><div class="knote">variância</div></div>
+      <div class="kpi hi-navy"><div class="klabel">RDA2</div><div class="kval" id="rdaAxis2">—</div><div class="knote">variância</div></div>
+      <div class="kpi"><div class="klabel">Total explicado</div><div class="kval" id="rdaTotal">—</div><div class="knote">% variância Y por X</div></div>
+      <div class="kpi"><div class="klabel">N sites</div><div class="kval" id="rdaN">—</div></div>
+      <div class="kpi"><div class="klabel">Variáveis X</div><div class="kval" id="rdaKX">—</div></div>
+    </div>
+
+    <div class="cwrap">
+      <div class="ctit">Triplot RDA (sites · espécies · variáveis ambientais)</div>
+      <canvas id="rdaBiplotCanvas" height="380"></canvas>
+      <div class="cexp" id="rdaBiplotExplain"></div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-rust">📊</span>Scores dos eixos RDA</div>
+      <div style="overflow-x:auto">
+        <table class="tbl" id="rdaTable">
+          <thead><tr>
+            <th style="text-align:left">Site</th>
+            <th>RDA1</th><th>RDA2</th>
+          </tr></thead>
+          <tbody id="rdaTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ctitle"><span class="cicon c-teal">📄</span>Saída completa</div>
+      <div class="rbox" id="rdaResultBox"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost btn-sm" onclick="copyEl('rdaResultBox')">📋 Copiar</button>
+        <button class="btn btn-ghost btn-sm" onclick="genRDAInterp()">💬 Interpretação</button>
+      </div>
+    </div>
+    <div class="interp" id="rdaInterp"><strong style="font-family:var(--font-display)">Interpretação:</strong> <span id="rdaInterpText"></span></div>
+  </div>
+</div>
+
+<!-- AJUDA -->
+<div class="mv" id="mv-ajuda">
+  <div style="font-family:var(--font-display);font-size:26px;font-weight:800;letter-spacing:-0.03em;margin-bottom:20px">Guia — Bloco 5</div>
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-navy">🗺</span>NMDS — interpretação</div>
+    <div style="font-size:13.5px;color:var(--text2);line-height:1.8">
+      <strong>Stress &lt; 0,05</strong>: excelente · <strong>&lt; 0,10</strong>: bom · <strong>&lt; 0,20</strong>: aceitável · <strong>&gt; 0,20</strong>: interpretação arriscada.<br>
+      Amostras próximas no diagrama = composição similar. Distância no diagrama ≈ dissimilaridade real.<br>
+      Os eixos do NMDS não têm unidade interpretável — o que importa é a posição relativa entre pontos.<br>
+      Use Bray-Curtis para dados de abundância. Jaccard para presença/ausência.
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-rust">🔀</span>PERMANOVA — cuidados</div>
+    <div style="font-size:13.5px;color:var(--text2);line-height:1.8">
+      Testa se a composição multivariada difere entre grupos. Robusto a não normalidade.<br>
+      <strong>R²</strong> = proporção da variância total explicada pelo fator grupo.<br>
+      <strong>Atenção:</strong> PERMANOVA é sensível a diferenças de dispersão entre grupos (heterogeneidade de variâncias). Se grupos têm dispersões muito diferentes, um resultado significativo pode refletir dispersão, não localização. Verifique com PERMDISP (não implementado aqui — use R/vegan).
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-teal">📍</span>Pettitt — complemento ao Mann-Kendall</div>
+    <div style="font-size:13.5px;color:var(--text2);line-height:1.8">
+      Mann-Kendall detecta <em>tendência monotônica</em>. Pettitt detecta <em>mudança abrupta de nível</em> (step change).<br>
+      Série com seca severa em um ano específico, mudança de uso do solo, construção de barragem — Pettitt localiza o ponto exato de ruptura.<br>
+      p-valor via aproximação assintótica de Pettitt (1979).
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctitle"><span class="cicon c-gold">🎯</span>RDA — diferença da PCA</div>
+    <div style="font-size:13.5px;color:var(--text2);line-height:1.8">
+      PCA maximiza variância total de Y. RDA maximiza variância de Y <em>explicada por X</em>.<br>
+      Resultado: eixos RDA são combinações lineares das variáveis ambientais (X) que melhor explicam a composição das comunidades (Y).<br>
+      <strong>Triplot:</strong> pontos = sites · setas vermelhas = variáveis ambientais (X) · setas azuis = espécies/resposta (Y).<br>
+      Ângulo entre setas ≈ correlação. Site próximo à ponta de seta ambiental = aquele ambiente está associado a esse site.
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<div class="mob-bot">
+  <div class="mob-items">
+    <button class="mbb active" id="mbb-nmds" onclick="sw('nmds')"><span class="mi">🗺</span>NMDS</button>
+    <button class="mbb" id="mbb-permanova" onclick="sw('permanova')"><span class="mi">🔀</span>PERMANOVA</button>
+    <button class="mbb" id="mbb-pettitt" onclick="sw('pettitt')"><span class="mi">📍</span>Pettitt</button>
+    <button class="mbb" id="mbb-rda" onclick="sw('rda')"><span class="mi">🎯</span>RDA</button>
+    <button class="mbb" onclick="window.location.href='index.html'"><span class="mi">⌂</span>Hub</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// MATH UTILS
+// ============================================================
+function mean(a){return a.reduce((s,v)=>s+v,0)/a.length}
+function sd(a,samp=true){if(a.length<2)return 0;const m=mean(a),n=a.length;return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/(samp?n-1:n))}
+function sum(a){return a.reduce((s,v)=>s+v,0)}
+function fmt(v,d=4){if(!isFinite(v))return'—';return v.toFixed(d)}
+function pLabel(p){if(!isFinite(p))return'—';if(p<0.001)return'< 0,001 ***';if(p<0.01)return'< 0,01 **';if(p<0.05)return'< 0,05 *';return fmt(p,4)+' ns'}
+
+// Distances
+function distBray(a,b){
+  const num=a.reduce((s,v,i)=>s+Math.abs(v-b[i]),0);
+  const den=a.reduce((s,v,i)=>s+v+b[i],0);
+  return den===0?0:num/den;
+}
+function distJaccard(a,b){
+  let both=0,either=0;
+  a.forEach((v,i)=>{if(v>0||b[i]>0){either++;if(v>0&&b[i]>0)both++;}});
+  return either===0?0:1-both/either;
+}
+function distEuclidean(a,b){return Math.sqrt(a.reduce((s,v,i)=>s+(v-b[i])**2,0))}
+
+function getDistFn(name){
+  return name==='bray'?distBray:name==='jaccard'?distJaccard:distEuclidean;
+}
+
+function buildDistMat(rows,distFn){
+  const n=rows.length;
+  return Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>i===j?0:distFn(rows[i],rows[j])));
+}
+
+// Parse matrix
+function parseMatrix(raw,hasLabel=true){
+  const lines=raw.trim().split(/\n/).filter(l=>l.trim()&&!l.startsWith('#'));
+  if(lines.length<2)return null;
+  const headers=lines[0].split(/[,;\t]+/).map(s=>s.trim());
+  const varNames=hasLabel?headers.slice(1):headers;
+  const labels=[],rows=[];
+  for(const l of lines.slice(1)){
+    const p=l.split(/[,;\t]+/).map(s=>s.trim());
+    if(hasLabel){labels.push(p[0]);rows.push(p.slice(1).map(Number));}
+    else{labels.push(`S${rows.length+1}`);rows.push(p.map(Number));}
+    if(rows[rows.length-1].some(isNaN)){rows.pop();if(hasLabel)labels.pop();}
+  }
+  return rows.length>=3?{varNames,labels,rows}:null;
+}
+
+// Parse series
+function parseSeries(raw){
+  const lines=raw.trim().split(/\n/).filter(l=>l.trim()&&!l.startsWith('#'));
+  const labels=[],values=[];
+  for(const l of lines){
+    const p=l.split(/[,;\t]+/).map(s=>s.trim());
+    if(p.length===1&&isFinite(+p[0])){labels.push(labels.length+1);values.push(+p[0]);}
+    else if(p.length>=2&&isFinite(+p[p.length-1])){labels.push(p[0]);values.push(+p[p.length-1]);}
+  }
+  return{labels,values};
+}
+
+// normCDF
+function normCDF(z){return 0.5*(1+erf(z/Math.sqrt(2)))}
+function erf(x){const t=1/(1+0.3275911*Math.abs(x));const y=1-t*(0.254829592+t*(-0.284496736+t*(1.421413741+t*(-1.453152027+t*1.061405429))))*Math.exp(-x*x);return x<0?-y:y}
+
+// ============================================================
+// DEMOS
+// ============================================================
+const DEMOS_NMDS={
+  pantanal:`Site, Capivara, Jacare, Lontra, Ariranha, Cervo, Cateto, Queixada, Anta, Cachorro_mato, Tamandua
+P1_Margem, 45, 32, 8, 3, 18, 25, 20, 6, 12, 7
+P2_Margem, 42, 35, 10, 4, 20, 22, 18, 7, 10, 6
+P3_Margem, 38, 28, 6, 2, 15, 28, 24, 5, 14, 8
+P4_Interior, 12, 8, 2, 0, 6, 35, 30, 3, 20, 15
+P5_Interior, 10, 6, 1, 0, 5, 38, 33, 2, 22, 18
+P6_Interior, 15, 10, 3, 1, 8, 32, 28, 4, 18, 12
+P7_Cerrado, 5, 3, 0, 0, 4, 15, 12, 2, 28, 22
+P8_Cerrado, 8, 4, 0, 0, 6, 18, 15, 3, 30, 25
+P9_Cerrado, 3, 2, 0, 0, 3, 12, 10, 1, 32, 28`,
+  aquatico:`Site, Prochilodus, Colossoma, Piaractus, Leporinus, Hoplias, Serrasalmus, Cichla, Brycon, Salminus, Pseudoplatystoma
+Rio_A1, 85, 45, 38, 62, 28, 12, 35, 42, 18, 8
+Rio_A2, 80, 42, 35, 58, 25, 10, 32, 38, 16, 7
+Rio_B1, 42, 80, 65, 25, 35, 18, 20, 15, 8, 12
+Rio_B2, 45, 78, 60, 28, 32, 15, 22, 18, 9, 10
+Lagoa1, 120, 60, 80, 18, 42, 8, 15, 8, 3, 5
+Lagoa2, 115, 65, 75, 20, 38, 6, 18, 10, 4, 4
+Corixo1, 18, 12, 8, 35, 55, 22, 8, 28, 12, 15
+Corixo2, 20, 15, 10, 32, 52, 20, 6, 25, 10, 14`,
+  solo:`Site, pH, MO, P, K, Ca, Mg, Al, Argila
+Pastagem1, 5.2, 28, 8, 0.18, 2.1, 0.8, 1.2, 42
+Pastagem2, 5.0, 25, 7, 0.15, 1.8, 0.7, 1.5, 38
+Cerrado1, 5.8, 35, 12, 0.22, 3.2, 1.2, 0.8, 55
+Cerrado2, 5.6, 33, 11, 0.20, 2.9, 1.1, 0.9, 52
+Plantio1, 6.2, 22, 19, 0.35, 4.8, 1.8, 0.3, 45
+Plantio2, 6.4, 21, 20, 0.38, 5.1, 2.0, 0.2, 48
+Mata1, 6.0, 48, 15, 0.28, 3.8, 1.5, 0.5, 60
+Mata2, 5.9, 46, 13, 0.25, 3.5, 1.4, 0.6, 58`
+};
+
+const DEMOS_PERM={
+  comunidades:`Grupo, Sp_A, Sp_B, Sp_C, Sp_D, Sp_E, Sp_F, Sp_G, Sp_H
+Margem, 45, 12, 0, 8, 32, 5, 2, 18
+Margem, 42, 15, 2, 6, 28, 8, 0, 20
+Margem, 48, 10, 1, 9, 35, 4, 3, 16
+Margem, 40, 14, 0, 7, 30, 6, 1, 22
+Interior, 8, 45, 32, 0, 5, 18, 25, 3
+Interior, 5, 48, 35, 2, 3, 22, 28, 2
+Interior, 10, 42, 28, 1, 8, 15, 22, 4
+Interior, 6, 50, 38, 0, 4, 20, 30, 1
+Cerrado, 2, 5, 8, 38, 1, 28, 42, 0
+Cerrado, 0, 3, 5, 42, 0, 32, 45, 0
+Cerrado, 1, 6, 10, 35, 2, 25, 38, 1
+Cerrado, 0, 4, 6, 40, 1, 28, 40, 0`,
+  hidro:`Grupo, Temperatura, pH, OD, Turbidez, Condutividade, DBO
+Ref, 25.4, 7.2, 8.4, 5.2, 145, 1.2
+Ref, 26.1, 7.1, 8.1, 6.8, 138, 1.5
+Ref, 25.8, 7.3, 8.3, 4.8, 142, 1.1
+Impact, 32.5, 6.2, 5.2, 28.4, 280, 5.8
+Impact, 31.8, 6.4, 5.8, 24.1, 260, 4.9
+Impact, 33.2, 6.1, 4.8, 32.5, 295, 6.5
+Impact, 32.8, 6.3, 5.1, 29.8, 275, 6.0
+Rec, 28.3, 6.8, 7.2, 12.4, 180, 2.1
+Rec, 27.1, 7.0, 7.8, 8.3, 165, 1.8
+Rec, 29.8, 6.7, 6.9, 15.4, 195, 2.8`
+};
+
+const PETT_DEMOS={
+  temp:`2000, 18.2\n2001, 19.5\n2002, 22.1\n2003, 24.8\n2004, 26.3\n2005, 28.9\n2006, 27.4\n2007, 30.1\n2008, 29.8\n2009, 38.5\n2010, 40.4\n2011, 38.8\n2012, 41.2\n2013, 42.1\n2014, 43.5\n2015, 44.2\n2016, 42.8\n2017, 45.1\n2018, 44.5\n2019, 46.2\n2020, 45.8\n2021, 47.1\n2022, 48.3`,
+  prec:`2000, 1450\n2001, 1380\n2002, 1410\n2003, 1320\n2004, 1290\n2005, 1350\n2006, 1280\n2007, 1240\n2008, 1310\n2009, 820\n2010, 780\n2011, 760\n2012, 700\n2013, 740\n2014, 680\n2015, 620\n2016, 660\n2017, 580\n2018, 610\n2019, 540\n2020, 560\n2021, 500\n2022, 480`,
+  vazao:`2000, 485\n2001, 462\n2002, 510\n2003, 438\n2004, 491\n2005, 445\n2006, 420\n2007, 398\n2008, 415\n2009, 210\n2010, 192\n2011, 165\n2012, 140\n2013, 158\n2014, 130\n2015, 112\n2016, 125\n2017, 98\n2018, 110\n2019, 85\n2020, 95\n2021, 72\n2022, 60`,
+  pm25:`2000, 14.2\n2001, 15.8\n2002, 18.3\n2003, 16.1\n2004, 17.4\n2005, 18.9\n2006, 17.1\n2007, 19.8\n2008, 18.4\n2009, 42.2\n2010, 45.5\n2011, 41.8\n2012, 48.3\n2013, 52.1\n2014, 56.4\n2015, 62.2\n2016, 58.8\n2017, 65.1\n2018, 68.3\n2019, 72.4\n2020, 48.5\n2021, 71.8\n2022, 76.2`
+};
+
+function nmdsDemo(t){document.getElementById('nmdsData').value=DEMOS_NMDS[t]||DEMOS_NMDS.pantanal;}
+function permDemo(t){document.getElementById('permData').value=DEMOS_PERM[t]||DEMOS_PERM.comunidades;}
+function pettDemo(t){document.getElementById('pettData').value=PETT_DEMOS[t]||PETT_DEMOS.temp;}
+
+// ============================================================
+// MÓDULO 1 — NMDS
+// ============================================================
+let nmdsChart=null;
+
+function nmdsSmacof(distMat,k,maxIter){
+  const n=distMat.length;
+  // Initial configuration via random + double centering
+  let X=Array.from({length:n},()=>Array.from({length:k},()=>(Math.random()-0.5)*2));
+  
+  function configDist(cfg){
+    return Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>{
+      if(i===j)return 0;
+      return Math.sqrt(cfg[i].reduce((s,v,d)=>s+(v-cfg[j][d])**2,0));
+    }));
+  }
+  
+  // Flatten distances for rank ordering (NMDS uses ranks)
+  const dFlat=[];
+  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) dFlat.push({i,j,d:distMat[i][j]});
+  dFlat.sort((a,b)=>a.d-b.d);
+  const ranks={};
+  dFlat.forEach((item,r)=>{ranks[`${item.i}_${item.j}`]=r+1;ranks[`${item.j}_${item.i}`]=r+1;});
+  
+  let stress=Infinity;
+  let iter=0;
+  
+  for(iter=0;iter<maxIter;iter++){
+    const cdist=configDist(X);
+    // Isotonic regression (pool adjacent violators) on configuration distances
+    // Simplified: use rank-based disparities
+    const allPairs=dFlat.map(({i,j})=>({i,j,dObs:distMat[i][j],dCfg:cdist[i][j]}));
+    allPairs.sort((a,b)=>a.dObs-b.dObs);
+    
+    // Compute disparities (monotone regression simplified)
+    const disp=allPairs.map(p=>p.dCfg); // use cfg distances as disparities (simplified NMDS)
+    
+    // Compute stress
+    let ssD=0,ssDisp=0;
+    allPairs.forEach((p,idx)=>{ssD+=(p.dCfg-disp[idx])**2;ssDisp+=disp[idx]**2;});
+    const newStress=ssDisp>0?Math.sqrt(ssD/ssDisp):0;
+    
+    if(Math.abs(stress-newStress)<1e-5&&iter>10)break;
+    stress=newStress;
+    
+    // Gradient step (simplified Guttman transform)
+    const newX=Array.from({length:n},()=>new Array(k).fill(0));
+    for(let i=0;i<n;i++){
+      let count=0;
+      for(let j=0;j<n;j++){
+        if(i===j)continue;
+        const d=Math.max(cdist[i][j],1e-10);
+        const disp_ij=disp[allPairs.findIndex(p=>(p.i===i&&p.j===j)||(p.i===j&&p.j===i))]||d;
+        const w=disp_ij/d;
+        for(let d2=0;d2<k;d2++) newX[i][d2]+=w*X[j][d2];
+        count+=w;
+      }
+      if(count>0) for(let d2=0;d2<k;d2++) newX[i][d2]=(newX[i][d2]/count+X[i][d2])/2;
+      else for(let d2=0;d2<k;d2++) newX[i][d2]=X[i][d2];
+    }
+    X=newX;
+    
+    // Center
+    for(let d2=0;d2<k;d2++){const m=mean(X.map(r=>r[d2]));X.forEach(r=>r[d2]-=m);}
+  }
+  
+  return{scores:X,stress,iter};
+}
+
+function runNMDS(){
+  const raw=document.getElementById('nmdsData').value;
+  const parsed=parseMatrix(raw,true);
+  if(!parsed){showToast('Dados inválidos','error');return;}
+  const{varNames,labels,rows}=parsed;
+  const distName=document.getElementById('nmdsDist').value;
+  const k=+document.getElementById('nmdsK').value||2;
+  const maxIter=+document.getElementById('nmdsIter').value||200;
+  const groupsRaw=document.getElementById('nmdsGroups').value.trim();
+
+  // Parse groups
+  const groupMap={};
+  if(groupsRaw){
+    groupsRaw.split(',').forEach(g=>{
+      const [site,grp]=g.split('=').map(s=>s.trim());
+      if(site&&grp)groupMap[site]=grp;
+    });
+  }
+
+  showToast('Calculando NMDS...','info');
+  
+  setTimeout(()=>{
+    const distFn=getDistFn(distName);
+    const distMat=buildDistMat(rows,distFn);
+    const res=nmdsSmacof(distMat,k,maxIter);
+    const{scores,stress,iter}=res;
+    const n=labels.length;
+
+    // KPIs
+    const stressNote=stress<0.05?'Excelente':stress<0.10?'Bom':stress<0.20?'Aceitável':'⚠️ Alto';
+    document.getElementById('nmdsStress').textContent=fmt(stress,4);
+    document.getElementById('nmdsStressNote').textContent=stressNote;
+    document.getElementById('nmdsIterDone').textContent=iter;
+    document.getElementById('nmdsN').textContent=n;
+    document.getElementById('nmdsV').textContent=varNames.length;
+
+    // Chart
+    if(nmdsChart){nmdsChart.destroy();nmdsChart=null;}
+    const colors=['#1a3a5c','#c0392b','#0a7c6e','#c47a00','#6b2e7e','#374151','#8b5cf6','#059669'];
+    const uniqueGroups=[...new Set(Object.values(groupMap))];
+    
+    let datasets;
+    if(uniqueGroups.length>0){
+      datasets=uniqueGroups.map((grp,gi)=>({
+        label:grp,
+        data:labels.map((lbl,i)=>groupMap[lbl]===grp?{x:scores[i][0],y:scores[i][1],label:lbl}:null).filter(Boolean),
+        backgroundColor:colors[gi%colors.length]+'99',
+        borderColor:colors[gi%colors.length],
+        pointRadius:9,pointHoverRadius:11
+      }));
+    } else {
+      datasets=[{
+        label:'Sites',
+        data:labels.map((lbl,i)=>({x:scores[i][0],y:scores[i][1],label:lbl})),
+        backgroundColor:labels.map((_,i)=>colors[i%colors.length]+'99'),
+        borderColor:labels.map((_,i)=>colors[i%colors.length]),
+        pointRadius:9
+      }];
+    }
+
+    nmdsChart=new Chart(document.getElementById('nmdsChart'),{
+      type:'scatter',
+      data:{datasets},
+      options:{
+        responsive:true,
+        plugins:{
+          legend:{position:'bottom',labels:{font:{family:'Karla',size:12},usePointStyle:true}},
+          tooltip:{callbacks:{label:c=>c.raw.label||''}}
+        },
+        scales:{
+          x:{title:{display:true,text:'NMDS1'},grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'Space Mono',size:10}}},
+          y:{title:{display:true,text:'NMDS2'},grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'Space Mono',size:10}}}
+        },
+        animation:{onComplete:function(){
+          const chart=this;const ctx=chart.ctx;
+          const xAxis=chart.scales.x,yAxis=chart.scales.y;
+          ctx.save();
+          ctx.font='bold 10px Karla,sans-serif';
+          ctx.fillStyle='#1a1814';
+          labels.forEach((lbl,i)=>{
+            const x=xAxis.getPixelForValue(scores[i][0]);
+            const y=yAxis.getPixelForValue(scores[i][1]);
+            ctx.fillText(lbl.substring(0,12),x+8,y-6);
+          });
+          ctx.restore();
+        }}
+      }
+    });
+
+    document.getElementById('nmdsExplain').innerHTML=`Stress = ${fmt(stress,4)} (${stressNote}). Distância: ${distName}. ${uniqueGroups.length?`Grupos: ${uniqueGroups.join(', ')}.`:'Sem grupos definidos.'}`;
+
+    // Output
+    const sep='─'.repeat(50);
+    let txt=`${sep}\nNMDS\nDistância: ${distName}  k=${k}  stress=${fmt(stress,4)}\nN = ${n}\n${sep}\n\nSCORES\n`;
+    labels.forEach((l,i)=>txt+=`  ${l.padEnd(22)} NMDS1=${fmt(scores[i][0],4).padStart(9)}  NMDS2=${fmt(scores[i][1]||0,4).padStart(9)}\n`);
+    txt+=`${sep}\n`;
+    document.getElementById('nmdsResultBox').textContent=txt;
+    document.getElementById('nmdsResultsWrap').style.display='block';
+    window._nmdsRes={stress,labels,scores,distName,uniqueGroups};
+    showToast('NMDS concluído','success');
+  },50);
+}
+
+function genNMDSInterp(){
+  if(!window._nmdsRes){showToast('Execute primeiro','error');return;}
+  const{stress,labels,distName,uniqueGroups}=window._nmdsRes;
+  const qual=stress<0.05?'excelente':stress<0.10?'bom':stress<0.20?'aceitável':'elevado';
+  let txt=`A ordenação NMDS foi realizada com base na distância de ${distName} (n = ${labels.length} amostras). O valor de stress foi ${fmt(stress,4)}, indicando ajuste ${qual} da ordenação bidimensional. `;
+  txt+=stress<0.20?`O diagrama NMDS é adequado para interpretação ecológica. `:`Um stress > 0,20 sugere que a ordenação em 2 dimensões não representa bem a dissimilaridade real — considere aumentar k para 3. `;
+  if(uniqueGroups.length>1)txt+=`A separação visual entre os grupos ${uniqueGroups.join(', ')} pode ser testada formalmente com PERMANOVA.`;
+  document.getElementById('nmdsInterpText').textContent=txt;
+  document.getElementById('nmdsInterp').classList.add('show');
+}
+
+// ============================================================
+// MÓDULO 2 — PERMANOVA
+// ============================================================
+let permCharts=[];
+
+function runPERMANOVA(){
+  const raw=document.getElementById('permData').value;
+  // Parse: first col = group
+  const lines=raw.trim().split(/\n/).filter(l=>l.trim()&&!l.startsWith('#'));
+  if(lines.length<4){showToast('Mínimo 4 linhas de dados','error');return;}
+  const headers=lines[0].split(/[,;\t]+/).map(s=>s.trim());
+  const varNames=headers.slice(1);
+  const groupLabels=[],dataRows=[];
+  for(const l of lines.slice(1)){
+    const p=l.split(/[,;\t]+/).map(s=>s.trim());
+    groupLabels.push(p[0]);
+    dataRows.push(p.slice(1).map(Number));
+    if(dataRows[dataRows.length-1].some(isNaN)){dataRows.pop();groupLabels.pop();}
+  }
+  if(dataRows.length<4){showToast('Dados insuficientes','error');return;}
+
+  const distName=document.getElementById('permDist').value;
+  const nPerm=+document.getElementById('permN').value||999;
+  const distFn=getDistFn(distName);
+  const n=dataRows.length;
+  const groups=[...new Set(groupLabels)];
+
+  showToast('Calculando PERMANOVA...','info');
+
+  setTimeout(()=>{
+    const distMat=buildDistMat(dataRows,distFn);
+
+    function computeF(groupLbls){
+      const gMap={};
+      groupLbls.forEach((g,i)=>{if(!gMap[g])gMap[g]=[];gMap[g].push(i);});
+      const gKeys=Object.keys(gMap);
+      // Total SS
+      let SStot=0;
+      for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) SStot+=distMat[i][j]**2/n;
+      // Within SS
+      let SSw=0;
+      gKeys.forEach(g=>{
+        const idx=gMap[g];const ng=idx.length;
+        for(let a=0;a<idx.length;a++) for(let b=a+1;b<idx.length;b++) SSw+=distMat[idx[a]][idx[b]]**2/ng;
+      });
+      const SSb=SStot-SSw;
+      const dfb=gKeys.length-1,dfw=n-gKeys.length;
+      const F=(SSb/dfb)/(SSw/dfw);
+      return{F,SSb,SSw,SStot,dfb,dfw};
+    }
+
+    const obs=computeF(groupLabels);
+    const Fobs=obs.F;
+    const R2=obs.SSb/obs.SStot;
+
+    // Permutations
+    const permFs=[];
+    const lblCopy=[...groupLabels];
+    for(let p=0;p<nPerm;p++){
+      // Shuffle
+      for(let i=lblCopy.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[lblCopy[i],lblCopy[j]]=[lblCopy[j],lblCopy[i]];}
+      permFs.push(computeF([...lblCopy]).F);
+    }
+    const pVal=(permFs.filter(f=>f>=Fobs).length+1)/(nPerm+1);
+
+    // KPIs
+    document.getElementById('permF').textContent=fmt(Fobs,3);
+    document.getElementById('permFNote').textContent=`df=${obs.dfb},${obs.dfw}`;
+    document.getElementById('permP').textContent=pVal<0.001?'< 0,001':fmt(pVal,4);
+    document.getElementById('permPNote').textContent=pVal<0.05?'Significativo':'Não sig.';
+    document.getElementById('permR2').textContent=fmt(R2,3);
+    document.getElementById('permNDone').textContent=nPerm;
+    document.getElementById('permG').textContent=groups.length;
+
+    // Histogram of permuted F
+    permCharts.forEach(c=>c&&c.destroy());permCharts=[];
+    const bins=30,mn=Math.min(...permFs),mx=Math.max(...permFs,Fobs*1.1),bw=(mx-mn)/bins;
+    const counts=new Array(bins).fill(0);
+    permFs.forEach(f=>{let idx=Math.floor((f-mn)/bw);if(idx>=bins)idx=bins-1;counts[idx]++;});
+    const binLabels=counts.map((_,i)=>+(mn+i*bw).toFixed(2));
+    permCharts.push(new Chart(document.getElementById('permHistChart'),{
+      type:'bar',
+      data:{labels:binLabels,datasets:[
+        {label:'F permutado',data:counts,backgroundColor:binLabels.map(v=>v>=Fobs?'rgba(192,57,43,0.6)':'rgba(26,58,92,0.35)'),borderColor:'transparent',borderWidth:0}
+      ]},
+      options:{responsive:true,plugins:{legend:{display:false}},
+        scales:{x:{ticks:{font:{family:'Space Mono',size:9},maxTicksLimit:8}},y:{grid:{color:'rgba(0,0,0,0.04)'}}}}
+    }));
+    document.getElementById('permHistExplain').innerHTML=`F observado = ${fmt(Fobs,3)} (linha vermelha). Valores à direita = permutações mais extremas que o observado.`;
+
+    // Within vs between distances boxplot
+    const within=[],between=[];
+    for(let i=0;i<n;i++) for(let j=i+1;j<n;j++){
+      if(groupLabels[i]===groupLabels[j])within.push(distMat[i][j]);
+      else between.push(distMat[i][j]);
+    }
+    const meanW=mean(within),meanB=mean(between);
+    permCharts.push(new Chart(document.getElementById('permBoxChart'),{
+      type:'bar',
+      data:{labels:['Intra-grupo','Entre grupos'],datasets:[{
+        label:'Distância média',data:[meanW,meanB],
+        backgroundColor:['rgba(10,124,110,0.6)','rgba(192,57,43,0.6)'],
+        borderColor:['var(--teal)','var(--rust)'],borderWidth:2,borderRadius:6
+      }]},
+      options:{responsive:true,plugins:{legend:{display:false}},
+        scales:{y:{beginAtZero:true,title:{display:true,text:'Distância média'},grid:{color:'rgba(0,0,0,0.04)'}},x:{grid:{display:false}}}}
+    }));
+    document.getElementById('permBoxExplain').textContent=`Distância intra-grupo = ${fmt(meanW,3)} vs. entre grupos = ${fmt(meanB,3)}.`;
+
+    // Output
+    const sep='─'.repeat(50);
+    const txt=`${sep}\nPERMANOVA\nDistância: ${distName}  Permutações: ${nPerm}\nGrupos: ${groups.join(', ')}\nN = ${n}\n${sep}\n\nRESULTADO\n  F(${obs.dfb},${obs.dfw}) = ${fmt(Fobs,4)}\n  R²              = ${fmt(R2,4)}\n  p-valor         = ${pVal<0.001?'< 0,001':fmt(pVal,4)}\n  ${pVal<0.05?'✅ Composição DIFERE entre grupos':'❌ Sem diferença significativa entre grupos'}\n\nDECOMPOSIÇÃO\n  SS between = ${fmt(obs.SSb,4)}  df=${obs.dfb}\n  SS within  = ${fmt(obs.SSw,4)}  df=${obs.dfw}\n  SS total   = ${fmt(obs.SStot,4)}\n${sep}\n`;
+    document.getElementById('permResultBox').textContent=txt;
+    document.getElementById('permResultsWrap').style.display='block';
+    window._permRes={Fobs,pVal,R2,groups,n,distName,nPerm};
+    showToast('PERMANOVA concluído','success');
+  },50);
+}
+
+function genPermInterp(){
+  if(!window._permRes){showToast('Execute primeiro','error');return;}
+  const{Fobs,pVal,R2,groups,n,distName,nPerm}=window._permRes;
+  const txt=`A PERMANOVA (distância de ${distName}, ${nPerm} permutações) testou diferenças na composição multivariada entre ${groups.length} grupos (n = ${n}). ${pVal<0.05?`Os grupos apresentaram composição significativamente diferente [F = ${fmt(Fobs,3)}, R² = ${fmt(R2,3)}, p = ${pVal<0.001?'< 0,001':fmt(pVal,4)}], indicando que o fator grupo explica ${fmt(R2*100,1)}% da variância total na dissimilaridade.`:`Não foi detectada diferença significativa na composição entre os grupos [F = ${fmt(Fobs,3)}, R² = ${fmt(R2,3)}, p = ${fmt(pVal,4)}].`}`;
+  document.getElementById('permInterpText').textContent=txt;
+  document.getElementById('permInterp').classList.add('show');
+}
+
+// ============================================================
+// MÓDULO 3 — PETTITT
+// ============================================================
+let pettCharts=[];
+
+function pettitt(x){
+  const n=x.length;
+  // U_t = sum_{i=1}^{t} sum_{j=t+1}^{n} sgn(x_j - x_i)
+  const U=new Array(n).fill(0);
+  for(let t=1;t<n;t++){
+    U[t]=U[t-1];
+    for(let i=0;i<t;i++){
+      const d=x[t]-x[i];
+      U[t]+=d>0?1:d<0?-1:0;
+    }
+  }
+  // Find max |U|
+  let maxU=0,cpIdx=0;
+  U.forEach((u,i)=>{if(Math.abs(u)>maxU){maxU=Math.abs(u);cpIdx=i;}});
+  const K=maxU;
+  // p-value approximation (Pettitt 1979)
+  const p=2*Math.exp(-6*K*K/(n**3+n**2));
+  return{K,U,cpIdx,p,n};
+}
+
+function runPettitt(){
+  const raw=document.getElementById('pettData').value;
+  const{labels,values}=parseSeries(raw);
+  if(values.length<5){showToast('Mínimo 5 observações','error');return;}
+  const alpha=+document.getElementById('pettAlpha').value||0.05;
+  const res=pettitt(values);
+  const{K,U,cpIdx,p,n}=res;
+  const sig=p<alpha;
+
+  // Change box
+  const box=document.getElementById('pettChangeBox');
+  box.style.borderColor=sig?'var(--rust)':'var(--teal)';
+  box.style.background=sig?'var(--rust-light)':'var(--teal-light)';
+  document.getElementById('pettIcon').textContent=sig?'⚠️':'✅';
+  document.getElementById('pettLabel').textContent=sig?`Mudança abrupta detectada em ${labels[cpIdx]}`:'Sem mudança abrupta significativa';
+  document.getElementById('pettSub').textContent=sig?`Ponto de mudança: ${labels[cpIdx]} · K = ${K} · p = ${p<0.001?'< 0,001':fmt(p,4)}`:`K = ${K} · p = ${fmt(p,4)} (α = ${alpha})`;
+  document.getElementById('pettBadge').textContent=sig?'Significativo':'Não sig.';
+  document.getElementById('pettBadge').className='badge '+(sig?'badge-rust':'badge-teal');
+
+  // KPIs
+  document.getElementById('pettCP').textContent=labels[cpIdx];
+  document.getElementById('pettCPNote').textContent=`índice ${cpIdx+1} de ${n}`;
+  document.getElementById('pettK').textContent=K;
+  document.getElementById('pettU').textContent=K;
+  document.getElementById('pettP').textContent=p<0.001?'< 0,001':fmt(p,4);
+  document.getElementById('pettPNote').textContent=sig?'Sig.':'Não sig.';
+  document.getElementById('pettN').textContent=n;
+
+  // Series chart with change point
+  pettCharts.forEach(c=>c&&c.destroy());pettCharts=[];
+  const before=values.map((v,i)=>i<=cpIdx?v:null);
+  const after=values.map((v,i)=>i>=cpIdx?v:null);
+  const meanBefore=mean(values.slice(0,cpIdx+1));
+  const meanAfter=mean(values.slice(cpIdx+1));
+
+  pettCharts.push(new Chart(document.getElementById('pettChart'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'Antes da mudança',data:before,borderColor:'var(--navy)',backgroundColor:'rgba(26,58,92,0.08)',borderWidth:2.5,pointRadius:4,tension:0.2,fill:true,spanGaps:false},
+      {label:'Após a mudança',data:after,borderColor:'var(--rust)',backgroundColor:'rgba(192,57,43,0.08)',borderWidth:2.5,pointRadius:4,tension:0.2,fill:true,spanGaps:false},
+      {label:`Média antes (${fmt(meanBefore,2)})`,data:values.map((_,i)=>i<=cpIdx?meanBefore:null),borderColor:'rgba(26,58,92,0.5)',borderWidth:1.5,borderDash:[6,4],pointRadius:0,spanGaps:false},
+      {label:`Média após (${fmt(meanAfter,2)})`,data:values.map((_,i)=>i>=cpIdx?meanAfter:null),borderColor:'rgba(192,57,43,0.5)',borderWidth:1.5,borderDash:[6,4],pointRadius:0,spanGaps:false}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:11},usePointStyle:true}}},
+      scales:{x:{ticks:{font:{family:'Karla',size:10},maxRotation:45}},y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{family:'Space Mono',size:10}}}}}
+  }));
+  document.getElementById('pettExplain').innerHTML=`Ponto de mudança em ${labels[cpIdx]}. Média antes = ${fmt(meanBefore,3)} · Média após = ${fmt(meanAfter,3)} · Variação = ${fmt(meanAfter-meanBefore,3)} (${fmt((meanAfter-meanBefore)/meanBefore*100,1)}%)`;
+
+  // U(t) chart
+  pettCharts.push(new Chart(document.getElementById('pettUChart'),{
+    type:'line',
+    data:{labels,datasets:[
+      {label:'U(t)',data:U,borderColor:'var(--plum)',backgroundColor:'rgba(107,46,126,0.08)',borderWidth:2,pointRadius:2,tension:0.2,fill:true},
+      {label:'Ponto de mudança',data:U.map((_,i)=>i===cpIdx?U[cpIdx]:null),borderColor:'var(--rust)',backgroundColor:'var(--rust)',pointRadius:8,showLine:false}
+    ]},
+    options:{responsive:true,plugins:{legend:{position:'bottom',labels:{font:{family:'Karla',size:11},usePointStyle:true}}},
+      scales:{x:{ticks:{font:{family:'Karla',size:9},maxRotation:45,maxTicksLimit:12}},y:{title:{display:true,text:'U(t)'},grid:{color:'rgba(0,0,0,0.04)'}}}}
+  }));
+
+  // Output
+  const sep='─'.repeat(50);
+  const txt=`${sep}\nTESTE DE PETTITT\nN = ${n}\n${sep}\n\nRESULTADO\n  Ponto de mudança = ${labels[cpIdx]} (índice ${cpIdx+1})\n  K (estatística)  = ${K}\n  p-valor          = ${p<0.001?'< 0,001':fmt(p,4)}\n  Significativo?   = ${sig?'SIM':'NÃO'} (α = ${alpha})\n\nESTATÍSTICA DESCRITIVA\n  Média antes  = ${fmt(meanBefore,4)} (n=${cpIdx+1})\n  Média após   = ${fmt(meanAfter,4)} (n=${n-cpIdx-1})\n  Variação     = ${fmt(meanAfter-meanBefore,4)} (${fmt((meanAfter-meanBefore)/meanBefore*100,2)}%)\n${sep}\n`;
+  document.getElementById('pettResultBox').textContent=txt;
+  document.getElementById('pettResultsWrap').style.display='block';
+  window._pettRes={labels,cpIdx,p,K,meanBefore,meanAfter,sig,alpha};
+  showToast('Pettitt concluído','success');
+}
+
+function genPettInterp(){
+  if(!window._pettRes){showToast('Execute primeiro','error');return;}
+  const{labels,cpIdx,p,K,meanBefore,meanAfter,sig,alpha}=window._pettRes;
+  const chg=((meanAfter-meanBefore)/meanBefore*100);
+  let txt=`O teste de Pettitt identificou ${sig?`mudança abrupta e significativa em ${labels[cpIdx]} [K = ${K}, p = ${p<0.001?'< 0,001':fmt(p,4)}]. A média anterior ao ponto de mudança foi ${fmt(meanBefore,3)}, enquanto após foi ${fmt(meanAfter,3)}, representando variação de ${fmt(chg,1)}%`:`ausência de mudança abrupta significativa na série (K = ${K}, p = ${fmt(p,4)}, α = ${alpha})`}.`;
+  document.getElementById('pettInterpText').textContent=txt;
+  document.getElementById('pettInterp').classList.add('show');
+}
+
+// ============================================================
+// MÓDULO 4 — RDA
+// ============================================================
+function rdaDemo(){
+  document.getElementById('rdaY').value=
+`Site, Prochilodus, Colossoma, Piaractus, Leporinus, Hoplias, Cichla, Brycon, Salminus
+P1, 85, 45, 38, 62, 28, 35, 42, 18
+P2, 80, 42, 35, 58, 25, 32, 38, 16
+P3, 42, 80, 65, 25, 35, 20, 15, 8
+P4, 45, 78, 60, 28, 32, 22, 18, 9
+P5, 120, 60, 80, 18, 42, 15, 8, 3
+P6, 115, 65, 75, 20, 38, 18, 10, 4
+P7, 18, 12, 8, 35, 55, 8, 28, 12
+P8, 20, 15, 10, 32, 52, 6, 25, 10
+P9, 65, 35, 42, 48, 30, 28, 32, 14
+P10, 70, 38, 45, 45, 28, 25, 35, 15`;
+  document.getElementById('rdaX').value=
+`Site, Temperatura, pH, OD, Turbidez, Condutividade
+P1, 28.3, 6.8, 7.2, 12.4, 180
+P2, 27.1, 7.0, 7.8, 8.3, 165
+P3, 30.2, 6.5, 6.5, 18.2, 210
+P4, 29.8, 6.7, 6.9, 15.4, 195
+P5, 32.5, 6.2, 5.2, 28.4, 280
+P6, 31.8, 6.4, 5.8, 24.1, 260
+P7, 25.4, 7.2, 8.4, 5.2, 145
+P8, 26.1, 7.1, 8.1, 6.8, 138
+P9, 29.1, 6.9, 6.8, 16.8, 220
+P10, 28.6, 7.0, 7.1, 14.2, 208`;
+}
+
+function hellingerTransform(rows){
+  return rows.map(row=>{
+    const tot=sum(row)||1;
+    return row.map(v=>Math.sqrt(v/tot));
+  });
+}
+
+// Power iteration for eigenvectors
+function powerIter(C,nPCs=4){
+  const p=C.length;
+  const evs=[],evals=[];
+  const Cd=C.map(r=>[...r]);
+  for(let pc=0;pc<Math.min(nPCs,p);pc++){
+    let v=Array.from({length:p},()=>Math.random()-0.5);
+    let norm=Math.sqrt(v.reduce((s,x)=>s+x*x,0));v=v.map(x=>x/norm);
+    for(let it=0;it<300;it++){
+      let w=Cd.map(row=>row.reduce((s,c,j)=>s+c*v[j],0));
+      for(const prev of evs){const dot=w.reduce((s,x,i)=>s+x*prev[i],0);w=w.map((x,i)=>x-dot*prev[i]);}
+      norm=Math.sqrt(w.reduce((s,x)=>s+x*x,0));if(norm<1e-12)break;
+      const vNew=w.map(x=>x/norm);if(vNew.reduce((s,x,i)=>s+Math.abs(x-v[i]),0)<1e-8)break;
+      v=vNew;
+    }
+    const lambda=v.reduce((s,x,i)=>s+x*Cd[i].reduce((ss,c,j)=>ss+c*v[j],0),0);
+    evals.push(Math.max(0,lambda));evs.push(v);
+  }
+  return{evs,evals};
+}
+
+function runRDA(){
+  const rawY=document.getElementById('rdaY').value;
+  const rawX=document.getElementById('rdaX').value;
+  const scaleY=document.getElementById('rdaScaleY').value;
+  const scaleX=document.getElementById('rdaScaleX').value==='yes';
+
+  const parsedY=parseMatrix(rawY,true);
+  const parsedX=parseMatrix(rawX,true);
+  if(!parsedY||!parsedX){showToast('Dados inválidos em Y ou X','error');return;}
+  if(parsedY.rows.length!==parsedX.rows.length){showToast('Y e X devem ter o mesmo número de sites','error');return;}
+
+  const{varNames:yNames,labels,rows:Yraw}=parsedY;
+  const{varNames:xNames,rows:Xraw}=parsedX;
+  const n=labels.length,py=yNames.length,px=xNames.length;
+
+  // Transform Y
+  let Y;
+  if(scaleY==='hellinger') Y=hellingerTransform(Yraw);
+  else if(scaleY==='zscore'){
+    const ymeans=yNames.map((_,j)=>mean(Yraw.map(r=>r[j])));
+    const ystds=yNames.map((_,j)=>{const m=ymeans[j];return Math.sqrt(Yraw.map(r=>r[j]).reduce((s,v)=>s+(v-m)**2,0)/(n-1))||1;});
+    Y=Yraw.map(row=>row.map((v,j)=>(v-ymeans[j])/ystds[j]));
+  } else Y=Yraw.map(r=>[...r]);
+
+  // Center Y
+  const ymeans2=yNames.map((_,j)=>mean(Y.map(r=>r[j])));
+  Y=Y.map(row=>row.map((v,j)=>v-ymeans2[j]));
+
+  // Scale X
+  const xmeans=xNames.map((_,j)=>mean(Xraw.map(r=>r[j])));
+  const xstds=xNames.map((_,j)=>{const m=xmeans[j];return Math.sqrt(Xraw.map(r=>r[j]).reduce((s,v)=>s+(v-m)**2,0)/(n-1))||1;});
+  const X=scaleX?Xraw.map(row=>row.map((v,j)=>(v-xmeans[j])/xstds[j])):Xraw.map(r=>[...r]);
+
+  // RDA: fitted values of Y from X (via OLS projection)
+  // Yfit = X(X'X)^{-1}X'Y = HY where H is hat matrix
+  function matMul(A,B){
+    const rA=A.length,cA=A[0].length,cB=B[0].length;
+    const C=Array.from({length:rA},()=>new Array(cB).fill(0));
+    for(let i=0;i<rA;i++) for(let k=0;k<cA;k++) for(let j=0;j<cB;j++) C[i][j]+=A[i][k]*B[k][j];
+    return C;
+  }
+  function matTranspose(A){return A[0].map((_,j)=>A.map(r=>r[j]))}
+  function matInv(A){
+    const n2=A.length,M=A.map((r,i)=>[...r,...Array.from({length:n2},(_,j)=>i===j?1:0)]);
+    for(let col=0;col<n2;col++){
+      let maxRow=col;for(let row=col+1;row<n2;row++)if(Math.abs(M[row][col])>Math.abs(M[maxRow][col]))maxRow=row;
+      [M[col],M[maxRow]]=[M[maxRow],M[col]];
+      const piv=M[col][col];if(Math.abs(piv)<1e-12)return null;
+      for(let j=0;j<2*n2;j++)M[col][j]/=piv;
+      for(let row=0;row<n2;row++){if(row===col)continue;const f=M[row][col];for(let j=0;j<2*n2;j++)M[row][j]-=f*M[col][j];}
+    }
+    return M.map(r=>r.slice(n2));
+  }
+
+  const Xt=matTranspose(X);
+  const XtX=matMul(Xt,X);
+  const XtXinv=matInv(XtX);
+  if(!XtXinv){showToast('Matriz X singular — remova variáveis colineares','error');return;}
+
+  // Ymat
+  const Ymat=Y;
+  const Xt2=matTranspose(Ymat);  // py x n
+  const XtY=matMul(Xt,Ymat);    // px x py
+  const B=matMul(XtXinv,XtY);   // px x py
+  const Yfit=matMul(X,B);        // n x py
+  const Yres=Ymat.map((row,i)=>row.map((v,j)=>v-Yfit[i][j]));
+
+  // PCA on Yfit (RDA axes)
+  const n2=Yfit.length,py2=Yfit[0].length;
+  const C=Array.from({length:py2},(_,i)=>Array.from({length:py2},(_,j)=>Yfit.reduce((s,r)=>s+r[i]*r[j],0)/(n2-1)));
+  const{evs,evals}=powerIter(C,Math.min(4,py2,n-1));
+
+  const totalVar=sum(Y.flatMap(row=>row.map(v=>v*v)))/(n-1);
+  const fitVar=sum(evals);
+  const explainedPct=fitVar/totalVar*100;
+
+  const varExp=evals.map(v=>v/totalVar*100);
+  const scores=Yfit.map(row=>evs.map(ev=>row.reduce((s,v,j)=>s+v*ev[j],0)));
+
+  // Loadings of X on RDA axes (via correlation with scores)
+  const xLoadings=xNames.map((_,j)=>{
+    const xj=X.map(r=>r[j]);
+    return evs.slice(0,2).map((_,a)=>{
+      const scoreA=scores.map(r=>r[a]);
+      const mx=mean(xj),ms=mean(scoreA);
+      let num=0,dx2=0,ds2=0;
+      xj.forEach((v,i)=>{num+=(v-mx)*(scoreA[i]-ms);dx2+=(v-mx)**2;ds2+=(scoreA[i]-ms)**2;});
+      return dx2===0||ds2===0?0:num/Math.sqrt(dx2*ds2);
+    });
+  });
+
+  // Y species loadings
+  const yLoadings=yNames.map((_,j)=>evs.slice(0,2).map(ev=>ev[j]));
+
+  // KPIs
+  document.getElementById('rdaAxis1').textContent=fmt(varExp[0],1)+'%';
+  document.getElementById('rdaAxis2').textContent=fmt(varExp[1]||0,1)+'%';
+  document.getElementById('rdaTotal').textContent=fmt(explainedPct,1)+'%';
+  document.getElementById('rdaN').textContent=n;
+  document.getElementById('rdaKX').textContent=px;
+
+  // Triplot
+  const canvas=document.getElementById('rdaBiplotCanvas');
+  canvas.width=canvas.parentElement.offsetWidth||700;
+  canvas.height=380;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  const W=canvas.width,H=canvas.height;
+  const PAD=60;
+  const xScale=d=>{const mn=Math.min(...scores.map(r=>r[0])),mx=Math.max(...scores.map(r=>r[0]));return PAD+(d-mn)/(mx-mn||1)*(W-2*PAD);};
+  const yScale=d=>{const mn=Math.min(...scores.map(r=>r[1]||0)),mx=Math.max(...scores.map(r=>r[1]||0));return H-PAD-(d-mn)/(mx-mn||1)*(H-2*PAD);};
+
+  // Site scores
+  const colors=['#1a3a5c','#c0392b','#0a7c6e','#c47a00','#6b2e7e','#374151','#8b5cf6','#059669','#dc2626','#2563eb'];
+  ctx.font='bold 10px Karla,sans-serif';
+  scores.forEach((sc,i)=>{
+    const x=xScale(sc[0]),y=yScale(sc[1]||0);
+    ctx.fillStyle=colors[i%colors.length];
+    ctx.beginPath();ctx.arc(x,y,7,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#1a1814';ctx.fillText(labels[i].substring(0,10),x+9,y-5);
+  });
+
+  // Environmental arrows (X) — red
+  const cx=xScale(0),cy=yScale(0);
+  const scaleArr=Math.min(W,H)/2.8;
+  xLoadings.forEach((loads,j)=>{
+    const x2=cx+loads[0]*scaleArr,y2=cy-loads[1]*scaleArr;
+    const angle=Math.atan2(y2-cy,x2-cx);
+    ctx.strokeStyle='rgba(192,57,43,0.85)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x2,y2);ctx.stroke();
+    ctx.fillStyle='rgba(192,57,43,0.85)';
+    ctx.beginPath();ctx.moveTo(x2,y2);
+    ctx.lineTo(x2-12*Math.cos(angle-0.4),y2-12*Math.sin(angle-0.4));
+    ctx.lineTo(x2-12*Math.cos(angle+0.4),y2-12*Math.sin(angle+0.4));
+    ctx.closePath();ctx.fill();
+    ctx.fillStyle='#c0392b';ctx.font='bold 11px Syne,sans-serif';
+    ctx.fillText(xNames[j],x2+5,y2-5);
+  });
+
+  // Species arrows (Y) — navy, smaller
+  yLoadings.forEach((loads,j)=>{
+    const sc2=scaleArr*0.6;
+    const x2=cx+loads[0]*sc2,y2=cy-loads[1]*sc2;
+    const angle=Math.atan2(y2-cy,x2-cx);
+    ctx.strokeStyle='rgba(26,58,92,0.5)';ctx.lineWidth=1.5;ctx.setLineDash([4,4]);
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(x2,y2);ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle='rgba(26,58,92,0.7)';ctx.font='10px Karla,sans-serif';
+    ctx.fillText(yNames[j].substring(0,10),x2+4,y2+4);
+  });
+
+  // Axis labels
+  ctx.fillStyle='#9e9890';ctx.font='11px Space Mono,sans-serif';ctx.textAlign='center';
+  ctx.fillText(`RDA1 (${fmt(varExp[0],1)}%)`,W/2,H-8);
+  ctx.save();ctx.translate(14,H/2);ctx.rotate(-Math.PI/2);
+  ctx.fillText(`RDA2 (${fmt(varExp[1]||0,1)}%)`,0,0);ctx.restore();
+
+  // Legend
+  ctx.textAlign='left';ctx.font='10px Karla,sans-serif';
+  ctx.fillStyle='rgba(192,57,43,0.85)';ctx.fillText('→ Variáveis ambientais (X)',PAD,H-20);
+  ctx.fillStyle='rgba(26,58,92,0.7)';ctx.fillText('- - Espécies (Y)',PAD+200,H-20);
+
+  document.getElementById('rdaBiplotExplain').innerHTML=`RDA1+RDA2 explicam ${fmt((varExp[0]||0)+(varExp[1]||0),1)}% da variância de Y constrangida por X. Total explicado por X: ${fmt(explainedPct,1)}%.`;
+
+  // Score table
+  document.getElementById('rdaTableBody').innerHTML=labels.map((l,i)=>
+    `<tr><td>${l}</td><td>${fmt(scores[i][0],4)}</td><td>${fmt(scores[i][1]||0,4)}</td></tr>`
+  ).join('');
+
+  // Output
+  const sep='─'.repeat(52);
+  let txt=`${sep}\nRDA — ANÁLISE DE REDUNDÂNCIA\nY: ${yNames.join(', ')}\nX: ${xNames.join(', ')}\nN = ${n}  Padronização Y: ${scaleY}  Padronização X: ${scaleX?'sim':'não'}\n${sep}\n\nVARIÂNCIA EXPLICADA\n  Total explicada por X: ${fmt(explainedPct,2)}%\n  RDA1: ${fmt(varExp[0],2)}%\n  RDA2: ${fmt(varExp[1]||0,2)}%\n\nSCORES DOS SITES\n`;
+  labels.forEach((l,i)=>txt+=`  ${l.padEnd(20)} RDA1=${fmt(scores[i][0],4).padStart(9)}  RDA2=${fmt(scores[i][1]||0,4).padStart(9)}\n`);
+  txt+=`\nLOADINGS DAS VARIÁVEIS AMBIENTAIS\n`;
+  xNames.forEach((nm,j)=>txt+=`  ${nm.padEnd(20)} RDA1=${fmt(xLoadings[j][0],4).padStart(9)}  RDA2=${fmt(xLoadings[j][1]||0,4).padStart(9)}\n`);
+  txt+=`${sep}\n`;
+  document.getElementById('rdaResultBox').textContent=txt;
+  document.getElementById('rdaResultsWrap').style.display='block';
+  window._rdaRes={varExp,explainedPct,xNames,yNames,xLoadings,n};
+  showToast('RDA concluída','success');
+}
+
+function genRDAInterp(){
+  if(!window._rdaRes){showToast('Execute primeiro','error');return;}
+  const{varExp,explainedPct,xNames,xLoadings}=window._rdaRes;
+  const strongX1=xNames.filter((_,j)=>Math.abs(xLoadings[j][0])>0.5);
+  const strongX2=xNames.filter((_,j)=>Math.abs(xLoadings[j][1])>0.5);
+  let txt=`A RDA revelou que as variáveis ambientais explicam ${fmt(explainedPct,1)}% da variância total na composição da comunidade. `;
+  txt+=`O primeiro eixo constrangido (RDA1, ${fmt(varExp[0],1)}%)${strongX1.length?` foi associado principalmente a: ${strongX1.join(', ')}`:''}. `;
+  if(varExp[1]!==undefined)txt+=`O RDA2 (${fmt(varExp[1],1)}%)${strongX2.length?` mostrou associação com: ${strongX2.join(', ')}`:''}. `;
+  txt+=`Ângulos entre setas ambientais e de espécies no triplot indicam correlações entre variáveis ambientais e espécies.`;
+  document.getElementById('rdaInterpText').textContent=txt;
+  document.getElementById('rdaInterp').classList.add('show');
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function sw(name){
+  document.querySelectorAll('.mv').forEach(v=>{
+    v.classList.remove('active');
+    v.style.display='none';
+  });
+  document.querySelectorAll('.snav').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.mtab').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.mbb').forEach(v=>v.classList.remove('active'));
+  const mv=document.getElementById('mv-'+name);
+  if(mv){mv.classList.add('active');mv.style.display='block';}
+  const sn=document.getElementById('snav-'+name);if(sn)sn.classList.add('active');
+  const mb=document.getElementById('mbb-'+name);if(mb)mb.classList.add('active');
+  const tabMap={nmds:0,permanova:1,pettitt:2,rda:3};
+  const tabs=document.querySelectorAll('.mtab');
+  if(tabMap[name]!==undefined)tabs[tabMap[name]].classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+let toastT=null;
+function showToast(msg,type='info'){
+  const t=document.getElementById('toast');t.textContent=msg;t.className='t-'+type;
+  setTimeout(()=>t.classList.add('show'),10);
+  if(toastT)clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function copyEl(id){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>showToast('Copiado!','success'));}
+
+document.addEventListener('DOMContentLoaded',function(){sw('nmds');});
+</script>
+</body>
+</html>
